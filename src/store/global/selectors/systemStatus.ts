@@ -24,6 +24,8 @@ const language = (s: GlobalState) => s.status.language || 'auto';
 const showChatHeader = (s: GlobalState) => !s.status.zenMode;
 const inZenMode = (s: GlobalState) => s.status.zenMode;
 const sessionWidth = (s: GlobalState) => s.status.sessionsWidth;
+const isSideNavCollapsed = (s: GlobalState) =>
+  s.status.sideNavCollapsed ?? INITIAL_STATUS.sideNavCollapsed ?? false;
 const portalWidth = (s: GlobalState) => s.status.portalWidth || 400;
 const filePanelWidth = (s: GlobalState) => s.status.filePanelWidth;
 const imagePanelWidth = (s: GlobalState) => s.status.imagePanelWidth;
@@ -77,6 +79,7 @@ export const systemStatusSelectors = {
   isPgliteNotEnabled,
   isPgliteNotInited,
   isShowCredit,
+  isSideNavCollapsed,
   isStatusInit,
   language,
   mobileShowPortal,

@@ -90,6 +90,7 @@ export interface SystemStatus {
   showImageTopicPanel?: boolean;
   showSessionPanel?: boolean;
   showSystemRole?: boolean;
+  sideNavCollapsed?: boolean;
   systemRoleExpandedMap: Record<string, boolean>;
   /**
    * theme mode
@@ -142,6 +143,7 @@ export const INITIAL_STATUS = {
   showImageTopicPanel: true,
   showSessionPanel: true,
   showSystemRole: false,
+  sideNavCollapsed: false,
   systemRoleExpandedMap: {},
   themeMode: 'auto',
   zenMode: false,

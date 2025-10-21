@@ -285,6 +285,10 @@ export default {
     business: '商务合作',
     support: '邮件支持',
   },
+  nav: {
+    collapse: '收起导航',
+    expand: '展开导航',
+  },
   oauth: 'SSO 登录',
   officialSite: '官方网站',
   ok: '确定',
@@ -330,7 +334,7 @@ export default {
   },
   tab: {
     aiImage: 'AI 绘画',
-    chat: '会话',
+    chat: 'AI 对话',
     discover: '发现',
     files: '文件',
     me: '我',
