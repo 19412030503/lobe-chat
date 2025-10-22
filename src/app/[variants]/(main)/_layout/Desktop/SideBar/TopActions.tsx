@@ -1,4 +1,4 @@
-import { Compass, FolderClosed, MessageSquare, Palette } from 'lucide-react';
+import { Compass, FolderClosed, Home, MessageSquare, Palette } from 'lucide-react';
 import { MouseEvent, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flexbox } from 'react-layout-kit';
@@ -22,6 +22,7 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) =
   const { showMarket, enableKnowledgeBase, showAiImage } =
     useServerConfigStore(featureFlagsSelectors);
 
+  const isHomeActive = tab === SidebarTabKey.Home;
   const isChatActive = tab === SidebarTabKey.Chat && !isPinned;
   const isFilesActive = tab === SidebarTabKey.Files;
   const isDiscoverActive = tab === SidebarTabKey.Discover;
@@ -36,6 +37,13 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) =
 
   return (
     <Flexbox gap={8}>
+      <NavItem
+        active={isHomeActive}
+        collapsed={collapsed}
+        href={'/home'}
+        icon={Home}
+        label={t('tab.home')}
+      />
       <NavItem
         active={isChatActive}
         collapsed={collapsed}

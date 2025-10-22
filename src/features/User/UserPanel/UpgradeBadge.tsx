@@ -5,7 +5,7 @@ import { PropsWithChildren, memo } from 'react';
 import { Flexbox } from 'react-layout-kit';
 
 const UpgradeBadge = memo(({ children, showBadge }: PropsWithChildren<{ showBadge?: boolean }>) => {
-  if (!showBadge) return <Flexbox>{children}</Flexbox>;
+  if (!showBadge) return children;
 
   return (
     <Flexbox>

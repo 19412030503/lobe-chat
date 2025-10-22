@@ -31,6 +31,8 @@ export const config = {
     '/(api|trpc|webapi)(.*)',
     // include the /
     '/',
+    '/home',
+    '/home(.*)',
     '/discover',
     '/discover(.*)',
     '/labs',
@@ -127,9 +129,10 @@ const defaultMiddleware = (request: NextRequest) => {
 
   // refs: https://github.com/lobehub/lobe-chat/pull/5866
   // new handle segment rewrite: /${route}${originalPathname}
-  // / -> /zh-CN__0__dark
+  // / -> /zh-CN__0__dark/home
   // /discover -> /zh-CN__0__dark/discover
-  const nextPathname = `/${route}` + (url.pathname === '/' ? '' : url.pathname);
+  const originalPath = url.pathname === '/' ? '/home' : url.pathname;
+  const nextPathname = `/${route}${originalPath}`;
   const nextURL = appEnv.MIDDLEWARE_REWRITE_THROUGH_LOCAL
     ? urlJoin(url.origin, nextPathname)
     : nextPathname;

@@ -3,7 +3,7 @@
 import { Icon } from '@lobehub/ui';
 import { TabBar, type TabBarProps } from '@lobehub/ui/mobile';
 import { createStyles } from 'antd-style';
-import { Compass, MessageSquare, User } from 'lucide-react';
+import { Compass, Home, MessageSquare, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { rgba } from 'polished';
 import { memo, useMemo } from 'react';
@@ -41,6 +41,16 @@ const NavBar = memo(() => {
       [
         {
           icon: (active: boolean) => (
+            <Icon className={active ? styles.active : undefined} icon={Home} />
+          ),
+          key: SidebarTabKey.Home,
+          onClick: () => {
+            router.push('/home');
+          },
+          title: t('tab.home'),
+        },
+        {
+          icon: (active: boolean) => (
             <Icon className={active ? styles.active : undefined} icon={MessageSquare} />
           ),
           key: SidebarTabKey.Chat,
@@ -70,7 +80,7 @@ const NavBar = memo(() => {
           title: t('tab.me'),
         },
       ].filter(Boolean) as TabBarProps['items'],
-    [t],
+    [router, showMarket, styles.active, t],
   );
 
   return (

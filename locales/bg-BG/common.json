@@ -14,7 +14,7 @@
     "appInitializing": "Приложението се стартира...",
     "failed": "Съжаляваме, приложението не успя да се инициализира. Моля, прегледайте детайлите за отстраняване на проблема.",
     "finished": "Инициализацията на базата данни е завършена",
-    "goToChat": "Зареждане на страницата за разговори...",
+    "goToHome": "Зареждане на страницата за разговори...",
     "initAuth": "Инициализиране на услугата за удостоверяване...",
     "initUser": "Инициализиране на състоянието на потребителя...",
     "initializing": "Инициализиране на PGlite базата данни...",
@@ -191,6 +191,19 @@
     "title": "Подсказка за въвеждане на китайски"
   },
   "historyRange": "Диапазон на историята",
+  "home": {
+    "hero": {
+      "cta": "Quick Access",
+      "desc": "Jump into conversations, explore the marketplace, or fine-tune your workspace.",
+      "title": "Welcome to LobeChat"
+    },
+    "quick": {
+      "chat": "Start a new conversation with your assistants",
+      "discover": "Browse featured assistants, models, and plugins",
+      "files": "Organize knowledge bases and important files",
+      "settings": "Configure models, sync options, and system preferences"
+    }
+  },
   "import": "Импортиране",
   "importData": "Импорт на данни",
   "importModal": {
@@ -339,7 +352,8 @@
     "discover": "Открий",
     "files": "Файлове",
     "me": "аз",
-    "setting": "Настройки"
+    "setting": "Настройки",
+    "home": "Home"
   },
   "telemetry": {
     "allow": "Разреши",

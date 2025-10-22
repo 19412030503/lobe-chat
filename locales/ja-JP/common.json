@@ -14,7 +14,7 @@
     "appInitializing": "アプリケーションを起動しています...",
     "failed": "申し訳ありませんが、アプリの初期化に失敗しました。詳細を確認して問題を調査してください。",
     "finished": "データベースの初期化が完了しました",
-    "goToChat": "チャットページを読み込んでいます...",
+    "goToHome": "チャットページを読み込んでいます...",
     "initAuth": "認証サービスを初期化しています...",
     "initUser": "ユーザー状態を初期化しています...",
     "initializing": "PGliteデータベースを初期化しています...",
@@ -191,6 +191,19 @@
     "title": "中国語入力の注意"
   },
   "historyRange": "履歴範囲",
+  "home": {
+    "hero": {
+      "cta": "Quick Access",
+      "desc": "Jump into conversations, explore the marketplace, or fine-tune your workspace.",
+      "title": "Welcome to LobeChat"
+    },
+    "quick": {
+      "chat": "Start a new conversation with your assistants",
+      "discover": "Browse featured assistants, models, and plugins",
+      "files": "Organize knowledge bases and important files",
+      "settings": "Configure models, sync options, and system preferences"
+    }
+  },
   "import": "インポート",
   "importData": "データをインポートする",
   "importModal": {
@@ -339,7 +352,8 @@
     "discover": "発見",
     "files": "ファイル",
     "me": "私",
-    "setting": "設定"
+    "setting": "設定",
+    "home": "Home"
   },
   "telemetry": {
     "allow": "許可する",

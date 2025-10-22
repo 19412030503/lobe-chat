@@ -15,7 +15,7 @@ export default {
     appInitializing: '应用启动中...',
     failed: '很抱歉，应用初始化失败，请查看详情进行排查',
     finished: '数据库初始化完成',
-    goToChat: '对话页面加载中...',
+    goToHome: '首页加载中...',
     initAuth: '鉴权服务初始化...',
     initUser: '用户状态初始化...',
     initializing: 'PGlite 数据库初始化...',
@@ -194,6 +194,46 @@ export default {
     title: '中文输入提示',
   },
   historyRange: '历史范围',
+  home: {
+    banner: {
+      desc: '参加 LobeChat Agent Challenge，展示你的创意作品。提交方案、分享流程，还可获取社区展示机会。',
+      items: [
+        '报名参赛、确认时间节点，并完成提交清单准备。',
+        '设计具备差异化的助手体验——包含提示词、插件以及数据集。',
+        '在截止日期前提交成果，并准备一段演示用于展示环节。',
+      ],
+      tag: '赛事章程',
+      title: 'LobeChat 助手创作赛正式开启',
+    },
+    hero: {
+      cta: '快速入口',
+      desc: '从这里出发，开启对话、探索社区并管理你的工作空间。',
+      title: '欢迎使用 LobeChat',
+    },
+    notice: {
+      0: {
+        cta: '探索助手',
+        desc: '从精选助手、模型与插件中找到灵感，为你的工作流程加速。',
+        title: '精选助手集上线，立即查收',
+      },
+      1: {
+        cta: '前往设置',
+        desc: '在开始前，先把模型、同步和系统参数确认到位吧。',
+        title: '完善你的工作区配置',
+      },
+      2: {
+        desc: '平台社区活动与最新公告将发布在此，敬请期待。',
+        title: '社区赛事即将发布，敬请关注',
+      },
+      label: '最新动态',
+    },
+    quick: {
+      chat: '立即与助手开启新的对话',
+      discover: '发现精选的助手、模型与插件',
+      files: '整理知识库与重要文件',
+      settings: '配置模型、同步与系统选项',
+    },
+  },
   import: '导入',
   importData: '导入数据',
   importModal: {
@@ -337,6 +377,7 @@ export default {
     chat: 'AI 对话',
     discover: '发现',
     files: '文件',
+    home: '首页',
     me: '我',
     setting: '设置',
   },

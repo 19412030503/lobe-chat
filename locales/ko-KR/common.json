@@ -14,7 +14,7 @@
     "appInitializing": "애플리케이션 시작 중...",
     "failed": "죄송합니다. 애플리케이션 초기화에 실패했습니다. 자세한 내용을 확인하여 문제를 해결하세요.",
     "finished": "데이터베이스 초기화 완료",
-    "goToChat": "채팅 페이지 로딩 중...",
+    "goToHome": "채팅 페이지 로딩 중...",
     "initAuth": "인증 서비스 초기화 중...",
     "initUser": "사용자 상태 초기화 중...",
     "initializing": "PGlite 데이터베이스 초기화 중...",
@@ -191,6 +191,19 @@
     "title": "중국어 입력 알림"
   },
   "historyRange": "기록 범위",
+  "home": {
+    "hero": {
+      "cta": "Quick Access",
+      "desc": "Jump into conversations, explore the marketplace, or fine-tune your workspace.",
+      "title": "Welcome to LobeChat"
+    },
+    "quick": {
+      "chat": "Start a new conversation with your assistants",
+      "discover": "Browse featured assistants, models, and plugins",
+      "files": "Organize knowledge bases and important files",
+      "settings": "Configure models, sync options, and system preferences"
+    }
+  },
   "import": "가져오기",
   "importData": "데이터 가져오기",
   "importModal": {
@@ -339,7 +352,8 @@
     "discover": "탐색",
     "files": "파일",
     "me": "내 정보",
-    "setting": "설정"
+    "setting": "설정",
+    "home": "Home"
   },
   "telemetry": {
     "allow": "허용",

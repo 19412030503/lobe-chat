@@ -14,7 +14,7 @@
     "appInitializing": "Đang khởi động ứng dụng...",
     "failed": "Rất tiếc, ứng dụng không khởi tạo được, vui lòng xem chi tiết để kiểm tra.",
     "finished": "Khởi tạo cơ sở dữ liệu hoàn tất",
-    "goToChat": "Đang tải trang trò chuyện...",
+    "goToHome": "Đang tải trang trò chuyện...",
     "initAuth": "Đang khởi tạo dịch vụ xác thực...",
     "initUser": "Đang khởi tạo trạng thái người dùng...",
     "initializing": "Đang khởi tạo cơ sở dữ liệu PGlite...",
@@ -191,6 +191,19 @@
     "title": "Thông báo nhập tiếng Trung"
   },
   "historyRange": "Phạm vi lịch sử",
+  "home": {
+    "hero": {
+      "cta": "Quick Access",
+      "desc": "Jump into conversations, explore the marketplace, or fine-tune your workspace.",
+      "title": "Welcome to LobeChat"
+    },
+    "quick": {
+      "chat": "Start a new conversation with your assistants",
+      "discover": "Browse featured assistants, models, and plugins",
+      "files": "Organize knowledge bases and important files",
+      "settings": "Configure models, sync options, and system preferences"
+    }
+  },
   "import": "Nhập khẩu",
   "importData": "Nhập dữ liệu",
   "importModal": {
@@ -339,7 +352,8 @@
     "discover": "Khám phá",
     "files": "Tệp",
     "me": "Tôi",
-    "setting": "Cài đặt"
+    "setting": "Cài đặt",
+    "home": "Home"
   },
   "telemetry": {
     "allow": "Cho phép",

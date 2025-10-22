@@ -255,11 +255,6 @@ const nextConfig: NextConfig = {
     // },
     {
       destination: '/chat',
-      permanent: false,
-      source: '/',
-    },
-    {
-      destination: '/chat',
       permanent: true,
       source: '/welcome',
     },

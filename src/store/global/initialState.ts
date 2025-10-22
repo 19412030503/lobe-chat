@@ -10,6 +10,7 @@ export enum SidebarTabKey {
   Chat = 'chat',
   Discover = 'discover',
   Files = 'files',
+  Home = 'home',
   Image = 'image',
   Me = 'me',
   Setting = 'settings',
@@ -153,7 +154,7 @@ export const initialState: GlobalState = {
   initClientDBStage: DatabaseLoadingState.Idle,
   isMobile: false,
   isStatusInit: false,
-  sidebarKey: SidebarTabKey.Chat,
+  sidebarKey: SidebarTabKey.Home,
   status: INITIAL_STATUS,
   statusStorage: new AsyncLocalStorage('LOBE_SYSTEM_STATUS'),
 };

@@ -1,5 +1,4 @@
 'use client';
-'use client';
 
 import { useTheme } from 'antd-style';
 import dynamic from 'next/dynamic';
@@ -30,9 +29,6 @@ const Layout = memo<PropsWithChildren>(({ children }) => {
   const topOffset =
     (isDesktop ? TITLE_BAR_HEIGHT : 0) + (!isDesktop && showCloudPromotion ? BANNER_HEIGHT : 0);
 
-  const hideSideBar = false;
-  const hasSideBar = !hideSideBar;
-
   return (
     <HotkeysProvider initiallyActiveScopes={[HotkeyScopeEnum.Global]}>
       {isDesktop && <TitleBar />}
@@ -53,14 +49,12 @@ const Layout = memo<PropsWithChildren>(({ children }) => {
           flex={1}
           style={{
             background: theme.colorBgLayout,
-            borderInlineStart: hasSideBar ? undefined : `1px solid ${theme.colorBorderSecondary}`,
             borderTop: `1px solid ${theme.colorBorderSecondary}`,
-            borderTopLeftRadius: hasSideBar ? 0 : 12,
             borderTopRightRadius: 12,
             overflow: 'hidden',
           }}
         >
-          <TopBar hideSideBar={hideSideBar} />
+          <TopBar />
           <DesktopLayoutContainer>{children}</DesktopLayoutContainer>
         </Flexbox>
       </Flexbox>

@@ -1,7 +1,7 @@
 import { DatabaseLoadingState } from '@/types/clientDB';
 
 export enum AppLoadingStage {
-  GoToChat = 'goToChat',
+  GoToHome = 'goToHome',
   Idle = 'appIdle',
   InitAuth = 'initAuth',
   InitUser = 'initUser',
@@ -13,7 +13,7 @@ export const SERVER_LOADING_STAGES = [
   AppLoadingStage.Initializing,
   AppLoadingStage.InitAuth,
   AppLoadingStage.InitUser,
-  AppLoadingStage.GoToChat,
+  AppLoadingStage.GoToHome,
 ];
 
 export const CLIENT_LOADING_STAGES = [
@@ -26,5 +26,5 @@ export const CLIENT_LOADING_STAGES = [
   DatabaseLoadingState.Finished,
   DatabaseLoadingState.Ready,
   AppLoadingStage.InitUser,
-  AppLoadingStage.GoToChat,
+  AppLoadingStage.GoToHome,
 ] as string[];

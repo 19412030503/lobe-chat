@@ -14,7 +14,7 @@
     "appInitializing": "Avvio dell'app in corso...",
     "failed": "Ci dispiace, l'inizializzazione dell'applicazione è fallita. Si prega di controllare i dettagli per la risoluzione.",
     "finished": "Inizializzazione del database completata",
-    "goToChat": "Caricamento della pagina di chat in corso...",
+    "goToHome": "Caricamento della pagina di chat in corso...",
     "initAuth": "Inizializzazione del servizio di autenticazione...",
     "initUser": "Inizializzazione dello stato utente...",
     "initializing": "Inizializzazione del database PGlite...",
@@ -191,6 +191,19 @@
     "title": "Avviso per input in cinese"
   },
   "historyRange": "Intervallo cronologico",
+  "home": {
+    "hero": {
+      "cta": "Quick Access",
+      "desc": "Jump into conversations, explore the marketplace, or fine-tune your workspace.",
+      "title": "Welcome to LobeChat"
+    },
+    "quick": {
+      "chat": "Start a new conversation with your assistants",
+      "discover": "Browse featured assistants, models, and plugins",
+      "files": "Organize knowledge bases and important files",
+      "settings": "Configure models, sync options, and system preferences"
+    }
+  },
   "import": "Importa",
   "importData": "Importa dati",
   "importModal": {
@@ -339,7 +352,8 @@
     "discover": "Scopri",
     "files": "File",
     "me": "io",
-    "setting": "Impostazioni"
+    "setting": "Impostazioni",
+    "home": "Home"
   },
   "telemetry": {
     "allow": "Consenti",

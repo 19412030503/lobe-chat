@@ -21,9 +21,9 @@ const Redirect = memo<RedirectProps>(({ setLoadingStage }) => {
     s.isOnboard,
   ]);
 
-  const navToChat = () => {
-    setLoadingStage(AppLoadingStage.GoToChat);
-    router.replace('/chat');
+  const navToHome = () => {
+    setLoadingStage(AppLoadingStage.GoToHome);
+    router.replace('/home');
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const Redirect = memo<RedirectProps>(({ setLoadingStage }) => {
 
     // this mean user is definitely not login
     if (!isLogin) {
-      navToChat();
+      navToHome();
       return;
     }
 
@@ -51,8 +51,8 @@ const Redirect = memo<RedirectProps>(({ setLoadingStage }) => {
       return;
     }
 
-    // finally go to chat
-    navToChat();
+    // finally go to home
+    navToHome();
   }, [isUserStateInit, isLoaded, isOnboard, isLogin]);
 
   return null;
