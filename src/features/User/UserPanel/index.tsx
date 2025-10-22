@@ -1,8 +1,7 @@
 'use client';
 
 import { Popover } from 'antd';
-import { createStyles } from 'antd-style';
-import { PropsWithChildren, memo, useState } from 'react';
+import { PropsWithChildren, memo, useMemo, useState } from 'react';
 
 import { isDesktop } from '@/const/version';
 
@@ -10,19 +9,11 @@ import PanelContent from './PanelContent';
 import UpgradeBadge from './UpgradeBadge';
 import { useNewVersion } from './useNewVersion';
 
-const useStyles = createStyles(({ css }) => {
-  return {
-    popover: css`
-      inset-block-start: ${isDesktop ? 32 : 8}px !important;
-      inset-inline-start: 8px !important;
-    `,
-  };
-});
-
 const UserPanel = memo<PropsWithChildren>(({ children }) => {
   const hasNewVersion = useNewVersion();
   const [open, setOpen] = useState(false);
-  const { styles } = useStyles();
+
+  const placement = useMemo(() => (isDesktop ? 'bottomRight' : 'bottomLeft'), []);
 
   return (
     <UpgradeBadge showBadge={hasNewVersion}>
@@ -31,8 +22,7 @@ const UserPanel = memo<PropsWithChildren>(({ children }) => {
         content={<PanelContent closePopover={() => setOpen(false)} />}
         onOpenChange={setOpen}
         open={open}
-        placement={'topRight'}
-        rootClassName={styles.popover}
+        placement={placement}
         styles={{
           body: { padding: 0 },
         }}

@@ -1,4 +1,5 @@
 'use client';
+'use client';
 
 import { useTheme } from 'antd-style';
 import dynamic from 'next/dynamic';
@@ -17,6 +18,7 @@ import { HotkeyScopeEnum } from '@/types/hotkey';
 import DesktopLayoutContainer from './DesktopLayoutContainer';
 import RegisterHotkeys from './RegisterHotkeys';
 import SideBar from './SideBar';
+import TopBar from './TopBar';
 
 const CloudBanner = dynamic(() => import('@/features/AlertBanner/CloudBanner'));
 
@@ -25,18 +27,18 @@ const Layout = memo<PropsWithChildren>(({ children }) => {
   const theme = useTheme();
 
   const { showCloudPromotion } = useServerConfigStore(featureFlagsSelectors);
+  const topOffset =
+    (isDesktop ? TITLE_BAR_HEIGHT : 0) + (!isDesktop && showCloudPromotion ? BANNER_HEIGHT : 0);
+
+  const hideSideBar = false;
+  const hasSideBar = !hideSideBar;
+
   return (
     <HotkeysProvider initiallyActiveScopes={[HotkeyScopeEnum.Global]}>
       {isDesktop && <TitleBar />}
       {showCloudPromotion && <CloudBanner />}
       <Flexbox
-        height={
-          isDesktop
-            ? `calc(100% - ${TITLE_BAR_HEIGHT}px)`
-            : showCloudPromotion
-              ? `calc(100% - ${BANNER_HEIGHT}px)`
-              : '100%'
-        }
+        height={`calc(100% - ${topOffset}px)`}
         horizontal
         style={{
           borderTop: isPWA ? `1px solid ${theme.colorBorder}` : undefined,
@@ -44,16 +46,23 @@ const Layout = memo<PropsWithChildren>(({ children }) => {
         }}
         width={'100%'}
       >
-        {isDesktop ? (
+        <Suspense>
+          <SideBar />
+        </Suspense>
+        <Flexbox
+          flex={1}
+          style={{
+            background: theme.colorBgLayout,
+            borderInlineStart: hasSideBar ? undefined : `1px solid ${theme.colorBorderSecondary}`,
+            borderTop: `1px solid ${theme.colorBorderSecondary}`,
+            borderTopLeftRadius: hasSideBar ? 0 : 12,
+            borderTopRightRadius: 12,
+            overflow: 'hidden',
+          }}
+        >
+          <TopBar hideSideBar={hideSideBar} />
           <DesktopLayoutContainer>{children}</DesktopLayoutContainer>
-        ) : (
-          <>
-            <Suspense>
-              <SideBar />
-            </Suspense>
-            {children}
-          </>
-        )}
+        </Flexbox>
       </Flexbox>
       <HotkeyHelperPanel />
       <Suspense>

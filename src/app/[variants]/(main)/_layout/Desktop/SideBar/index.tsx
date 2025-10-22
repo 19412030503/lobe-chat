@@ -13,7 +13,6 @@ import { systemStatusSelectors } from '@/store/global/selectors';
 import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { electronStylish } from '@/styles/electron';
 
-import Avatar from './Avatar';
 import BottomActions from './BottomActions';
 import PinList from './PinList';
 import TopActions from './TopActions';
@@ -43,11 +42,6 @@ const Nav = memo(() => {
     !inZenMode &&
     !isSingleMode && (
       <SideNav
-        avatar={
-          <div className={electronStylish.nodrag}>
-            <Avatar />
-          </div>
-        }
         bottomActions={
           <div className={electronStylish.nodrag}>
             <BottomActions collapsed={collapsed} onToggleCollapse={handleToggleCollapse} />
