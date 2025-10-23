@@ -1,4 +1,4 @@
-import { Compass, FolderClosed, Home, MessageSquare, Palette } from 'lucide-react';
+import { BookOpen, Brain, Home, MessageSquare, Palette } from 'lucide-react';
 import { MouseEvent, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flexbox } from 'react-layout-kit';
@@ -19,13 +19,12 @@ export interface TopActionProps {
 const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) => {
   const { t } = useTranslation('common');
   const switchBackToChat = useGlobalStore((s) => s.switchBackToChat);
-  const { showMarket, enableKnowledgeBase, showAiImage } =
-    useServerConfigStore(featureFlagsSelectors);
+  const { showAiImage } = useServerConfigStore(featureFlagsSelectors);
 
   const isHomeActive = tab === SidebarTabKey.Home;
   const isChatActive = tab === SidebarTabKey.Chat && !isPinned;
-  const isFilesActive = tab === SidebarTabKey.Files;
-  const isDiscoverActive = tab === SidebarTabKey.Discover;
+  const isModelActive = tab === SidebarTabKey.Model;
+  const isCourseActive = tab === SidebarTabKey.Course;
   const isImageActive = tab === SidebarTabKey.Image;
 
   const handleChatClick = (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
@@ -52,15 +51,6 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) =
         label={t('tab.chat')}
         onClick={handleChatClick}
       />
-      {enableKnowledgeBase && (
-        <NavItem
-          active={isFilesActive}
-          collapsed={collapsed}
-          href={'/files'}
-          icon={FolderClosed}
-          label={t('tab.files')}
-        />
-      )}
       {showAiImage && (
         <NavItem
           active={isImageActive}
@@ -70,15 +60,20 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) =
           label={t('tab.aiImage')}
         />
       )}
-      {showMarket && (
-        <NavItem
-          active={isDiscoverActive}
-          collapsed={collapsed}
-          href={'/discover'}
-          icon={Compass}
-          label={t('tab.discover')}
-        />
-      )}
+      <NavItem
+        active={isModelActive}
+        collapsed={collapsed}
+        href={'/model'}
+        icon={Brain}
+        label={t('tab.aiModel')}
+      />
+      <NavItem
+        active={isCourseActive}
+        collapsed={collapsed}
+        href={'/course'}
+        icon={BookOpen}
+        label={t('tab.courseCenter')}
+      />
     </Flexbox>
   );
 });

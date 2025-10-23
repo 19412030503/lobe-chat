@@ -17,7 +17,6 @@ beforeAll(() => {
   initServerConfigStore({
     featureFlags: {
       ...mapFeatureFlagsEnvToState(DEFAULT_FEATURE_FLAGS),
-      showMarket: true,
       showAiImage: true,
     },
   });
@@ -31,7 +30,6 @@ afterEach(() => {
   createServerConfigStore().setState({
     featureFlags: {
       ...createServerConfigStore().getState().featureFlags,
-      showMarket: true,
       showAiImage: true,
     },
   });
@@ -69,44 +67,13 @@ const renderTopActions = (props: TopActionProps = {}) => {
 };
 
 describe('TopActions', () => {
-  it('should render Chat, AI Image and Market by default', () => {
+  it('should render Chat, AI Image, AI Model and Course Center by default', () => {
     renderTopActions();
 
     expect(screen.getByText('tab.chat')).toBeInTheDocument();
     expect(screen.getByText('tab.aiImage')).toBeInTheDocument();
-    expect(screen.getByText('tab.discover')).toBeInTheDocument();
-  });
-
-  it('should render only Chat icon when `-market` is set', () => {
-    act(() => {
-      createServerConfigStore().setState({
-        featureFlags: {
-          ...createServerConfigStore().getState().featureFlags,
-          showMarket: false,
-        },
-      });
-    });
-
-    renderTopActions();
-
-    expect(screen.getByText('tab.chat')).toBeInTheDocument();
-    expect(screen.queryByText('tab.discover')).not.toBeInTheDocument();
-  });
-
-  it('should render File icon when `-knowledge_base` is set', () => {
-    act(() => {
-      createServerConfigStore().setState({
-        featureFlags: {
-          ...createServerConfigStore().getState().featureFlags,
-          enableKnowledgeBase: false,
-        },
-      });
-    });
-
-    renderTopActions();
-
-    expect(screen.getByText('tab.chat')).toBeInTheDocument();
-    expect(screen.queryByText('tab.files')).not.toBeInTheDocument();
+    expect(screen.getByText('tab.aiModel')).toBeInTheDocument();
+    expect(screen.getByText('tab.courseCenter')).toBeInTheDocument();
   });
 
   it('should not render AI Image icon when ai_image is disabled', () => {
@@ -133,7 +100,7 @@ describe('TopActions', () => {
     const { result: store } = renderHook(() => useGlobalStore((s) => s));
     const switchBackToChat = vi.spyOn(store.current, 'switchBackToChat');
 
-    renderTopActions({ tab: SidebarTabKey.Discover });
+    renderTopActions({ tab: SidebarTabKey.Model });
     fireEvent.click(screen.getByText('Mocked Link /chat'));
 
     expect(switchBackToChat).toBeCalledWith('1');

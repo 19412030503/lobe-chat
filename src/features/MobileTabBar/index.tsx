@@ -1,14 +1,13 @@
 import { Icon } from '@lobehub/ui';
 import { TabBar, type TabBarProps } from '@lobehub/ui/mobile';
 import { createStyles } from 'antd-style';
-import { Bot, Home, MessageSquare, User } from 'lucide-react';
+import { Home, MessageSquare, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { rgba } from 'polished';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SidebarTabKey } from '@/store/global/initialState';
-import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
 const useStyles = createStyles(({ css, token }) => ({
   active: css`
@@ -30,8 +29,6 @@ export default memo<Props>(({ className, tabBarKey }) => {
   const openSettings = () => {
     router.push('/settings?active=llm');
   };
-  const { showMarket } = useServerConfigStore(featureFlagsSelectors);
-
   const items: TabBarProps['items'] = useMemo(
     () =>
       [
@@ -55,16 +52,6 @@ export default memo<Props>(({ className, tabBarKey }) => {
           },
           title: t('tab.chat'),
         },
-        showMarket && {
-          icon: (active: boolean) => (
-            <Icon className={active ? styles.active : undefined} icon={Bot} />
-          ),
-          key: SidebarTabKey.Discover,
-          onClick: () => {
-            router.push('/discover');
-          },
-          title: t('tab.discover'),
-        },
         {
           icon: (active: boolean) => (
             <Icon className={active ? styles.active : undefined} icon={User} />
@@ -73,8 +60,8 @@ export default memo<Props>(({ className, tabBarKey }) => {
           onClick: openSettings,
           title: t('tab.setting'),
         },
-      ].filter(Boolean) as TabBarProps['items'],
-    [openSettings, router, showMarket, styles.active, t],
+      ] as TabBarProps['items'],
+    [openSettings, router, styles.active, t],
   );
 
   return <TabBar activeKey={tabBarKey} className={className} items={items} safeArea />;

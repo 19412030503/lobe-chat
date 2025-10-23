@@ -212,9 +212,9 @@ export default {
     },
     notice: {
       0: {
-        cta: '探索助手',
-        desc: '从精选助手、模型与插件中找到灵感，为你的工作流程加速。',
-        title: '精选助手集上线，立即查收',
+        cta: '前往 AI 建模',
+        desc: '体验全新 AI 建模能力，打造专属模型与工作流。',
+        title: 'AI 建模功能上线预告',
       },
       1: {
         cta: '前往设置',
@@ -228,8 +228,8 @@ export default {
       label: '最新动态',
     },
     quick: {
+      aiModel: '构建全新的 AI 建模体验',
       chat: '立即与助手开启新的对话',
-      discover: '发现精选的助手、模型与插件',
       files: '整理知识库与重要文件',
       settings: '配置模型、同步与系统选项',
     },
@@ -374,9 +374,10 @@ export default {
   },
   tab: {
     aiImage: 'AI 绘画',
+    aiModel: 'AI 建模',
     chat: 'AI 对话',
-    discover: '发现',
-    files: '文件',
+    courseCenter: '课程中心',
+    files: '内容库',
     home: '首页',
     me: '我',
     setting: '设置',

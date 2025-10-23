@@ -1,7 +1,7 @@
 'use client';
 
 import { useTheme } from 'antd-style';
-import { Compass, FolderClosed, type LucideIcon, MessageSquare, Settings } from 'lucide-react';
+import { Brain, FolderClosed, type LucideIcon, MessageSquare, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +35,7 @@ const HomeClient = memo(() => {
   const announcements: Announcement[] = useMemo(
     () => [
       {
-        cta: { href: '/discover', label: t('home.notice.0.cta') },
+        cta: { href: '/model', label: t('home.notice.0.cta') },
         description: t('home.notice.0.desc'),
         title: t('home.notice.0.title'),
       },
@@ -70,10 +70,10 @@ const HomeClient = memo(() => {
         title: t('tab.chat'),
       },
       {
-        description: t('home.quick.discover'),
-        href: '/discover',
-        icon: Compass,
-        title: t('tab.discover'),
+        description: t('home.quick.aiModel'),
+        href: '/model',
+        icon: Brain,
+        title: t('tab.aiModel'),
       },
       {
         description: t('home.quick.files'),

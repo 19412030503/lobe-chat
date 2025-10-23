@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
 
-export default function DiscoverLayout() {
+export default function DiscoverPage() {
   notFound();
 }
