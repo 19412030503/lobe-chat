@@ -6,6 +6,7 @@ import { RouteVariants } from '@/utils/server/routeVariants';
 
 import Desktop from './_layout/Desktop';
 import Mobile from './_layout/Mobile';
+import AssistantPanel from './features/AssistantPanel';
 import SkeletonList from './features/SkeletonList';
 import Topic from './features/Topic';
 
@@ -16,13 +17,19 @@ const ConfigSwitcher = dynamic(() => import('./features/ConfigSwitcher'), {
 const Sidebar = async (props: DynamicLayoutProps) => {
   const isMobile = await RouteVariants.getIsMobile(props);
 
-  const Layout = isMobile ? Mobile : Desktop;
+  if (isMobile) {
+    return (
+      <Mobile>
+        <ConfigSwitcher />
+        <Topic />
+      </Mobile>
+    );
+  }
 
   return (
-    <Layout>
-      <ConfigSwitcher />
-      <Topic />
-    </Layout>
+    <Desktop>
+      <AssistantPanel />
+    </Desktop>
   );
 };
 

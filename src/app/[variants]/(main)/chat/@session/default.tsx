@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 
 import CircleLoading from '@/components/Loading/CircleLoading';
 import ServerLayout from '@/components/server/ServerLayout';
@@ -8,8 +8,7 @@ import Desktop from './_layout/Desktop';
 import Mobile from './_layout/Mobile';
 import SessionHydration from './features/SessionHydration';
 import SkeletonList from './features/SkeletonList';
-
-const SessionListContent = lazy(() => import('./features/SessionListContent'));
+import TopicSidebarContent from './features/TopicSidebarContent';
 
 const Layout = ServerLayout({ Desktop, Mobile });
 
@@ -18,7 +17,7 @@ const Session = (props: DynamicLayoutProps) => {
     <Suspense fallback={<CircleLoading />}>
       <Layout {...props}>
         <Suspense fallback={<SkeletonList />}>
-          <SessionListContent />
+          <TopicSidebarContent />
         </Suspense>
       </Layout>
       <SessionHydration />

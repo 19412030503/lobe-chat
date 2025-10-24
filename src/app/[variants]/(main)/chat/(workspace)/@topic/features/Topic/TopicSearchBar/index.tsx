@@ -8,7 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { useChatStore } from '@/store/chat';
 import { useServerConfigStore } from '@/store/serverConfig';
 
-const TopicSearchBar = memo<{ onClear?: () => void }>(({ onClear }) => {
+interface TopicSearchBarProps {
+  autoFocus?: boolean;
+  onClear?: () => void;
+}
+
+const TopicSearchBar = memo<TopicSearchBarProps>(({ autoFocus = true, onClear }) => {
   const { t } = useTranslation('topic');
 
   const [tempValue, setTempValue] = useState('');
@@ -31,7 +36,7 @@ const TopicSearchBar = memo<{ onClear?: () => void }>(({ onClear }) => {
 
   return (
     <SearchBar
-      autoFocus
+      autoFocus={autoFocus}
       onBlur={() => {
         if (tempValue === '') {
           onClear?.();
