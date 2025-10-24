@@ -138,14 +138,21 @@ export const convertOpenAIResponseUsage = (
 export const convertOpenAIImageUsage = (
   usage: OpenAI.Images.ImagesResponse.Usage,
   pricing?: Pricing,
-): ModelUsage => {
+): ModelUsage | undefined => {
+  const inputTokensDetails = usage.input_tokens_details;
+
+  if (!inputTokensDetails) {
+    log('convertOpenAIImageUsage skip: missing input_tokens_details %O', usage);
+    return undefined;
+  }
+
   const data: ModelTokensUsage = {
-    inputImageTokens: usage.input_tokens_details.image_tokens,
-    inputTextTokens: usage.input_tokens_details.text_tokens,
-    outputImageTokens: usage.output_tokens,
-    totalInputTokens: usage.input_tokens,
-    totalOutputTokens: usage.output_tokens,
-    totalTokens: usage.total_tokens,
+    inputImageTokens: inputTokensDetails.image_tokens ?? 0,
+    inputTextTokens: inputTokensDetails.text_tokens ?? 0,
+    outputImageTokens: usage.output_tokens ?? 0,
+    totalInputTokens: usage.input_tokens ?? 0,
+    totalOutputTokens: usage.output_tokens ?? 0,
+    totalTokens: usage.total_tokens ?? 0,
   };
 
   return withUsageCost(data as ModelUsage, pricing);

@@ -416,6 +416,7 @@ describe('convertOpenAIImageUsage', () => {
     const result = convertOpenAIImageUsage(gptImage1Usage, pricing);
 
     // Assert
+    expect(result).toBeDefined();
     expect(result).toEqual({
       inputTextTokens: 14,
       inputImageTokens: 0,
@@ -425,5 +426,17 @@ describe('convertOpenAIImageUsage', () => {
       totalTokens: 4174,
       cost: 0.16647, // Based on pricing: 14 * 5/1M + 0 * 10/1M + 4160 * 40/1M = 0.00007 + 0 + 0.1664 = 0.16647
     });
+  });
+
+  it('should return undefined when usage payload lacks input token details', () => {
+    const usageMissingDetails = {
+      input_tokens: 14,
+      output_tokens: 4160,
+      total_tokens: 4174,
+    } as OpenAI.Images.ImagesResponse.Usage;
+
+    const result = convertOpenAIImageUsage(usageMissingDetails, undefined);
+
+    expect(result).toBeUndefined();
   });
 });

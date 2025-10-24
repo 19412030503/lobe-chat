@@ -114,13 +114,17 @@ async function generateByImageMode(
     throw new Error('Invalid image response: missing both b64_json and url fields');
   }
 
+  const modelUsage = img.usage
+    ? convertOpenAIImageUsage(img.usage, await getModelPricing(model, provider))
+    : undefined;
+
+  if (img.usage && !modelUsage) {
+    log('Skipping model usage mapping due to incompatible usage payload: %O', img.usage);
+  }
+
   return {
     imageUrl,
-    ...(img.usage
-      ? {
-          modelUsage: convertOpenAIImageUsage(img.usage, await getModelPricing(model, provider)),
-        }
-      : {}),
+    ...(modelUsage ? { modelUsage } : {}),
   };
 }
 
