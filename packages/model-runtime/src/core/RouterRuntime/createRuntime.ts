@@ -7,6 +7,8 @@ import { Stream } from 'openai/streaming';
 
 import { LobeOpenAI } from '../../providers/openai';
 import {
+  Create3DModelPayload,
+  Create3DModelResponse,
   CreateImagePayload,
   CreateImageResponse,
   GenerateObjectOptions,
@@ -92,6 +94,10 @@ export interface CreateRouterRuntimeOptions<T extends Record<string, any> = any>
     noUserId?: boolean;
   };
   constructorOptions?: ConstructorOptions<T>;
+  create3DModel?: (
+    payload: Create3DModelPayload,
+    options: CreateImageOptions,
+  ) => Promise<Create3DModelResponse>;
   createImage?: (
     payload: CreateImagePayload,
     options: CreateImageOptions,
@@ -218,6 +224,14 @@ export const createRouterRuntime = ({
     async textToImage(payload: TextToImagePayload) {
       const runtime = await this.getRuntimeByModel(payload.model);
       return runtime.textToImage!(payload);
+    }
+
+    async create3DModel(payload: Create3DModelPayload) {
+      const runtime = await this.getRuntimeByModel(payload.model);
+      if (!runtime.create3DModel) {
+        throw new Error('3D generation is not supported by this runtime');
+      }
+      return runtime.create3DModel(payload);
     }
 
     async models() {

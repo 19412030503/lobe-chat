@@ -20,6 +20,7 @@ export const AiModelTypeSchema = z.enum([
   'image',
   'text2video',
   'text2music',
+  '3d',
   'realtime',
 ] as const);
 
@@ -38,6 +39,10 @@ export interface ModelAbilities {
    * whether model supports image output
    */
   imageOutput?: boolean;
+  /**
+   * whether model supports generating 3D assets
+   */
+  modelOutput?: boolean;
   /**
    * whether model supports reasoning
    */
@@ -64,6 +69,7 @@ const AiModelAbilitiesSchema = z.object({
   // files: z.boolean().optional(),
   functionCall: z.boolean().optional(),
   imageOutput: z.boolean().optional(),
+  modelOutput: z.boolean().optional(),
   reasoning: z.boolean().optional(),
   search: z.boolean().optional(),
   video: z.boolean().optional(),
@@ -268,6 +274,12 @@ export interface AIImageModelCard extends AIBaseModelCard {
   pricing?: Pricing;
   resolutions?: string[];
   type: 'image';
+}
+
+export interface AI3DModelCard extends AIBaseModelCard {
+  parameters?: ModelParamsSchema;
+  pricing?: Pricing;
+  type: '3d';
 }
 
 export interface AITTSModelCard extends AIBaseModelCard {

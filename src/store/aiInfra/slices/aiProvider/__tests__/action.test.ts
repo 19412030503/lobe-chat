@@ -137,7 +137,7 @@ describe('getModelListByType', () => {
       const noMatchingProvider = await getModelListByType(allModels, 'nonexistent', 'chat');
       expect(noMatchingProvider).toEqual([]);
 
-      const noMatchingType = await getModelListByType(allModels, 'openai', 'nonexistent');
+      const noMatchingType = await getModelListByType(allModels, 'openai', 'tts');
       expect(noMatchingType).toEqual([]);
     });
 

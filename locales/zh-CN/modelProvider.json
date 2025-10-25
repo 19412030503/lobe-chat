@@ -308,6 +308,7 @@
             "chat": "对话",
             "embedding": "向量化",
             "image": "图片生成",
+            "3d": "3D 建模",
             "realtime": "实时对话",
             "stt": "语音转文本",
             "text2music": "文本转音乐",
@@ -376,6 +377,7 @@
       "chat": "对话",
       "embedding": "向量化",
       "image": "图片",
+      "3d": "3D 建模",
       "stt": "ASR",
       "tts": "TTS"
     }

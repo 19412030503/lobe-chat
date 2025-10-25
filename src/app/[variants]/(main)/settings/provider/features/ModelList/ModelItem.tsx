@@ -142,6 +142,9 @@ const ModelItem = memo<ModelItemProps>(
         case 'image': {
           return [];
         }
+        case '3d': {
+          return [];
+        }
 
         default: {
           return [];

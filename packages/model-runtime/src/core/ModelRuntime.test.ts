@@ -12,6 +12,7 @@ import { createTraceOptions } from '@/server/modules/ModelRuntime';
 import { ChatStreamPayload, LobeOpenAI, ModelRuntime } from '../index';
 import { providerRuntimeMap } from '../runtimeMap';
 import { CreateImagePayload } from '../types/image';
+import { Create3DModelPayload, Create3DModelResponse } from '../types/modeling';
 import { AgentChatOptions } from './ModelRuntime';
 
 const specialProviders = [
@@ -351,6 +352,40 @@ describe('ModelRuntime', () => {
       const result = await mockModelRuntime.createImage(payload);
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('ModelRuntime create3DModel method', () => {
+    it('should throw when runtime does not support 3D generation', async () => {
+      const payload: Create3DModelPayload = {
+        model: 'mock-3d',
+        params: { prompt: 'Create a chair' },
+      };
+
+      await expect(mockModelRuntime.create3DModel(payload)).rejects.toThrow(
+        '3D model generation is not supported',
+      );
+    });
+
+    it('should call runtime create3DModel when available', async () => {
+      const payload: Create3DModelPayload = {
+        model: 'mock-3d',
+        params: { prompt: 'Create a chair' },
+      };
+
+      const response: Create3DModelResponse = {
+        modelUrl: 's3://model.glb',
+        format: 'glb',
+      };
+
+      // @ts-ignore
+      mockModelRuntime['_runtime'] = {
+        create3DModel: vi.fn().mockResolvedValue(response),
+      };
+
+      const result = await mockModelRuntime.create3DModel(payload);
+
+      expect(result).toEqual(response);
     });
   });
 

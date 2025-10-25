@@ -197,6 +197,13 @@ export type RuntimeImageGenParams = Pick<_StandardImageGenerationParameters, 'pr
 export type RuntimeImageGenParamsKeys = keyof RuntimeImageGenParams;
 export type RuntimeImageGenParamsValue = RuntimeImageGenParams[RuntimeImageGenParamsKeys];
 
+/**
+ * 3D 生成参数目前与图像生成保持一致，后续可根据模型能力扩展专属参数
+ */
+export type Runtime3DGenParams = RuntimeImageGenParams;
+export type Runtime3DGenParamsKeys = RuntimeImageGenParamsKeys;
+export type Runtime3DGenParamsValue = RuntimeImageGenParamsValue;
+
 // 验证函数
 export function validateModelParamsSchema(paramsSchema: unknown): ModelParamsOutputSchema {
   return ModelParamsMetaSchema.parse(paramsSchema);

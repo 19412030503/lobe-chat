@@ -308,6 +308,7 @@
             "chat": "Chat",
             "embedding": "Embedding",
             "image": "Image Generation",
+            "3d": "3D Modeling",
             "realtime": "Real-time Chat",
             "stt": "Speech-to-Text",
             "text2music": "Text-to-Music",
@@ -376,6 +377,7 @@
       "chat": "Chat",
       "embedding": "Embedding",
       "image": "Image",
+      "3d": "3D Modeling",
       "stt": "ASR",
       "tts": "TTS"
     }

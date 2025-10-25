@@ -6,6 +6,7 @@ import isEqual from 'fast-deep-equal';
 import {
   AudioLines,
   BoltIcon,
+  BoxesIcon,
   Grid3x3Icon,
   ImageIcon,
   MessageSquareTextIcon,
@@ -46,13 +47,14 @@ const Content = memo<ContentProps>(({ id }) => {
 
   // Count models by type (for all models, not just enabled)
   const modelCounts = useMemo(() => {
-    const counts = {
-      all: allModels.length,
-      chat: 0,
-      embedding: 0,
-      image: 0,
-      stt: 0,
-      tts: 0,
+    const counts: Record<string, number> = {
+      '3d': 0,
+      'all': allModels.length,
+      'chat': 0,
+      'embedding': 0,
+      'image': 0,
+      'stt': 0,
+      'tts': 0,
     };
 
     allModels.forEach((model) => {
@@ -90,6 +92,12 @@ const Content = memo<ContentProps>(({ id }) => {
         label: formatTabLabel(t('providerModels.tabs.image'), modelCounts.image),
       },
       {
+        count: modelCounts['3d'],
+        icon: <Icon icon={BoxesIcon} size={16} />,
+        key: '3d',
+        label: formatTabLabel(t('providerModels.tabs.3d'), modelCounts['3d']),
+      },
+      {
         count: modelCounts.embedding,
         icon: <Icon icon={BoltIcon} size={16} />,
         key: 'embedding',
@@ -111,7 +119,7 @@ const Content = memo<ContentProps>(({ id }) => {
 
     // Only show tabs that have models (count > 0), but always show 'all' tab
     return allTabs.filter((tab) => tab.key === 'all' || tab.count > 0);
-  }, [modelCounts]);
+  }, [modelCounts, t]);
 
   // Ensure active tab is available, fallback to 'all' if current tab is hidden
   const availableTabKeys = tabs.map((tab) => tab.key);

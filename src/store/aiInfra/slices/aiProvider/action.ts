@@ -3,6 +3,7 @@ import { getModelPropertyWithFallback } from '@lobechat/model-runtime';
 import { uniqBy } from 'lodash-es';
 import {
   AIImageModelCard,
+  AiModelType,
   EnabledAiModel,
   LobeDefaultAiModelListItem,
   ModelAbilities,
@@ -34,7 +35,7 @@ import {
 export const getModelListByType = async (
   enabledAiModels: EnabledAiModel[],
   providerId: string,
-  type: string,
+  type: AiModelType,
 ) => {
   const filteredModels = enabledAiModels.filter(
     (model) => model.providerId === providerId && model.type === type,
@@ -63,7 +64,7 @@ export const getModelListByType = async (
 const buildProviderModelLists = async (
   providers: EnabledProvider[],
   enabledAiModels: EnabledAiModel[],
-  type: 'chat' | 'image',
+  type: 'chat' | 'image' | '3d',
 ) => {
   return Promise.all(
     providers.map(async (provider) => ({

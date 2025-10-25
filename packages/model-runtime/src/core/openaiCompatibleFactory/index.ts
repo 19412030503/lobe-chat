@@ -14,6 +14,8 @@ import {
   ChatMethodOptions,
   ChatStreamCallbacks,
   ChatStreamPayload,
+  Create3DModelPayload,
+  Create3DModelResponse,
   Embeddings,
   EmbeddingsOptions,
   EmbeddingsPayload,
@@ -57,7 +59,9 @@ export const CHAT_MODELS_BLOCK_LIST = [
 type ConstructorOptions<T extends Record<string, any> = any> = ClientOptions & T;
 export type CreateImageOptions = Omit<ClientOptions, 'apiKey'> & {
   apiKey: string;
+  client?: OpenAI;
   provider: string;
+  runtime?: LobeRuntimeAI;
 };
 
 export interface CustomClientOptions<T extends Record<string, any> = any> {
@@ -105,6 +109,10 @@ export interface OpenAICompatibleFactoryOptions<T extends Record<string, any> = 
     useResponseModels?: Array<string | RegExp>;
   };
   constructorOptions?: ConstructorOptions<T>;
+  create3DModel?: (
+    payload: Create3DModelPayload,
+    options: CreateImageOptions,
+  ) => Promise<Create3DModelResponse>;
   createImage?: (
     payload: CreateImagePayload,
     options: CreateImageOptions,
@@ -159,6 +167,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
   customClient,
   responses,
   createImage: customCreateImage,
+  create3DModel: customCreate3DModel,
   generateObject: generateObjectConfig,
 }: OpenAICompatibleFactoryOptions<T>) => {
   const ErrorType = {
@@ -579,6 +588,36 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
         console.error('parse json error:', text);
         return undefined;
       }
+    }
+
+    async create3DModel(payload: Create3DModelPayload) {
+      const log = debug(`${this.logPrefix}:create3DModel`);
+      if (customCreate3DModel) {
+        log('using custom create3DModel implementation');
+        return customCreate3DModel(payload, {
+          ...this._options,
+          apiKey: this._options.apiKey!,
+          client: this.client,
+          provider: this.id,
+          runtime: this,
+        });
+      }
+
+      if (!this.createImage) {
+        throw AgentRuntimeError.createError(ErrorType.bizError, {
+          message: '3D model generation is not supported',
+          provider,
+        });
+      }
+
+      log('fallback to createImage for 3D model generation');
+      const imageResponse = await this.createImage(payload as unknown as CreateImagePayload);
+      return {
+        format: undefined,
+        modelUrl: imageResponse.imageUrl,
+        modelUsage: imageResponse.modelUsage,
+        previewUrl: imageResponse.imageUrl,
+      };
     }
 
     async embeddings(

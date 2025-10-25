@@ -2,6 +2,7 @@ export enum AsyncTaskType {
   Chunking = 'chunk',
   Embedding = 'embedding',
   ImageGeneration = 'image_generation',
+  ModelingGeneration = 'modeling_generation',
 }
 
 export enum AsyncTaskStatus {

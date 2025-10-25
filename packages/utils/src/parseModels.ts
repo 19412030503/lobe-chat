@@ -102,6 +102,10 @@ export const parseModelString = async (
             model.abilities!.imageOutput = true;
             break;
           }
+          case 'modelOutput': {
+            model.abilities!.modelOutput = true;
+            break;
+          }
           default: {
             console.warn(`Unknown capability: ${capability}`);
           }

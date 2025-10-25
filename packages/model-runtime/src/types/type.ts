@@ -23,6 +23,12 @@ export interface CreateImageErrorPayload {
   provider: string;
 }
 
+export interface Create3DModelErrorPayload {
+  error: object;
+  errorType: ILobeAgentRuntimeErrorType;
+  provider: string;
+}
+
 export interface CreateChatCompletionOptions {
   chatModel: OpenAI;
   payload: ChatStreamPayload;

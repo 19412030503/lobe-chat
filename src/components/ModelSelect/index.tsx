@@ -5,6 +5,7 @@ import { createStyles, useResponsive } from 'antd-style';
 import {
   Infinity,
   AtomIcon,
+  BoxesIcon,
   LucideEye,
   LucideGlobe,
   LucideImage,
@@ -143,6 +144,17 @@ export const ModelInfoTags = memo<ModelInfoTagsProps>(
           >
             <Tag className={styles.tag} color={'cyan'} size={'small'}>
               <Icon icon={LucideGlobe} />
+            </Tag>
+          </Tooltip>
+        )}
+        {model.modelOutput && (
+          <Tooltip
+            placement={placement}
+            styles={{ root: { pointerEvents: 'none' } }}
+            title={t('ModelSelect.featureTag.modelOutput')}
+          >
+            <Tag className={styles.tag} color={'gold'} size={'small'}>
+              <Icon icon={BoxesIcon} />
             </Tag>
           </Tooltip>
         )}
