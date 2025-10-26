@@ -13,7 +13,7 @@ export enum SidebarTabKey {
   Home = 'home',
   Image = 'image',
   Me = 'me',
-  Model = 'model',
+  Modeling = '3d',
   Setting = 'settings',
 }
 
@@ -79,6 +79,14 @@ export interface SystemStatus {
    * 记住用户最后选择的图像生成提供商
    */
   lastSelectedImageProvider?: string;
+  /**
+   * 记住用户最后选择的 3D 建模模型
+   */
+  lastSelectedThreeDModel?: string;
+  /**
+   * 记住用户最后选择的 3D 建模提供商
+   */
+  lastSelectedThreeDProvider?: string;
   latestChangelogId?: string;
   mobileShowPortal?: boolean;
   mobileShowTopic?: boolean;
@@ -92,12 +100,16 @@ export interface SystemStatus {
   showImageTopicPanel?: boolean;
   showSessionPanel?: boolean;
   showSystemRole?: boolean;
+  showThreeDPanel?: boolean;
+  showThreeDTopicPanel?: boolean;
   sideNavCollapsed?: boolean;
   systemRoleExpandedMap: Record<string, boolean>;
   /**
    * theme mode
    */
   themeMode?: ThemeMode;
+  threeDPanelWidth?: number;
+  threeDTopicPanelWidth?: number;
   zenMode?: boolean;
 }
 
@@ -145,9 +157,13 @@ export const INITIAL_STATUS = {
   showImageTopicPanel: true,
   showSessionPanel: true,
   showSystemRole: false,
+  showThreeDPanel: true,
+  showThreeDTopicPanel: true,
   sideNavCollapsed: false,
   systemRoleExpandedMap: {},
   themeMode: 'auto',
+  threeDPanelWidth: 320,
+  threeDTopicPanelWidth: 80,
   zenMode: false,
 } satisfies SystemStatus;
 

@@ -16,6 +16,8 @@ const showSessionPanel = (s: GlobalState) => !s.status.zenMode && s.status.showS
 const showFilePanel = (s: GlobalState) => s.status.showFilePanel;
 const showImagePanel = (s: GlobalState) => s.status.showImagePanel;
 const showImageTopicPanel = (s: GlobalState) => s.status.showImageTopicPanel;
+const showThreeDPanel = (s: GlobalState) => s.status.showThreeDPanel;
+const showThreeDTopicPanel = (s: GlobalState) => s.status.showThreeDTopicPanel;
 const hidePWAInstaller = (s: GlobalState) => s.status.hidePWAInstaller;
 const isShowCredit = (s: GlobalState) => s.status.isShowCredit;
 const themeMode = (s: GlobalState) => s.status.themeMode || 'auto';
@@ -30,6 +32,10 @@ const portalWidth = (s: GlobalState) => s.status.portalWidth || 400;
 const filePanelWidth = (s: GlobalState) => s.status.filePanelWidth;
 const imagePanelWidth = (s: GlobalState) => s.status.imagePanelWidth;
 const imageTopicPanelWidth = (s: GlobalState) => s.status.imageTopicPanelWidth;
+const threeDPanelWidth = (s: GlobalState) =>
+  s.status.threeDPanelWidth ?? INITIAL_STATUS.imagePanelWidth;
+const threeDTopicPanelWidth = (s: GlobalState) =>
+  s.status.threeDTopicPanelWidth ?? INITIAL_STATUS.imageTopicPanelWidth;
 const wideScreen = (s: GlobalState) => !s.status.noWideScreen;
 const chatInputHeight = (s: GlobalState) => s.status.chatInputHeight || 64;
 const expandInputActionbar = (s: GlobalState) => s.status.expandInputActionbar;
@@ -94,7 +100,11 @@ export const systemStatusSelectors = {
   showImageTopicPanel,
   showSessionPanel,
   showSystemRole,
+  showThreeDPanel,
+  showThreeDTopicPanel,
   systemStatus,
   themeMode,
+  threeDPanelWidth,
+  threeDTopicPanelWidth,
   wideScreen,
 };

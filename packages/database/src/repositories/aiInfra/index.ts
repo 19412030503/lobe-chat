@@ -86,12 +86,14 @@ const inferProviderSearchDefaults = (
 const injectSearchSettings = (providerId: string, item: any) => {
   const abilities = item?.abilities || {};
 
-  // 模型显式关闭搜索能力：移除 settings 中的 search 相关字段，确保 UI 不显示启用模型内置搜索
+  // 模型显示关闭搜索能力：移除 settings 中的 search 相关字段，确保 UI 不显示启用模型内置搜索
   if (abilities.search === false) {
     if (item?.settings?.searchImpl || item?.settings?.searchProvider) {
       const next = { ...item } as any;
       if (next.settings) {
-        const { searchImpl, searchProvider, ...restSettings } = next.settings;
+        const restSettings = { ...next.settings };
+        delete restSettings.searchImpl;
+        delete restSettings.searchProvider;
         next.settings = Object.keys(restSettings).length > 0 ? restSettings : undefined;
       }
       return next;
@@ -99,7 +101,7 @@ const injectSearchSettings = (providerId: string, item: any) => {
     return item;
   }
 
-  // 模型显式开启搜索能力：添加 settings 中的 search 相关字段
+  // 模型显示开启搜索能力：添加 settings 中的 search 相关字段
   else if (abilities.search === true) {
     // 内置（本地）模型如果已经带了任一字段，直接保留，不覆盖
     if (item?.settings?.searchImpl || item?.settings?.searchProvider) return item;
@@ -268,12 +270,16 @@ export class AiInfraRepos {
     const enabledImageAiProviders = enabledAiProviders.filter((provider) => {
       return allModels.some((model) => model.providerId === provider.id && model.type === 'image');
     });
+    const enabledThreeDAiProviders = enabledAiProviders.filter((provider) => {
+      return allModels.some((model) => model.providerId === provider.id && model.type === '3d');
+    });
 
     return {
       enabledAiModels,
       enabledAiProviders,
       enabledChatAiProviders,
       enabledImageAiProviders,
+      enabledThreeDAiProviders,
       runtimeConfig,
     };
   };

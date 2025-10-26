@@ -1,0 +1,34 @@
+{
+  "workspace": {
+    "config": {
+      "title": "建模参数",
+      "provider": "模型提供商",
+      "providerPlaceholder": "选择提供商",
+      "model": "模型",
+      "modelPlaceholder": "选择模型",
+      "count": "生成数量",
+      "prompt": "提示词",
+      "promptPlaceholder": "描述你想要的 3D 资产",
+      "generate": "开始生成"
+    },
+    "result": {
+      "title": "生成记录",
+      "loading": "加载中...",
+      "empty": "暂无生成记录",
+      "assetInfo": "模型：{{model}} · 服务商：{{provider}}",
+      "viewModel": "查看模型文件",
+      "viewPreview": "预览",
+      "submitSuccess": "建模任务已提交",
+      "submitFail": "建模任务提交失败"
+    },
+    "topic": {
+      "title": "建模主题",
+      "create": "新建",
+      "empty": "暂无建模主题",
+      "untitled": "未命名主题",
+      "updatedAt": "更新于 {{value}}",
+      "createdSuccess": "已创建新的建模主题",
+      "createFail": "创建主题失败，请稍后重试"
+    }
+  }
+}

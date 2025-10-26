@@ -35,7 +35,42 @@ export interface ImageGenerationAsset extends BaseGenerationAsset {
   width?: number;
 }
 
-export type GenerationAsset = ImageGenerationAsset;
+export interface ThreeDGenerationAsset extends BaseGenerationAsset {
+  /**
+   * 3D 资产格式，如 glb/obj/fbx
+   */
+  format?: string;
+  /**
+   * 兼容图片逻辑所需的高度
+   */
+  height?: number;
+  /**
+   * 完整的模型文件地址或存储 key
+   */
+  modelUrl?: string;
+  /**
+   * 预览缩略图地址，若与 previewUrl 不同可单独存储
+   */
+  previewThumbnailUrl?: string;
+  /**
+   * 预览资源地址（可为图片、GIF 或视频）
+   */
+  previewUrl?: string;
+  /**
+   * 兼容图片逻辑所需的缩略图 URL
+   */
+  thumbnailUrl?: string;
+  /**
+   * 兼容图片逻辑所需的资源 URL
+   */
+  url?: string;
+  /**
+   * 兼容图片逻辑所需的宽度
+   */
+  width?: number;
+}
+
+export type GenerationAsset = ImageGenerationAsset | ThreeDGenerationAsset;
 
 export interface GenerationConfig {
   aspectRatio?: string;

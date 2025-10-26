@@ -35,7 +35,7 @@ const HomeClient = memo(() => {
   const announcements: Announcement[] = useMemo(
     () => [
       {
-        cta: { href: '/model', label: t('home.notice.0.cta') },
+        cta: { href: '/3d', label: t('home.notice.0.cta') },
         description: t('home.notice.0.desc'),
         title: t('home.notice.0.title'),
       },
@@ -71,7 +71,7 @@ const HomeClient = memo(() => {
       },
       {
         description: t('home.quick.aiModel'),
-        href: '/model',
+        href: '/3d',
         icon: Brain,
         title: t('tab.aiModel'),
       },

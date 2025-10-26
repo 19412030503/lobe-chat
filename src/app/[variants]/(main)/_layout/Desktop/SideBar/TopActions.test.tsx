@@ -100,7 +100,7 @@ describe('TopActions', () => {
     const { result: store } = renderHook(() => useGlobalStore((s) => s));
     const switchBackToChat = vi.spyOn(store.current, 'switchBackToChat');
 
-    renderTopActions({ tab: SidebarTabKey.Model });
+    renderTopActions({ tab: SidebarTabKey.Modeling });
     fireEvent.click(screen.getByText('Mocked Link /chat'));
 
     expect(switchBackToChat).toBeCalledWith('1');

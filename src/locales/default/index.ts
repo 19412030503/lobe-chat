@@ -26,6 +26,7 @@ import ragEval from './ragEval';
 import setting from './setting';
 import subscription from './subscription';
 import thread from './thread';
+import threeD from './threeD';
 import tool from './tool';
 import topic from './topic';
 import welcome from './welcome';
@@ -59,6 +60,7 @@ const resources = {
   setting,
   subscription,
   thread,
+  threeD,
   tool,
   topic,
   welcome,

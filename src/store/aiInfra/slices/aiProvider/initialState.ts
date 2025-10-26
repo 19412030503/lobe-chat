@@ -21,6 +21,8 @@ export interface AIProviderState {
   // used for select
   enabledChatModelList?: EnabledProviderWithModels[];
   enabledImageModelList?: EnabledProviderWithModels[];
+  enabledThreeDAiProviders?: EnabledProvider[];
+  enabledThreeDModelList?: EnabledProviderWithModels[];
   initAiProviderList: boolean;
   isInitAiProviderRuntimeState: boolean;
   providerSearchKeyword: string;

@@ -23,7 +23,7 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) =
 
   const isHomeActive = tab === SidebarTabKey.Home;
   const isChatActive = tab === SidebarTabKey.Chat && !isPinned;
-  const isModelActive = tab === SidebarTabKey.Model;
+  const isModelActive = tab === SidebarTabKey.Modeling;
   const isCourseActive = tab === SidebarTabKey.Course;
   const isImageActive = tab === SidebarTabKey.Image;
 
@@ -63,7 +63,7 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned, collapsed = false }) =
       <NavItem
         active={isModelActive}
         collapsed={collapsed}
-        href={'/model'}
+        href={'/3d'}
         icon={Brain}
         label={t('tab.aiModel')}
       />

@@ -1,11 +1,10 @@
 import debug from 'debug';
 import { and, eq } from 'drizzle-orm';
 
-import { LobeChatDatabase, Transaction } from '../type';
 import { FileService } from '@/server/services/file';
 import { AsyncTaskError, AsyncTaskStatus } from '@/types/asyncTask';
 import { FileSource } from '@/types/files';
-import { Generation, ImageGenerationAsset } from '@/types/generation';
+import { Generation, GenerationAsset, ImageGenerationAsset } from '@/types/generation';
 
 import { NewFile } from '../schemas';
 import {
@@ -14,6 +13,7 @@ import {
   NewGeneration,
   generations,
 } from '../schemas/generation';
+import { LobeChatDatabase, Transaction } from '../type';
 import { FileModel } from './file';
 
 // Create debug logger
@@ -167,14 +167,26 @@ export class GenerationModel {
    */
   async transformGeneration(generation: GenerationWithAsyncTask): Promise<Generation> {
     // Process asset URLs if they exist, following the same logic as in generationBatch.ts
-    const asset = generation.asset as ImageGenerationAsset | null;
-    if (asset && asset.url && asset.thumbnailUrl) {
+    const asset = generation.asset as GenerationAsset | null;
+    if (asset && 'url' in asset && asset.url && 'thumbnailUrl' in asset && asset.thumbnailUrl) {
       const [url, thumbnailUrl] = await Promise.all([
         this.fileService.getFullFileUrl(asset.url),
         this.fileService.getFullFileUrl(asset.thumbnailUrl),
       ]);
       asset.url = url;
       asset.thumbnailUrl = thumbnailUrl;
+    }
+
+    if (asset && 'previewUrl' in asset && asset.previewUrl) {
+      asset.previewUrl = await this.fileService.getFullFileUrl(asset.previewUrl);
+    }
+
+    if (asset && 'previewThumbnailUrl' in asset && asset.previewThumbnailUrl) {
+      asset.previewThumbnailUrl = await this.fileService.getFullFileUrl(asset.previewThumbnailUrl);
+    }
+
+    if (asset && 'modelUrl' in asset && asset.modelUrl) {
+      asset.modelUrl = await this.fileService.getFullFileUrl(asset.modelUrl);
     }
 
     // Build the Generation object following the same structure as in generationBatch.ts

@@ -27,6 +27,7 @@ import { ragEvalRouter } from './ragEval';
 import { sessionRouter } from './session';
 import { sessionGroupRouter } from './sessionGroup';
 import { threadRouter } from './thread';
+import { threeDRouter } from './threeD';
 import { topicRouter } from './topic';
 import { uploadRouter } from './upload';
 import { userRouter } from './user';
@@ -57,6 +58,7 @@ export const lambdaRouter = router({
   session: sessionRouter,
   sessionGroup: sessionGroupRouter,
   thread: threadRouter,
+  threeD: threeDRouter,
   topic: topicRouter,
   upload: uploadRouter,
   user: userRouter,

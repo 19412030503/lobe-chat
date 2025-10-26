@@ -1,0 +1,34 @@
+{
+  "workspace": {
+    "config": {
+      "title": "Modeling Parameters",
+      "provider": "Provider",
+      "providerPlaceholder": "Select a provider",
+      "model": "Model",
+      "modelPlaceholder": "Select a model",
+      "count": "Quantity",
+      "prompt": "Prompt",
+      "promptPlaceholder": "Describe the 3D asset you want",
+      "generate": "Generate"
+    },
+    "result": {
+      "title": "Generation History",
+      "loading": "Loading...",
+      "empty": "No generation records yet",
+      "assetInfo": "Model: {{model}} · Provider: {{provider}}",
+      "viewModel": "Open model file",
+      "viewPreview": "Preview",
+      "submitSuccess": "Modeling job submitted",
+      "submitFail": "Failed to submit modeling job"
+    },
+    "topic": {
+      "title": "Modeling Topics",
+      "create": "New topic",
+      "empty": "No modeling topics",
+      "untitled": "Untitled topic",
+      "updatedAt": "Updated at {{value}}",
+      "createdSuccess": "Created a new modeling topic",
+      "createFail": "Failed to create topic"
+    }
+  }
+}

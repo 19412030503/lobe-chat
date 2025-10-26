@@ -40,6 +40,7 @@ describe('aiProviderRouter', () => {
     enabledChatAiProviders: [],
     runtimeConfig: {},
     enabledImageAiProviders: [],
+    enabledThreeDAiProviders: [],
   };
 
   beforeEach(() => {

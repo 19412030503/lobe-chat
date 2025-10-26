@@ -2,7 +2,7 @@
 import { integer, jsonb, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 
-import { ImageGenerationAsset } from '@/types/generation';
+import { GenerationAsset } from '@/types/generation';
 
 import { idGenerator } from '../utils/idGenerator';
 import { timestamps } from './_helpers';
@@ -115,7 +115,7 @@ export const generations = pgTable('generations', {
   seed: integer('seed'),
 
   /** 生成的资源信息，包含存储在 s3 上的 key, 图片实际宽高，缩略图 key 等 */
-  asset: jsonb('asset').$type<ImageGenerationAsset>(),
+  asset: jsonb('asset').$type<GenerationAsset>(),
 
   ...timestamps,
 });

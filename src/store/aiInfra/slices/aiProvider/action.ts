@@ -47,7 +47,7 @@ export const getModelListByType = async (
       contextWindowTokens: model.contextWindowTokens,
       displayName: model.displayName ?? '',
       id: model.id,
-      ...(model.type === 'image' && {
+      ...((model.type === 'image' || model.type === '3d') && {
         parameters:
           (model as AIImageModelCard).parameters ||
           (await getModelPropertyWithFallback(model.id, 'parameters')),
@@ -85,6 +85,7 @@ type AiProviderRuntimeStateWithBuiltinModels = AiProviderRuntimeState & {
   builtinAiModelList: LobeDefaultAiModelListItem[];
   enabledChatModelList?: EnabledProviderWithModels[];
   enabledImageModelList?: EnabledProviderWithModels[];
+  enabledThreeDModelList?: EnabledProviderWithModels[];
 };
 
 export interface AiProviderAction {
@@ -252,16 +253,20 @@ export const createAiProviderSlice: StateCreator<
           const data = await aiProviderService.getAiProviderRuntimeState();
 
           // Build model lists with proper async handling
-          const [enabledChatModelList, enabledImageModelList] = await Promise.all([
-            buildProviderModelLists(data.enabledChatAiProviders, data.enabledAiModels, 'chat'),
-            buildProviderModelLists(data.enabledImageAiProviders, data.enabledAiModels, 'image'),
-          ]);
+          const [enabledChatModelList, enabledImageModelList, enabledThreeDModelList] =
+            await Promise.all([
+              buildProviderModelLists(data.enabledChatAiProviders, data.enabledAiModels, 'chat'),
+              buildProviderModelLists(data.enabledImageAiProviders, data.enabledAiModels, 'image'),
+              buildProviderModelLists(data.enabledThreeDAiProviders, data.enabledAiModels, '3d'),
+            ]);
 
           return {
             ...data,
             builtinAiModelList,
             enabledChatModelList,
             enabledImageModelList,
+            enabledThreeDAiProviders: data.enabledThreeDAiProviders,
+            enabledThreeDModelList,
           };
         }
 
@@ -282,13 +287,22 @@ export const createAiProviderSlice: StateCreator<
             );
           })
           .map((item) => ({ id: item.id, name: item.name, source: AiProviderSourceEnum.Builtin }));
+        const enabledThreeDAiProviders = enabledAiProviders
+          .filter((provider) => {
+            return builtinAiModelList.some(
+              (model) => model.providerId === provider.id && model.type === '3d',
+            );
+          })
+          .map((item) => ({ id: item.id, name: item.name, source: AiProviderSourceEnum.Builtin }));
 
         // Build model lists for non-login state as well
         const enabledAiModels = builtinAiModelList.filter((m) => m.enabled);
-        const [enabledChatModelList, enabledImageModelList] = await Promise.all([
-          buildProviderModelLists(enabledChatAiProviders, enabledAiModels, 'chat'),
-          buildProviderModelLists(enabledImageAiProviders, enabledAiModels, 'image'),
-        ]);
+        const [enabledChatModelList, enabledImageModelList, enabledThreeDModelList] =
+          await Promise.all([
+            buildProviderModelLists(enabledChatAiProviders, enabledAiModels, 'chat'),
+            buildProviderModelLists(enabledImageAiProviders, enabledAiModels, 'image'),
+            buildProviderModelLists(enabledThreeDAiProviders, enabledAiModels, '3d'),
+          ]);
 
         return {
           builtinAiModelList,
@@ -298,6 +312,8 @@ export const createAiProviderSlice: StateCreator<
           enabledChatModelList,
           enabledImageAiProviders,
           enabledImageModelList,
+          enabledThreeDAiProviders,
+          enabledThreeDModelList,
           runtimeConfig: {},
         };
       },
@@ -314,6 +330,8 @@ export const createAiProviderSlice: StateCreator<
               enabledAiProviders: data.enabledAiProviders,
               enabledChatModelList: data.enabledChatModelList || [],
               enabledImageModelList: data.enabledImageModelList || [],
+              enabledThreeDAiProviders: data.enabledThreeDAiProviders || [],
+              enabledThreeDModelList: data.enabledThreeDModelList || [],
               isInitAiProviderRuntimeState: true,
             },
             false,

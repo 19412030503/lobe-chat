@@ -1,67 +1,218 @@
+# AGENTS.md
+
+## 1. 基础约定
+
+### 1.1 编码规范
+
+- 统一使用 UTF-8 编码（无 BOM）
+- 代码注释与文档使用中文
+- Python 遵循 PEP 8，JavaScript/TypeScript 遵循 ESLint 配置
+
+### 1.2 执行优先级
+
+1. **用户明确指令** > 本规范 > 默认约定
+2. **Serena 工具链优先**：代码检索、编辑、知识管理优先使用 Serena
+3. **降级策略**：Serena 不可用时，可使用 Codex CLI 的 `apply_patch` 或安全 `shell` 命令
+4. **本地优先**：禁用远端 CI/CD 自动化，构建、测试在本地执行
+
+### 1.3 核心原则
+
+- ✅ 优先使用成熟的第三方库（FastAPI、SQLAlchemy、Pydantic、Ant Design 等）
+- ✅ 出现错误立即修复，不遗留问题
+- ✅ 关键决策和变更记录到 Serena 知识库
+- ❌ 禁止占位代码、TODO 或 `NotImplemented`
+- ❌ 禁止破坏性命令（如 `rm -rf`）
+
+## 2. MCP 工具链
+
+### 2.1 Serena MCP（主工具）
+
+**核心职责**：代码检索、结构化编辑、知识管理
+
+#### 会话初始化
+
+```
+每次会话开始时调用：
+- serena__activate_project / serena__check_onboarding_performed
+- 在回复开头简要说明 Serena 状态
+```
+
+#### 标准检索流程
+
+```
+1. serena__find_symbol           # 查找函数/类/接口定义
+2. serena__search_for_pattern    # 搜索代码模式
+3. serena__find_referencing_symbols  # 评估影响范围（可选）
+4. 编辑工具（若文件类型支持）
+```
+
+#### 知识管理
+
+- 使用 `serena__create_knowledge_memory_entry` 记录关键决策
+- 使用 `serena__update_knowledge_memory_entry` 更新记录
+- 使用 `serena__search_knowledge_memory` 查询历史决策
+
+#### 降级规则
+
+当出现以下情况时，降级到 Codex CLI：
+
+- Serena 不支持的文件类型（如纯 Markdown、配置文件）
+- 报错：`File not found` / `Symbol not found` / `Not supported`
+- 新建文件或跨目录操作失败
+
+**降级后必须**：
+
+1. 在回复中说明降级原因
+2. 将变更摘要写入 Serena 知识库
+
+### 2.2 Sequential Thinking MCP
+
+**用途**：复杂问题的结构化思考
+
+```
+适用场景：
+- 架构设计决策
+- 复杂业务逻辑梳理
+- 性能优化方案
+
+输出要求：
+- 思考链条清晰可追溯
+- 关键结论回写 Serena 知识库
+```
+
+### 2.3 Context7 MCP（首选外部检索）
+
+**用途**：官方文档和权威资料查询
+
+```
+优先级：Context7 > DeepWiki > web_search
+
+记录要求：
+- 查询关键词
+- 文档版本
+- 访问日期
+```
+
+### 2.4 DeepWiki MCP（补充检索）
+
+**用途**：社区实践和框架经验
+
+```
+使用场景：
+- Context7 无结果时
+- 需要社区最佳实践
+- 框架使用案例
+
+记录降级原因和检索摘要
+```
+
+## 3. 项目开发规范与指南
+
+参考：LobeChat Development Guidelines
+
+## 4. 快速开发流程
+
+### 4.1 标准工作流
+
+```
+1. Research（研究）
+   - 使用 Serena 检索现有代码
+   - Sequential Thinking 梳理思路（复杂场景）
+   - Context7/DeepWiki 查阅文档（需要时）
+
+2. Plan（计划）
+   - 使用 serena__update_plan 维护任务步骤
+   - 明确验收标准
+
+3. Implement（实现）
+   - Serena 优先编辑
+   - 小步提交，及时验证
+   - 补齐必要注释
+
+4. Verify（验证）
+   - 本地运行测试
+   - 手动冒烟测试关键路径
+
+5. Deliver（交付）
+   - 总结变更点
+   - 记录到 Serena 知识库
+```
+
+### 4.2 降级编辑矩阵
+
+| 场景                   | 工具选择                         | 留痕要求               |
+| ---------------------- | -------------------------------- | ---------------------- |
+| Python/TS 代码符号编辑 | Serena 优先                      | -                      |
+| Markdown / 配置文件    | apply_patch                      | 说明原因               |
+| 新建文件               | Serena，失败时 apply_patch       | 说明原因               |
+| 批量修改               | Serena，失败时 shell（安全命令） | 说明原因 + Serena 记录 |
+
+### 5.1 知识库条目模板
+
+```markdown
+标题：[简短描述决策或变更]
+日期：YYYY-MM-DD
+类型：决策 / 实现 / 问题修复
+
+## 背景
+
+简述问题或需求
+
+## 方案
+
+选择的技术方案或实现方式
+
+## 关键代码位置
+
+- 文件路径1
+- 文件路径2
+
+## 注意事项
+
+需要特别注意的点
+
+## 参考资料
+
+- 文档链接
+- 相关 issue
+```
+
+## 6. 安全与合规（精简）
+
+### 6.1 基础安全
+
+- ✅ 敏感信息存环境变量（`.env` 文件，不提交到 Git）
+- ✅ 密码使用 bcrypt 哈希
+- ✅ JWT Token 设置合理过期时间
+- ✅ SQL 使用 ORM 防注入
+- ✅ CORS 配置符合实际需求
+
+## 7. 快速自检清单
+
+### 启动新功能前
+
+- [ ] Serena 已激活
+- [ ] 现有代码已检索
+- [ ] 技术选型已明确（优先成熟库）
+
+### 提交代码前
+
+- [ ] 本地运行通过
+- [ ] 关键路径手动测试通过
+- [ ] 无 TODO 或占位代码
+- [ ] Commit 信息清晰
+
+### 任务完成后
+
+- [ ] 关键决策记录到 Serena
+- [ ] 遗留问题（如有）已登记
+- [ ] 下一步行动明确
+
+---
+
 # LobeChat Development Guidelines
 
 This document serves as a comprehensive guide for all team members when developing LobeChat.
-
-## 🛠️ 工具使用指南
-
-- 优先通过 MCP 工具完成查询、检索与分析任务，并记录关键决策依据。
-
-### 🔍 代码分析
-
-- **首选**：`Serena` 符号工具（`get_symbols_overview` → `find_symbol`）
-- **备选**：`read` + `rg` + `serena__find_file` 组合
-- **降级**：直接文件读取（须说明原因与依据）
-
-### 📚 知识查询
-
-- **技术文档**：`Context7`（先 `resolve-library-id` 后 `get-library-docs`）
-- **GitHub 项目**：`mcp-deepwiki__deepwiki_fetch`
-
-### 💭 分析规划
-
-- **深度思考**：`sequential-thinking__sequentialthinking`
-
-### 🔧 命令执行标准
-
-**路径处理：**
-
-- 始终使用双引号包裹文件路径
-- 优先使用正斜杠 `/` 作为路径分隔符
-- 注意跨平台兼容性
-
-**工具优先级：**
-
-1. `rg` (ripgrep) > `grep` 用于内容搜索
-2. 专用工具（Read/Write/Edit）> 系统命令
-3. 批量调用工具以提升效率
-
-**重构与记录：**
-
-- 优先使用 `Serena` 的 `rename_symbol`、`replace_regex` 完成批量重构与代码修改。
-- 任务结束后总结经验、关键约束或最佳实践，调用 `Serena` 的 `write_memory` 写入记录。
-
-### 🧰 常用 MCP 能力
-
-- `context7__resolve-library-id` / `context7__get-library-docs`：获取库文档
-- `mcp-deepwiki__deepwiki_fetch`：检索 DeepWiki 资料
-- `serena__list_dir`、`serena__find_symbol`：定位文件、符号与上下文
-- `sequential-thinking__sequentialthinking`：分步骤推理与复盘
-
-## 🗣️ 沟通规范
-
-- 与团队成员及用户沟通时统一使用中文，保证表述清晰、专业。
-
-## 🔄 交付与记录规范
-
-- **提交提示**：所有 Git 提交由用户手动执行（建议仍遵循 gitmoji 前缀规范）。
-- **开发流水**：功能确认通过后更新 `devlog.md` 等流水文件，记录内容需包含：
-  - 功能摘要（简要描述本次开发内容）
-  - `commit` 字段先写 `pending`，待用户提供上一轮提交哈希后再回填
-- **操作流程**：
-  1. 代码完成后先向用户同步改动并等待确认；未获确认前不得执行任何 Git 操作
-  2. 用户确认功能完成后，助手提供开发总结及建议的提交信息
-  3. 用户手动完成 Git 提交并返回提交哈希，助手再更新上一条流水记录
-  4. 确认文档与流水信息与最新手动提交保持一致。
 
 ## Tech Stack
 
