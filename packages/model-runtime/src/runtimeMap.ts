@@ -23,6 +23,7 @@ import { LobeGroq } from './providers/groq';
 import { LobeHigressAI } from './providers/higress';
 import { LobeHuggingFaceAI } from './providers/huggingface';
 import { LobeHunyuanAI } from './providers/hunyuan';
+import { LobeHunyuan3DAI } from './providers/hunyuan3d';
 import { LobeInfiniAI } from './providers/infiniai';
 import { LobeInternLMAI } from './providers/internlm';
 import { LobeJinaAI } from './providers/jina';
@@ -89,6 +90,7 @@ export const providerRuntimeMap = {
   higress: LobeHigressAI,
   huggingface: LobeHuggingFaceAI,
   hunyuan: LobeHunyuanAI,
+  hunyuan3d: LobeHunyuan3DAI,
   infiniai: LobeInfiniAI,
   internlm: LobeInternLMAI,
   jina: LobeJinaAI,

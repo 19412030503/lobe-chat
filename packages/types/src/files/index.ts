@@ -9,6 +9,7 @@ export enum FilesTabs {
 
 export enum FileSource {
   ImageGeneration = 'image_generation',
+  ThreeDGeneration = 'three_d_generation',
 }
 
 export interface FileItem {

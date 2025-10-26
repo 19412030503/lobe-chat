@@ -76,15 +76,28 @@ const customHttpBatchLink = httpBatchLink({
     const { createHeaderWithAuth } = await import('@/services/_auth');
 
     let provider: ModelProvider = ModelProvider.OpenAI;
-    // for image page, we need to get the provider from the store
-    log('Getting provider from store for image page: %s', location.pathname);
-    if (location.pathname === '/image') {
-      const { getImageStoreState } = await import('@/store/image');
-      const { imageGenerationConfigSelectors } = await import(
-        '@/store/image/slices/generationConfig/selectors'
-      );
-      provider = imageGenerationConfigSelectors.provider(getImageStoreState()) as ModelProvider;
-      log('Getting provider from store for image page: %s', provider);
+
+    if (typeof location !== 'undefined') {
+      const pathname = location.pathname;
+      log('Resolving provider for lambda request, path: %s', pathname);
+
+      if (pathname.endsWith('/image')) {
+        const { getImageStoreState } = await import('@/store/image');
+        const { imageGenerationConfigSelectors } = await import(
+          '@/store/image/slices/generationConfig/selectors'
+        );
+        provider =
+          (imageGenerationConfigSelectors.provider(getImageStoreState()) as ModelProvider) ||
+          provider;
+        log('Using provider from image store: %s', provider);
+      } else if (pathname.endsWith('/3d')) {
+        const { getThreeDStoreState } = await import('@/store/threeD');
+        const threeDProvider = getThreeDStoreState().provider;
+        if (threeDProvider) {
+          provider = threeDProvider as ModelProvider;
+        }
+        log('Using provider from 3D store: %s', provider);
+      }
     }
 
     // TODO: we need to support provider select for chat page

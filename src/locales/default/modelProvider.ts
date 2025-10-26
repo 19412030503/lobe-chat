@@ -139,6 +139,29 @@ export default {
       title: 'HuggingFace Token',
     },
   },
+  hunyuan3d: {
+    region: {
+      desc: '腾讯云服务地域，例如 ap-guangzhou（默认）',
+      placeholder: 'Region (如 ap-guangzhou)',
+      title: 'Region',
+    },
+    secretId: {
+      desc: '请输入腾讯云混元 3D API 的 SecretId',
+      placeholder: 'Tencent Cloud SecretId',
+      title: 'SecretId',
+    },
+    secretKey: {
+      desc: '请输入腾讯云混元 3D API 的 SecretKey',
+      placeholder: 'Tencent Cloud SecretKey',
+      title: 'SecretKey',
+    },
+    title: 'Hunyuan 3D',
+    version: {
+      desc: '使用腾讯云 API 版本，默认 2025-05-13',
+      placeholder: '例如：2025-05-13',
+      title: 'API Version',
+    },
+  },
   list: {
     title: {
       disabled: '未启用服务商',

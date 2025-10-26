@@ -9,6 +9,8 @@
       "count": "生成数量",
       "prompt": "提示词",
       "promptPlaceholder": "描述你想要的 3D 资产",
+      "reference": "参考图像 URL",
+      "referencePlaceholder": "可选：引用现有图片作为建模参考",
       "generate": "开始生成"
     },
     "result": {
@@ -19,7 +21,15 @@
       "viewModel": "查看模型文件",
       "viewPreview": "预览",
       "submitSuccess": "建模任务已提交",
-      "submitFail": "建模任务提交失败"
+      "submitFail": "建模任务提交失败",
+      "refresh": "刷新",
+      "pendingTag": "有任务正在处理中",
+      "noGeneration": "该批次暂无生成结果",
+      "noAsset": "生成结果暂未提供可预览文件",
+      "seed": "种子：{{value}}",
+      "seedUnknown": "未提供种子",
+      "assetFormat": "格式：{{value}}",
+      "errorMessage": "错误：{{message}}"
     },
     "topic": {
       "title": "建模主题",
@@ -29,6 +39,12 @@
       "updatedAt": "更新于 {{value}}",
       "createdSuccess": "已创建新的建模主题",
       "createFail": "创建主题失败，请稍后重试"
+    },
+    "status": {
+      "pending": "等待中",
+      "processing": "处理中",
+      "success": "已完成",
+      "error": "失败"
     }
   }
 }

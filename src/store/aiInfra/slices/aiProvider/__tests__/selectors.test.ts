@@ -135,6 +135,14 @@ describe('aiProviderSelectors', () => {
       };
       expect(aiProviderSelectors.isActiveProviderApiKeyNotEmpty(stateWithoutApiKey)).toBe(false);
     });
+
+    it('should return true when secretKey exists', () => {
+      const stateWithSecretKey = {
+        ...mockState,
+        aiProviderDetail: { keyVaults: { secretKey: 'secret-key-value' } },
+      };
+      expect(aiProviderSelectors.isActiveProviderApiKeyNotEmpty(stateWithSecretKey)).toBe(true);
+    });
   });
 
   describe('providerConfigById', () => {

@@ -9,6 +9,8 @@
       "count": "Quantity",
       "prompt": "Prompt",
       "promptPlaceholder": "Describe the 3D asset you want",
+      "reference": "Reference Image URL",
+      "referencePlaceholder": "Optional: point to an existing image as modeling reference",
       "generate": "Generate"
     },
     "result": {
@@ -19,7 +21,15 @@
       "viewModel": "Open model file",
       "viewPreview": "Preview",
       "submitSuccess": "Modeling job submitted",
-      "submitFail": "Failed to submit modeling job"
+      "submitFail": "Failed to submit modeling job",
+      "refresh": "Refresh",
+      "pendingTag": "Jobs in progress",
+      "noGeneration": "No results in this batch yet",
+      "noAsset": "Output not yet available for preview",
+      "seed": "Seed: {{value}}",
+      "seedUnknown": "Seed not provided",
+      "assetFormat": "Format: {{value}}",
+      "errorMessage": "Error: {{message}}"
     },
     "topic": {
       "title": "Modeling Topics",
@@ -29,6 +39,12 @@
       "updatedAt": "Updated at {{value}}",
       "createdSuccess": "Created a new modeling topic",
       "createFail": "Failed to create topic"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "success": "Completed",
+      "error": "Failed"
     }
   }
 }

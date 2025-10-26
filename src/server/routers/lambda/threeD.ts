@@ -122,6 +122,7 @@ export const threeDRouter = router({
         model,
         prompt: params.prompt,
         provider,
+        type: 'threeD',
         userId,
         width: params.width,
       };

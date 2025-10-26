@@ -2,7 +2,13 @@ import debug from 'debug';
 import { and, eq } from 'drizzle-orm';
 
 import { FileService } from '@/server/services/file';
-import { Generation, GenerationAsset, GenerationBatch, GenerationConfig } from '@/types/generation';
+import {
+  Generation,
+  GenerationAsset,
+  GenerationBatch,
+  GenerationConfig,
+  GenerationContentType,
+} from '@/types/generation';
 
 import {
   GenerationBatchItem,
@@ -36,7 +42,7 @@ export class GenerationBatchModel {
 
     const [result] = await this.db
       .insert(generationBatches)
-      .values({ ...value, userId: this.userId })
+      .values({ ...value, type: value.type ?? 'image', userId: this.userId })
       .returning();
 
     log('Generation batch created successfully: %s', result.id);
@@ -54,7 +60,10 @@ export class GenerationBatchModel {
     return result;
   }
 
-  async findByTopicId(topicId: string): Promise<GenerationBatchItem[]> {
+  async findByTopicId(
+    topicId: string,
+    type: GenerationContentType = 'image',
+  ): Promise<GenerationBatchItem[]> {
     log('Finding generation batches by topic ID: %s for user: %s', topicId, this.userId);
 
     const results = await this.db.query.generationBatches.findMany({
@@ -62,6 +71,7 @@ export class GenerationBatchModel {
       where: and(
         eq(generationBatches.generationTopicId, topicId),
         eq(generationBatches.userId, this.userId),
+        eq(generationBatches.type, type),
       ),
     });
 
@@ -72,7 +82,10 @@ export class GenerationBatchModel {
   /**
    * Find batches with their associated generations using relations
    */
-  async findByTopicIdWithGenerations(topicId: string): Promise<GenerationBatchWithGenerations[]> {
+  async findByTopicIdWithGenerations(
+    topicId: string,
+    type: GenerationContentType = 'image',
+  ): Promise<GenerationBatchWithGenerations[]> {
     log(
       'Finding generation batches with generations for topic ID: %s for user: %s',
       topicId,
@@ -84,6 +97,7 @@ export class GenerationBatchModel {
       where: and(
         eq(generationBatches.generationTopicId, topicId),
         eq(generationBatches.userId, this.userId),
+        eq(generationBatches.type, type),
       ),
       with: {
         generations: {
@@ -101,10 +115,11 @@ export class GenerationBatchModel {
 
   async queryGenerationBatchesByTopicIdWithGenerations(
     topicId: string,
+    type: GenerationContentType = 'image',
   ): Promise<(GenerationBatch & { generations: Generation[] })[]> {
     log('Fetching generation batches for topic ID: %s for user: %s', topicId, this.userId);
 
-    const batchesWithGenerations = await this.findByTopicIdWithGenerations(topicId);
+    const batchesWithGenerations = await this.findByTopicIdWithGenerations(topicId, type);
     if (batchesWithGenerations.length === 0) {
       log('No batches found for topic: %s', topicId);
       return [];
@@ -146,6 +161,7 @@ export class GenerationBatchModel {
           model: batch.model,
           prompt: batch.prompt,
           provider: batch.provider,
+          type: batch.type ?? type,
           width: batch.width,
         };
       }),

@@ -27,6 +27,50 @@ const getParamsFromPayload = (provider: string, payload: ClientSecretPayload) =>
       return {};
     }
 
+    case ModelProvider.Hunyuan3D: {
+      const secretId =
+        payload.hunyuan3dSecretId ||
+        llmConfig.HUNYUAN3D_SECRET_ID ||
+        llmConfig.HUNYUAN_SECRET_ID ||
+        process.env.HUNYUAN3D_SECRET_ID;
+      const secretKey = apiKeyManager.pick(
+        payload.hunyuan3dSecretKey ||
+          payload.apiKey ||
+          llmConfig.HUNYUAN3D_SECRET_KEY ||
+          llmConfig.HUNYUAN_SECRET_KEY ||
+          process.env.HUNYUAN3D_SECRET_KEY,
+      );
+      const baseURL =
+        payload.hunyuan3dEndpoint ||
+        payload.baseURL ||
+        llmConfig.HUNYUAN3D_ENDPOINT ||
+        process.env.HUNYUAN3D_ENDPOINT;
+      const version =
+        payload.hunyuan3dVersion || llmConfig.HUNYUAN3D_VERSION || process.env.HUNYUAN3D_VERSION;
+      const region =
+        payload.hunyuan3dRegion || llmConfig.HUNYUAN3D_REGION || process.env.HUNYUAN3D_REGION;
+      const pollInterval =
+        payload.hunyuan3dPollInterval ||
+        llmConfig.HUNYUAN3D_POLL_INTERVAL ||
+        process.env.HUNYUAN3D_POLL_INTERVAL;
+      const pollTimeout =
+        payload.hunyuan3dPollTimeout ||
+        llmConfig.HUNYUAN3D_POLL_TIMEOUT ||
+        process.env.HUNYUAN3D_POLL_TIMEOUT;
+
+      return {
+        apiKey: secretKey,
+        baseURL,
+        hunyuan3dEndpoint: baseURL,
+        hunyuan3dPollInterval: pollInterval,
+        hunyuan3dPollTimeout: pollTimeout,
+        hunyuan3dRegion: region,
+        hunyuan3dSecretId: secretId,
+        hunyuan3dSecretKey: secretKey,
+        hunyuan3dVersion: version,
+      };
+    }
+
     default: {
       let upperProvider = provider.toUpperCase();
 
@@ -136,7 +180,10 @@ const buildVertexOptions = (
 
   const project = projectFromParams ?? projectFromCredentials ?? projectFromEnv;
   const location =
-    (params.location as string | undefined) ?? payload.vertexAIRegion ?? process.env.VERTEXAI_LOCATION ?? undefined;
+    (params.location as string | undefined) ??
+    payload.vertexAIRegion ??
+    process.env.VERTEXAI_LOCATION ??
+    undefined;
 
   const googleAuthOptions = params.googleAuthOptions ?? (credentials ? { credentials } : undefined);
 

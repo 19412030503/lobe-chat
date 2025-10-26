@@ -189,6 +189,31 @@ describe('getProviderAuthPayload', () => {
     });
   });
 
+  it('should return correct payload for Hunyuan3D provider', () => {
+    const payload = getProviderAuthPayload(ModelProvider.Hunyuan3D, {
+      apiKey: 'hunyuan3d-secret-key',
+      baseURL: 'https://ai3d.tencentcloudapi.com',
+      pollInterval: '1000',
+      pollTimeout: '600000',
+      region: 'ap-guangzhou',
+      secretId: 'hunyuan3d-secret-id',
+      secretKey: 'hunyuan3d-secret-key',
+      version: '2025-05-13',
+    } as any);
+
+    expect(payload).toEqual({
+      apiKey: 'hunyuan3d-secret-key',
+      baseURL: 'https://ai3d.tencentcloudapi.com',
+      hunyuan3dEndpoint: 'https://ai3d.tencentcloudapi.com',
+      hunyuan3dPollInterval: '1000',
+      hunyuan3dPollTimeout: '600000',
+      hunyuan3dRegion: 'ap-guangzhou',
+      hunyuan3dSecretId: 'hunyuan3d-secret-id',
+      hunyuan3dSecretKey: 'hunyuan3d-secret-key',
+      hunyuan3dVersion: '2025-05-13',
+    });
+  });
+
   it('should return an empty object or throw an error for an unknown provider', () => {
     const payload = getProviderAuthPayload('UnknownProvider', {});
     expect(payload).toEqual({});

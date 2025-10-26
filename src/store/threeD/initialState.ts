@@ -22,6 +22,7 @@ export const initialState: ThreeDStoreState = {
   isInit: false,
   modelCount: 1,
   parameters: {
+    imageUrl: '',
     prompt: '',
   },
 };

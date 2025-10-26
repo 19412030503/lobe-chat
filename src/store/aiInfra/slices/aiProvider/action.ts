@@ -2,11 +2,13 @@ import { isDeprecatedEdition, isDesktop, isUsePgliteDB } from '@lobechat/const';
 import { getModelPropertyWithFallback } from '@lobechat/model-runtime';
 import { uniqBy } from 'lodash-es';
 import {
+  AI3DModelCard,
   AIImageModelCard,
   AiModelType,
   EnabledAiModel,
   LobeDefaultAiModelListItem,
   ModelAbilities,
+  ModelParamsSchema,
 } from 'model-bank';
 import { SWRResponse, mutate } from 'swr';
 import { StateCreator } from 'zustand/vanilla';
@@ -29,6 +31,15 @@ import {
   UpdateAiProviderParams,
 } from '@/types/aiProvider';
 
+const resolveModelParameters = async (
+  model: EnabledAiModel,
+): Promise<ModelParamsSchema | undefined> => {
+  const casted = model.type === '3d' ? (model as AI3DModelCard) : (model as AIImageModelCard);
+
+  if (casted.parameters) return casted.parameters;
+  return (await getModelPropertyWithFallback(model.id, 'parameters')) as ModelParamsSchema;
+};
+
 /**
  * Get models by provider ID and type, with proper formatting and deduplication
  */
@@ -41,16 +52,20 @@ export const getModelListByType = async (
     (model) => model.providerId === providerId && model.type === type,
   );
 
-  const models = await Promise.all(
+  const models = await Promise.all<{
+    abilities: ModelAbilities;
+    contextWindowTokens?: number;
+    displayName: string;
+    id: string;
+    parameters?: ModelParamsSchema;
+  }>(
     filteredModels.map(async (model) => ({
       abilities: (model.abilities || {}) as ModelAbilities,
       contextWindowTokens: model.contextWindowTokens,
       displayName: model.displayName ?? '',
       id: model.id,
       ...((model.type === 'image' || model.type === '3d') && {
-        parameters:
-          (model as AIImageModelCard).parameters ||
-          (await getModelPropertyWithFallback(model.id, 'parameters')),
+        parameters: await resolveModelParameters(model),
       }),
     })),
   );

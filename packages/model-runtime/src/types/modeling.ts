@@ -13,6 +13,10 @@ export type Create3DModelResponse = {
    */
   format?: string;
   /**
+   * Job identifier returned by provider when available
+   */
+  jobId?: string;
+  /**
    * Key or URL referencing the generated 3D asset
    */
   modelUrl: string;

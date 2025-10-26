@@ -23,7 +23,21 @@ describe('GenerationBatchService', () => {
 
     await generationBatchService.getGenerationBatches(topicId);
 
-    expect(lambdaClient.generationBatch.getGenerationBatches.query).toBeCalledWith({ topicId });
+    expect(lambdaClient.generationBatch.getGenerationBatches.query).toBeCalledWith({
+      topicId,
+      type: 'image',
+    });
+  });
+
+  it('getGenerationBatches should forward custom type', async () => {
+    const topicId = 'test-topic-id';
+
+    await generationBatchService.getGenerationBatches(topicId, 'threeD');
+
+    expect(lambdaClient.generationBatch.getGenerationBatches.query).toBeCalledWith({
+      topicId,
+      type: 'threeD',
+    });
   });
 
   it('deleteGenerationBatch should call lambdaClient with correct params', async () => {

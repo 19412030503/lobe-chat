@@ -145,6 +145,7 @@ export const imageRouter = router({
         model,
         prompt: params.prompt,
         provider,
+        type: 'image',
         userId,
         width: params.width, // 使用转换后的配置存储到数据库
       };

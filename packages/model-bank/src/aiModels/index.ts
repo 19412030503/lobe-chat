@@ -24,6 +24,7 @@ import { default as groq } from './groq';
 import { default as higress } from './higress';
 import { default as huggingface } from './huggingface';
 import { default as hunyuan } from './hunyuan';
+import { default as hunyuan3d } from './hunyuan3d';
 import { default as infiniai } from './infiniai';
 import { default as internlm } from './internlm';
 import { default as jina } from './jina';
@@ -110,6 +111,7 @@ export const LOBE_DEFAULT_MODEL_LIST = buildDefaultModelList({
   higress,
   huggingface,
   hunyuan,
+  hunyuan3d,
   infiniai,
   internlm,
   jina,
@@ -177,6 +179,7 @@ export { default as groq } from './groq';
 export { default as higress } from './higress';
 export { default as huggingface } from './huggingface';
 export { default as hunyuan } from './hunyuan';
+export { default as hunyuan3d } from './hunyuan3d';
 export { default as infiniai } from './infiniai';
 export { default as internlm } from './internlm';
 export { default as jina } from './jina';

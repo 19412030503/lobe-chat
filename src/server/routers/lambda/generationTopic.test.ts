@@ -26,6 +26,7 @@ describe('generationTopicRouter', () => {
     const mockCreatedTopic = {
       id: mockTopicId,
       title: '',
+      type: 'image',
       userId: 'test-user',
       coverUrl: null,
       accessedAt: new Date(),
@@ -45,7 +46,35 @@ describe('generationTopicRouter', () => {
     const result = await caller.createTopic();
 
     expect(result).toBe(mockTopicId);
-    expect(mockCreate).toHaveBeenCalledWith('');
+    expect(mockCreate).toHaveBeenCalledWith('', 'image');
+  });
+
+  it('should create a topic with specified type', async () => {
+    const mockTopicId = 'topic-456';
+    const mockCreatedTopic = {
+      id: mockTopicId,
+      title: 'ThreeD Topic',
+      type: 'threeD',
+      userId: 'test-user',
+      coverUrl: null,
+      accessedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockCreate = vi.fn().mockResolvedValue(mockCreatedTopic);
+    vi.mocked(GenerationTopicModel).mockImplementation(
+      () =>
+        ({
+          create: mockCreate,
+        }) as any,
+    );
+
+    const caller = generationTopicRouter.createCaller(mockCtx);
+    const result = await caller.createTopic({ title: 'ThreeD Topic', type: 'threeD' });
+
+    expect(result).toBe(mockTopicId);
+    expect(mockCreate).toHaveBeenCalledWith('ThreeD Topic', 'threeD');
   });
 
   it('should get all generation topics', async () => {
@@ -53,6 +82,7 @@ describe('generationTopicRouter', () => {
       {
         id: 'topic-1',
         title: 'Test Topic 1',
+        type: 'image',
         userId: 'test-user',
         coverUrl: 'cover-url-1',
         accessedAt: new Date(),
@@ -62,6 +92,7 @@ describe('generationTopicRouter', () => {
       {
         id: 'topic-2',
         title: 'Test Topic 2',
+        type: 'image',
         userId: 'test-user',
         coverUrl: null,
         accessedAt: new Date(),
@@ -82,7 +113,24 @@ describe('generationTopicRouter', () => {
     const result = await caller.getAllGenerationTopics();
 
     expect(result).toEqual(mockTopics);
-    expect(mockQueryAll).toHaveBeenCalled();
+    expect(mockQueryAll).toHaveBeenCalledWith('image');
+  });
+
+  it('should get generation topics by specified type', async () => {
+    const mockTopics: GenerationTopicItem[] = [];
+    const mockQueryAll = vi.fn().mockResolvedValue(mockTopics);
+    vi.mocked(GenerationTopicModel).mockImplementation(
+      () =>
+        ({
+          queryAll: mockQueryAll,
+        }) as any,
+    );
+
+    const caller = generationTopicRouter.createCaller(mockCtx);
+    const result = await caller.getAllGenerationTopics({ type: 'threeD' });
+
+    expect(result).toEqual(mockTopics);
+    expect(mockQueryAll).toHaveBeenCalledWith('threeD');
   });
 
   it('should update a topic', async () => {
@@ -165,6 +213,7 @@ describe('generationTopicRouter', () => {
     const mockDeletedTopic = {
       id: mockTopicId,
       title: 'Deleted Topic',
+      type: 'image',
       userId: 'test-user',
       coverUrl: null,
       accessedAt: new Date(),
@@ -207,6 +256,7 @@ describe('generationTopicRouter', () => {
     const mockDeletedTopic = {
       id: mockTopicId,
       title: 'Deleted Topic',
+      type: 'image',
       userId: 'test-user',
       coverUrl: mockCoverUrl,
       accessedAt: new Date(),
@@ -298,6 +348,7 @@ describe('generationTopicRouter', () => {
     const mockDeletedTopic = {
       id: mockTopicId,
       title: 'Deleted Topic with Multiple Files',
+      type: 'image',
       userId: 'test-user',
       coverUrl: mockCoverUrl,
       accessedAt: new Date(),
@@ -340,6 +391,7 @@ describe('generationTopicRouter', () => {
     const mockDeletedTopic = {
       id: mockTopicId,
       title: 'Deleted Topic',
+      type: 'image',
       userId: 'test-user',
       coverUrl: mockCoverUrl,
       accessedAt: new Date(),

@@ -4,6 +4,7 @@ import {
   AzureOpenAIKeyVault,
   ClientSecretPayload,
   CloudflareKeyVault,
+  Hunyuan3DKeyVault,
   OpenAICompatibleKeyVault,
   VertexAIKeyVault,
 } from '@lobechat/types';
@@ -23,6 +24,7 @@ export const getProviderAuthPayload = (
     AzureOpenAIKeyVault &
     AWSBedrockKeyVault &
     CloudflareKeyVault &
+    Hunyuan3DKeyVault &
     VertexAIKeyVault,
 ) => {
   switch (provider) {
@@ -78,10 +80,27 @@ export const getProviderAuthPayload = (
 
     case ModelProvider.VertexAI: {
       // Vertex AI uses JSON credentials, should not split by comma
-      return { 
-        apiKey: keyVaults?.apiKey, 
+      return {
+        apiKey: keyVaults?.apiKey,
         baseURL: keyVaults?.baseURL,
         vertexAIRegion: keyVaults?.region,
+      };
+    }
+
+    case ModelProvider.Hunyuan3D: {
+      const secretKey = clientApiKeyManager.pick(keyVaults?.apiKey);
+      const baseURL = (keyVaults as Hunyuan3DKeyVault).baseURL || keyVaults?.baseURL || undefined;
+
+      return {
+        apiKey: secretKey,
+        baseURL,
+        hunyuan3dEndpoint: baseURL,
+        hunyuan3dPollInterval: (keyVaults as Hunyuan3DKeyVault).pollInterval,
+        hunyuan3dPollTimeout: (keyVaults as Hunyuan3DKeyVault).pollTimeout,
+        hunyuan3dRegion: (keyVaults as Hunyuan3DKeyVault).region,
+        hunyuan3dSecretId: (keyVaults as Hunyuan3DKeyVault).secretId,
+        hunyuan3dSecretKey: secretKey,
+        hunyuan3dVersion: (keyVaults as Hunyuan3DKeyVault).version,
       };
     }
 

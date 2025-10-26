@@ -34,6 +34,29 @@ export interface CloudflareKeyVault {
   baseURLOrAccountID?: string;
 }
 
+export interface Hunyuan3DKeyVault extends OpenAICompatibleKeyVault {
+  /**
+   * 轮询间隔（毫秒）
+   */
+  pollInterval?: string;
+  /**
+   * 轮询超时（毫秒）
+   */
+  pollTimeout?: string;
+  /**
+   * 接入区域，例如 ap-guangzhou（默认）
+   */
+  region?: string;
+  /**
+   * 腾讯云账户的 SecretId
+   */
+  secretId?: string;
+  /**
+   * 腾讯云 API 版本，默认 2025-05-13
+   */
+  version?: string;
+}
+
 export interface SearchEngineKeyVaults {
   searchxng?: {
     apiKey?: string;
@@ -67,6 +90,7 @@ export interface UserKeyVaults extends SearchEngineKeyVaults {
   higress?: OpenAICompatibleKeyVault;
   huggingface?: OpenAICompatibleKeyVault;
   hunyuan?: OpenAICompatibleKeyVault;
+  hunyuan3d?: Hunyuan3DKeyVault;
   infiniai?: OpenAICompatibleKeyVault;
   internlm?: OpenAICompatibleKeyVault;
   jina?: OpenAICompatibleKeyVault;

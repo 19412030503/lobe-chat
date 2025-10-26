@@ -9,6 +9,7 @@ import {
   List,
   Select,
   Space,
+  Tag,
   Typography,
   message,
 } from 'antd';
@@ -25,6 +26,15 @@ import { useThreeDStore } from '@/store/threeD';
 import { GenerationBatch } from '@/types/generation';
 
 const { Title, Text } = Typography;
+
+const statusColorMap: Record<string, 'error' | 'processing' | 'success' | 'warning'> = {
+  error: 'error',
+  pending: 'warning',
+  processing: 'processing',
+  success: 'success',
+};
+
+const pendingStatuses = new Set(['pending', 'processing']);
 
 const ThreeDWorkspace = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -44,15 +54,23 @@ const ThreeDWorkspace = () => {
   const setModelAndProvider = useThreeDStore((s) => s.setModelAndProvider);
   const setModelCount = useThreeDStore((s) => s.setModelCount);
   const setPrompt = useThreeDStore((s) => s.setPrompt);
+  const setParameter = useThreeDStore((s) => s.setParameter);
   const createThreeDTask = useThreeDStore((s) => s.createTask);
 
   const {
     data: topics = [],
     mutate: refreshTopics,
     isLoading: isTopicsLoading,
-  } = useClientDataSWR('threeD-topics', () => generationTopicService.getAllGenerationTopics(), {
-    revalidateOnFocus: false,
-  });
+  } = useClientDataSWR(
+    'threeD-topics',
+    () =>
+      generationTopicService.getAllGenerationTopics({
+        type: 'threeD',
+      }),
+    {
+      revalidateOnFocus: false,
+    },
+  );
 
   useEffect(() => {
     if (!topics.length) return;
@@ -69,11 +87,31 @@ const ThreeDWorkspace = () => {
     mutate: refreshBatches,
   } = useClientDataSWR<GenerationBatch[] | undefined>(
     activeTopicId ? ['threeD-batches', activeTopicId] : null,
-    async ([, topicId]) => generationBatchService.getGenerationBatches(topicId as string),
+    async ([, topicId]) => generationBatchService.getGenerationBatches(topicId as string, 'threeD'),
     {
       revalidateOnFocus: false,
     },
   );
+
+  const hasPendingGenerations = useMemo(() => {
+    if (!generationBatches?.length) return false;
+    return generationBatches.some((batch) =>
+      batch.generations?.some((generation) => pendingStatuses.has(generation.task.status)),
+    );
+  }, [generationBatches]);
+
+  useEffect(() => {
+    if (!hasPendingGenerations || isBatchLoading) return;
+    const timer = setTimeout(() => {
+      refreshBatches();
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [hasPendingGenerations, isBatchLoading, refreshBatches]);
+
+  const handleRefreshBatches = useCallback(() => {
+    refreshBatches();
+  }, [refreshBatches]);
 
   const modelOptions = useMemo(() => {
     const currentProvider = providerList.find((item) => item.id === provider);
@@ -94,7 +132,7 @@ const ThreeDWorkspace = () => {
 
   const handleCreateTopic = useCallback(async () => {
     try {
-      const id = await generationTopicService.createTopic();
+      const id = await generationTopicService.createTopic({ type: 'threeD' });
       await refreshTopics();
       setActiveTopicId(id);
       messageApi.success(t('topic.createdSuccess', '已创建新的建模主题'));
@@ -108,7 +146,7 @@ const ThreeDWorkspace = () => {
     let topicId = activeTopicId;
 
     if (!topicId) {
-      topicId = await generationTopicService.createTopic();
+      topicId = await generationTopicService.createTopic({ type: 'threeD' });
       await refreshTopics();
       setActiveTopicId(topicId);
     }
@@ -196,9 +234,19 @@ const ThreeDWorkspace = () => {
               />
             </div>
 
+            <div>
+              <Text strong>{t('config.reference', '参考图像 URL')}</Text>
+              <Input
+                onChange={(event) => setParameter('imageUrl', event.target.value)}
+                placeholder={t('config.referencePlaceholder', '可选：引用现有图片作为建模参考')}
+                style={{ marginTop: 8 }}
+                value={parameters.imageUrl || ''}
+              />
+            </div>
+
             <Button
               block
-              disabled={!parameters.prompt}
+              disabled={!parameters.prompt && !parameters.imageUrl}
               loading={isCreating}
               onClick={handleGenerate}
               size="large"
@@ -213,11 +261,21 @@ const ThreeDWorkspace = () => {
           <Card
             style={{ flex: 1, minHeight: 360 }}
             title={
-              <Flexbox align="center" gap={8} horizontal>
-                <Title level={5} style={{ margin: 0 }}>
-                  {t('result.title', '生成记录')}
-                </Title>
-                {isBatchLoading && <Text type="secondary">{t('result.loading', '加载中...')}</Text>}
+              <Flexbox align="center" horizontal justify="space-between">
+                <Flexbox align="center" gap={8} horizontal>
+                  <Title level={5} style={{ margin: 0 }}>
+                    {t('result.title', '生成记录')}
+                  </Title>
+                  {isBatchLoading && (
+                    <Text type="secondary">{t('result.loading', '加载中...')}</Text>
+                  )}
+                  {hasPendingGenerations && (
+                    <Tag color="processing">{t('result.pendingTag', '有任务正在处理中')}</Tag>
+                  )}
+                </Flexbox>
+                <Button loading={isBatchLoading} onClick={handleRefreshBatches} size="small">
+                  {t('result.refresh', '刷新')}
+                </Button>
               </Flexbox>
             }
           >
@@ -230,27 +288,99 @@ const ThreeDWorkspace = () => {
               <List
                 dataSource={generationBatches}
                 renderItem={(batch) => {
-                  const asset = batch.generations?.[0]?.asset as any;
+                  const generations = batch.generations || [];
+                  const batchStatus = generations.some(
+                    (generation) => generation.task.status === 'error',
+                  )
+                    ? 'error'
+                    : generations.some((generation) => pendingStatuses.has(generation.task.status))
+                      ? 'processing'
+                      : 'success';
                   return (
                     <List.Item key={batch.id}>
-                      <Flexbox gap={8}>
-                        <Text strong>{batch.prompt}</Text>
+                      <Flexbox gap={12}>
+                        <Flexbox align="center" gap={8} horizontal>
+                          <Text strong>{batch.prompt}</Text>
+                          <Tag color={statusColorMap[batchStatus] ?? 'processing'}>
+                            {t(`status.${batchStatus}`, batchStatus)}
+                          </Tag>
+                        </Flexbox>
                         <Text type="secondary">
                           {t('result.assetInfo', {
                             model: batch.model,
                             provider: batch.provider,
                           })}
                         </Text>
-                        {asset?.modelUrl && (
-                          <a href={asset.modelUrl} rel="noreferrer" target="_blank">
-                            {t('result.viewModel', '查看模型文件')}
-                          </a>
-                        )}
-                        {asset?.previewUrl && (
-                          <a href={asset.previewUrl} rel="noreferrer" target="_blank">
-                            {t('result.viewPreview', '查看预览')}
-                          </a>
-                        )}
+                        <Flexbox gap={12}>
+                          {generations.length === 0 ? (
+                            <Text type="secondary">
+                              {t('result.noGeneration', '该批次暂无生成结果')}
+                            </Text>
+                          ) : (
+                            generations.map((generation) => {
+                              const asset = generation.asset as any;
+                              const status = generation.task.status;
+                              const tagColor = statusColorMap[status] ?? 'warning';
+                              const taskErrorBody = generation.task.error?.body;
+                              const taskErrorMessage =
+                                typeof taskErrorBody === 'string'
+                                  ? taskErrorBody
+                                  : taskErrorBody?.detail;
+                              const seedLabel =
+                                generation.seed !== null && generation.seed !== undefined
+                                  ? t('result.seed', { value: generation.seed })
+                                  : t('result.seedUnknown', '未提供种子');
+                              const previewUrl = asset?.previewUrl || asset?.url;
+                              const hasAsset = Boolean(asset?.modelUrl || previewUrl);
+                              return (
+                                <Flexbox
+                                  gap={6}
+                                  key={generation.id}
+                                  style={{
+                                    border: '1px solid var(--ant-color-border)',
+                                    borderRadius: 8,
+                                    padding: 12,
+                                  }}
+                                >
+                                  <Flexbox align="center" gap={8} horizontal>
+                                    <Tag color={tagColor}>{t(`status.${status}`, status)}</Tag>
+                                    <Text type="secondary">{seedLabel}</Text>
+                                    {asset?.format && (
+                                      <Text type="secondary">
+                                        {t('result.assetFormat', { value: asset.format })}
+                                      </Text>
+                                    )}
+                                  </Flexbox>
+                                  {taskErrorMessage && (
+                                    <Text type="danger">
+                                      {t('result.errorMessage', {
+                                        message: taskErrorMessage,
+                                      })}
+                                    </Text>
+                                  )}
+                                  {hasAsset ? (
+                                    <Space size={12}>
+                                      {asset?.modelUrl && (
+                                        <a href={asset.modelUrl} rel="noreferrer" target="_blank">
+                                          {t('result.viewModel', '查看模型文件')}
+                                        </a>
+                                      )}
+                                      {previewUrl && (
+                                        <a href={previewUrl} rel="noreferrer" target="_blank">
+                                          {t('result.viewPreview', '查看预览')}
+                                        </a>
+                                      )}
+                                    </Space>
+                                  ) : (
+                                    <Text type="secondary">
+                                      {t('result.noAsset', '生成结果暂未提供可预览文件')}
+                                    </Text>
+                                  )}
+                                </Flexbox>
+                              );
+                            })
+                          )}
+                        </Flexbox>
                       </Flexbox>
                     </List.Item>
                   );

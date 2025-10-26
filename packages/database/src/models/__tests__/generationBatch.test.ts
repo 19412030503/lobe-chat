@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AsyncTaskStatus } from '@/types/asyncTask';
-import { GenerationConfig } from '@/types/generation';
+import { GenerationConfig, GenerationContentTypeEnum } from '@/types/generation';
 
 import {
   NewGenerationBatch,
@@ -44,6 +44,7 @@ const testTopic = {
   userId,
   title: 'Test Generation Topic',
   coverUrl: null,
+  type: GenerationContentTypeEnum.Image,
 };
 
 const testBatch: NewGenerationBatch = {
@@ -52,6 +53,7 @@ const testBatch: NewGenerationBatch = {
   provider: 'test-provider',
   model: 'test-model',
   prompt: 'Test prompt for image generation',
+  type: 'image',
   width: 1024,
   height: 1024,
   config: {
@@ -106,7 +108,7 @@ beforeEach(async () => {
   await serverDB.insert(users).values([{ id: userId }, { id: otherUserId }]);
 
   // Create test topic
-  await serverDB.insert(generationTopics).values(testTopic);
+  await serverDB.insert(generationTopics).values([testTopic]);
 });
 
 afterEach(async () => {

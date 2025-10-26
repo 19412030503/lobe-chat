@@ -34,6 +34,20 @@ const createImageModel = (
   ...overrides,
 });
 
+const createThreeDModel = (
+  id: string,
+  providerId: string,
+  overrides: Partial<EnabledAiModel> = {},
+): EnabledAiModel => ({
+  id,
+  providerId,
+  type: '3d',
+  abilities: {} satisfies ModelAbilities,
+  displayName: `${id} model`,
+  enabled: true,
+  ...overrides,
+});
+
 // Core test data
 const mockChatModels = [
   createChatModel('gpt-4', 'openai', {
@@ -65,7 +79,17 @@ const mockImageModels = [
   }),
 ];
 
-const allModels = [...mockChatModels, ...mockImageModels];
+const mockThreeDModels = [
+  createThreeDModel('hunyuan-3d-pro', 'hunyuan3d', {
+    displayName: 'Hunyuan 3D Pro',
+    parameters: {
+      imageUrl: { default: '' },
+      prompt: { default: '' },
+    },
+  }),
+];
+
+const allModels = [...mockChatModels, ...mockImageModels, ...mockThreeDModels];
 
 describe('getModelListByType', () => {
   describe('Core Functionality', () => {
@@ -98,6 +122,21 @@ describe('getModelListByType', () => {
         parameters: {
           prompt: { default: '' },
           size: { default: '1024x1024', enum: ['512x512', '1024x1024', '1536x1536'] },
+        },
+      });
+    });
+
+    it('should include parameters for threeD models', async () => {
+      const result = await getModelListByType(allModels, 'hunyuan3d', '3d');
+
+      expect(result[0]).toEqual({
+        abilities: {},
+        contextWindowTokens: undefined,
+        displayName: 'Hunyuan 3D Pro',
+        id: 'hunyuan-3d-pro',
+        parameters: {
+          imageUrl: { default: '' },
+          prompt: { default: '' },
         },
       });
     });
@@ -271,6 +310,24 @@ describe('getModelListByType', () => {
       const result = await getModelListByType(orderedModels, 'test', 'chat');
 
       expect(result.map((m) => m.id)).toEqual(['first-model', 'second-model', 'third-model']);
+    });
+
+    it('should fetch fallback parameters for 3d models', async () => {
+      vi.spyOn(runtimeModule, 'getModelPropertyWithFallback').mockResolvedValueOnce({
+        prompt: { default: '' },
+      });
+
+      const result = await getModelListByType(
+        [
+          createThreeDModel('fallback-3d', 'hunyuan3d', {
+            parameters: undefined,
+          }),
+        ],
+        'hunyuan3d',
+        '3d',
+      );
+
+      expect(result[0].parameters).toEqual({ prompt: { default: '' } });
     });
   });
 });

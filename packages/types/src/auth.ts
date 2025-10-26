@@ -29,6 +29,14 @@ export interface ClientSecretPayload {
 
   vertexAIRegion?: string;
 
+  hunyuan3dEndpoint?: string;
+  hunyuan3dPollInterval?: string | number;
+  hunyuan3dPollTimeout?: string | number;
+  hunyuan3dRegion?: string;
+  hunyuan3dSecretId?: string;
+  hunyuan3dSecretKey?: string;
+  hunyuan3dVersion?: string;
+
   /**
    * user id
    * in client db mode it's a uuid

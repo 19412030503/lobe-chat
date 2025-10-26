@@ -1,10 +1,10 @@
 import { and, desc, eq } from 'drizzle-orm';
 
-import { LobeChatDatabase } from '../type';
 import { FileService } from '@/server/services/file';
-import { GenerationAsset, ImageGenerationTopic } from '@/types/generation';
+import { GenerationAsset, GenerationContentType, ImageGenerationTopic } from '@/types/generation';
 
 import { GenerationTopicItem, generationTopics } from '../schemas/generation';
+import { LobeChatDatabase } from '../type';
 
 export class GenerationTopicModel {
   private userId: string;
@@ -17,12 +17,12 @@ export class GenerationTopicModel {
     this.fileService = new FileService(db, userId);
   }
 
-  queryAll = async () => {
+  queryAll = async (type: GenerationContentType = 'image') => {
     const topics = await this.db
       .select()
       .from(generationTopics)
       .orderBy(desc(generationTopics.updatedAt))
-      .where(eq(generationTopics.userId, this.userId));
+      .where(and(eq(generationTopics.userId, this.userId), eq(generationTopics.type, type)));
 
     return Promise.all(
       topics.map(async (topic) => {
@@ -37,11 +37,12 @@ export class GenerationTopicModel {
     );
   };
 
-  create = async (title: string) => {
+  create = async (title: string, type: GenerationContentType = 'image') => {
     const [newGenerationTopic] = await this.db
       .insert(generationTopics)
       .values({
         title,
+        type,
         userId: this.userId,
       })
       .returning();

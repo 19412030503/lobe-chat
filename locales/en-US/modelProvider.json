@@ -136,6 +136,33 @@
       "title": "HuggingFace Token"
     }
   },
+  "hunyuan3d": {
+    "endpoint": {
+      "desc": "Use the default Tencent Cloud endpoint or provide your own HTTPS endpoint if you deployed a proxy",
+      "placeholder": "https://ai3d.tencentcloudapi.com",
+      "title": "API Endpoint"
+    },
+    "region": {
+      "desc": "Optional, specify the invocation region such as ap-guangzhou (default)",
+      "placeholder": "ap-guangzhou",
+      "title": "Region (optional)"
+    },
+    "secretId": {
+      "desc": "Enter the Tencent Cloud SecretId for your credential",
+      "placeholder": "AKIDxxxxxxxxxxxxxxxx",
+      "title": "SecretId"
+    },
+    "secretKey": {
+      "desc": "Enter the Tencent Cloud SecretKey used for signing requests",
+      "placeholder": "SecretKey",
+      "title": "SecretKey"
+    },
+    "version": {
+      "desc": "Optional, override the API version if Tencent Cloud releases a newer one. Default is 2025-05-13",
+      "placeholder": "2025-05-13",
+      "title": "API Version (optional)"
+    }
+  },
   "list": {
     "title": {
       "disabled": "Disabled",

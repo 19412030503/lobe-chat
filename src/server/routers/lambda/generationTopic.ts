@@ -7,6 +7,8 @@ import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { FileService } from '@/server/services/file';
 import { GenerationService } from '@/server/services/generation';
 
+const generationTopicTypeSchema = z.enum(['image', 'threeD']);
+
 const generationTopicProcedure = authedProcedure.use(serverDatabase).use(async (opts) => {
   const { ctx } = opts;
 
@@ -34,10 +36,22 @@ const updateTopicCoverSchema = z.object({
 });
 
 export const generationTopicRouter = router({
-  createTopic: generationTopicProcedure.input(z.void()).mutation(async ({ ctx }) => {
-    const data = await ctx.generationTopicModel.create('');
-    return data.id;
-  }),
+  createTopic: generationTopicProcedure
+    .input(
+      z
+        .object({
+          title: z.string().optional(),
+          type: generationTopicTypeSchema.optional(),
+        })
+        .optional(),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const data = await ctx.generationTopicModel.create(
+        input?.title ?? '',
+        input?.type ?? 'image',
+      );
+      return data.id;
+    }),
   deleteTopic: generationTopicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -66,9 +80,17 @@ export const generationTopicRouter = router({
 
       return deletedTopic;
     }),
-  getAllGenerationTopics: generationTopicProcedure.query(async ({ ctx }) => {
-    return ctx.generationTopicModel.queryAll();
-  }),
+  getAllGenerationTopics: generationTopicProcedure
+    .input(
+      z
+        .object({
+          type: generationTopicTypeSchema.optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.generationTopicModel.queryAll(input?.type ?? 'image');
+    }),
   updateTopic: generationTopicProcedure
     .input(updateTopicSchema)
     .mutation(async ({ ctx, input }) => {

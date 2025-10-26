@@ -1,10 +1,19 @@
 import { AsyncTaskError, AsyncTaskStatus } from '../asyncTask';
 
+export const GenerationContentTypeEnum = {
+  Image: 'image',
+  ThreeD: 'threeD',
+} as const;
+
+export type GenerationContentType =
+  (typeof GenerationContentTypeEnum)[keyof typeof GenerationContentTypeEnum];
+
 export interface ImageGenerationTopic {
   coverUrl?: string | null;
   createdAt: Date;
   id: string;
   title?: string | null;
+  type?: GenerationContentType;
   updatedAt: Date;
 }
 
@@ -44,6 +53,10 @@ export interface ThreeDGenerationAsset extends BaseGenerationAsset {
    * 兼容图片逻辑所需的高度
    */
   height?: number;
+  /**
+   * 供应商返回的任务 ID
+   */
+  jobId?: string;
   /**
    * 完整的模型文件地址或存储 key
    */
@@ -112,5 +125,6 @@ export interface GenerationBatch {
   model: string;
   prompt: string;
   provider: string;
+  type?: GenerationContentType;
   width?: number | null;
 }

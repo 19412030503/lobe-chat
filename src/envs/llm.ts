@@ -128,6 +128,14 @@ export const getLLMConfig = () => {
 
       ENABLED_HUNYUAN: z.boolean(),
       HUNYUAN_API_KEY: z.string().optional(),
+      ENABLED_HUNYUAN3D: z.boolean(),
+      HUNYUAN3D_ENDPOINT: z.string().optional(),
+      HUNYUAN3D_POLL_INTERVAL: z.string().optional(),
+      HUNYUAN3D_POLL_TIMEOUT: z.string().optional(),
+      HUNYUAN3D_REGION: z.string().optional(),
+      HUNYUAN3D_SECRET_ID: z.string().optional(),
+      HUNYUAN3D_SECRET_KEY: z.string().optional(),
+      HUNYUAN3D_VERSION: z.string().optional(),
 
       ENABLED_HUGGINGFACE: z.boolean(),
       HUGGINGFACE_API_KEY: z.string().optional(),
@@ -327,6 +335,14 @@ export const getLLMConfig = () => {
 
       ENABLED_HUNYUAN: !!process.env.HUNYUAN_API_KEY,
       HUNYUAN_API_KEY: process.env.HUNYUAN_API_KEY,
+      ENABLED_HUNYUAN3D: !!process.env.HUNYUAN3D_SECRET_ID && !!process.env.HUNYUAN3D_SECRET_KEY,
+      HUNYUAN3D_ENDPOINT: process.env.HUNYUAN3D_ENDPOINT,
+      HUNYUAN3D_POLL_INTERVAL: process.env.HUNYUAN3D_POLL_INTERVAL,
+      HUNYUAN3D_POLL_TIMEOUT: process.env.HUNYUAN3D_POLL_TIMEOUT,
+      HUNYUAN3D_REGION: process.env.HUNYUAN3D_REGION,
+      HUNYUAN3D_SECRET_ID: process.env.HUNYUAN3D_SECRET_ID,
+      HUNYUAN3D_SECRET_KEY: process.env.HUNYUAN3D_SECRET_KEY,
+      HUNYUAN3D_VERSION: process.env.HUNYUAN3D_VERSION,
 
       ENABLED_HUGGINGFACE: !!process.env.HUGGINGFACE_API_KEY,
       HUGGINGFACE_API_KEY: process.env.HUGGINGFACE_API_KEY,

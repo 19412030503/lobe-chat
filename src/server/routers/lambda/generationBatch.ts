@@ -5,6 +5,8 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { FileService } from '@/server/services/file';
 
+const generationTypeSchema = z.enum(['image', 'threeD']);
+
 const generationBatchProcedure = authedProcedure.use(serverDatabase).use(async (opts) => {
   const { ctx } = opts;
 
@@ -47,9 +49,18 @@ export const generationBatchRouter = router({
     }),
 
   getGenerationBatches: generationBatchProcedure
-    .input(z.object({ topicId: z.string() }))
+    .input(
+      z.object({
+        topicId: z.string(),
+        type: generationTypeSchema.optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      return ctx.generationBatchModel.queryGenerationBatchesByTopicIdWithGenerations(input.topicId);
+      const type = input.type ?? 'image';
+      return ctx.generationBatchModel.queryGenerationBatchesByTopicIdWithGenerations(
+        input.topicId,
+        type,
+      );
     }),
 });
 

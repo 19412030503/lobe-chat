@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { GenerationBatchModel } from '@/database/models/generationBatch';
 import { GenerationBatchItem } from '@/database/schemas/generation';
 import { FileService } from '@/server/services/file';
+import { GenerationContentTypeEnum } from '@/types/generation';
 
 import { generationBatchRouter } from './generationBatch';
 
@@ -51,7 +52,22 @@ describe('generationBatchRouter', () => {
     const result = await caller.getGenerationBatches({ topicId: 'topic-1' });
 
     expect(result).toEqual(mockBatches);
-    expect(mockQuery).toHaveBeenCalledWith('topic-1');
+    expect(mockQuery).toHaveBeenCalledWith('topic-1', 'image');
+  });
+
+  it('should forward type when fetching batches', async () => {
+    const mockQuery = vi.fn().mockResolvedValue([]);
+    vi.mocked(GenerationBatchModel).mockImplementation(
+      () =>
+        ({
+          queryGenerationBatchesByTopicIdWithGenerations: mockQuery,
+        }) as any,
+    );
+
+    const caller = generationBatchRouter.createCaller(mockCtx);
+    await caller.getGenerationBatches({ topicId: 'topic-2', type: 'threeD' });
+
+    expect(mockQuery).toHaveBeenCalledWith('topic-2', 'threeD');
   });
 
   it('should delete generation batch without thumbnails', async () => {
@@ -67,6 +83,7 @@ describe('generationBatchRouter', () => {
       height: 1024,
       ratio: null,
       config: null,
+      type: GenerationContentTypeEnum.Image,
       accessedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -114,6 +131,7 @@ describe('generationBatchRouter', () => {
       height: 1024,
       ratio: null,
       config: null,
+      type: GenerationContentTypeEnum.Image,
       accessedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -161,6 +179,7 @@ describe('generationBatchRouter', () => {
       height: 1024,
       ratio: null,
       config: null,
+      type: GenerationContentTypeEnum.Image,
       accessedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -247,6 +266,7 @@ describe('generationBatchRouter', () => {
       height: 1024,
       ratio: null,
       config: null,
+      type: GenerationContentTypeEnum.Image,
       accessedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -329,6 +349,7 @@ describe('generationBatchRouter', () => {
       height: 1024,
       ratio: null,
       config: null,
+      type: GenerationContentTypeEnum.Image,
       accessedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),

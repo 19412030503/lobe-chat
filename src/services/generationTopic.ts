@@ -1,15 +1,23 @@
 import { GenerationTopicItem } from '@/database/schemas';
 import { lambdaClient } from '@/libs/trpc/client';
 import { UpdateTopicValue } from '@/server/routers/lambda/generationTopic';
-import { ImageGenerationTopic } from '@/types/generation';
+import { GenerationContentType, ImageGenerationTopic } from '@/types/generation';
 
 export class ServerService {
-  async getAllGenerationTopics(): Promise<ImageGenerationTopic[]> {
-    return lambdaClient.generationTopic.getAllGenerationTopics.query();
+  async getAllGenerationTopics(params?: {
+    type?: GenerationContentType;
+  }): Promise<ImageGenerationTopic[]> {
+    const type = params?.type ?? 'image';
+    return lambdaClient.generationTopic.getAllGenerationTopics.query({ type });
   }
 
-  async createTopic(): Promise<string> {
-    return lambdaClient.generationTopic.createTopic.mutate(undefined);
+  async createTopic(params?: { title?: string; type?: GenerationContentType }): Promise<string> {
+    const type = params?.type ?? 'image';
+    const payload: { title?: string; type: GenerationContentType } = { type };
+    if (params?.title !== undefined) {
+      payload.title = params.title;
+    }
+    return lambdaClient.generationTopic.createTopic.mutate(payload);
   }
 
   async updateTopic(id: string, data: UpdateTopicValue): Promise<GenerationTopicItem | undefined> {

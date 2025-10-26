@@ -136,6 +136,33 @@
       "title": "HuggingFace Token"
     }
   },
+  "hunyuan3d": {
+    "endpoint": {
+      "desc": "默认使用腾讯云公共接口地址，如需私有化可在此填写完整 HTTPS 地址",
+      "placeholder": "https://ai3d.tencentcloudapi.com",
+      "title": "API 接口地址"
+    },
+    "region": {
+      "desc": "可选，指定调用区域，例如 ap-guangzhou（默认）",
+      "placeholder": "ap-guangzhou",
+      "title": "调用区域 (可选)"
+    },
+    "secretId": {
+      "desc": "填写腾讯云账号的 SecretId，用于标识访问凭证",
+      "placeholder": "AKIDxxxxxxxxxxxxxxxx",
+      "title": "SecretId"
+    },
+    "secretKey": {
+      "desc": "填写腾讯云账号的 SecretKey，用于签名请求",
+      "placeholder": "SecretKey",
+      "title": "SecretKey"
+    },
+    "version": {
+      "desc": "可选，若腾讯云更新版本，可在此调整 API 版本号，默认 2025-05-13",
+      "placeholder": "2025-05-13",
+      "title": "API 版本 (可选)"
+    }
+  },
   "list": {
     "title": {
       "disabled": "未启用服务商",

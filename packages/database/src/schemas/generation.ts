@@ -2,7 +2,7 @@
 import { integer, jsonb, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 
-import { GenerationAsset } from '@/types/generation';
+import { GenerationAsset, GenerationContentType } from '@/types/generation';
 
 import { idGenerator } from '../utils/idGenerator';
 import { timestamps } from './_helpers';
@@ -28,6 +28,9 @@ export const generationTopics = pgTable('generation_topics', {
 
   /** 主题封面图片 URL */
   coverUrl: text('cover_url'),
+
+  /** 生成类型，用于区分图片与 3D 资产 */
+  type: varchar('type', { length: 16 }).$type<GenerationContentType>().notNull().default('image'),
 
   ...timestamps,
 });
@@ -62,6 +65,9 @@ export const generationBatches = pgTable('generation_batches', {
 
   /** 生成提示词 */
   prompt: text('prompt').notNull(),
+
+  /** 生成类型，用于区分图片与 3D 资产 */
+  type: varchar('type', { length: 16 }).$type<GenerationContentType>().notNull().default('image'),
 
   /** 图片宽度 */
   width: integer('width'),

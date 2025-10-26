@@ -197,5 +197,18 @@ describe('keyVaultsConfigSelectors', () => {
         expect(keyVaultsConfigSelectors.isProviderApiKeyNotEmpty('bedrock')(s)).toBe(false);
       });
     });
+
+    it('should return true when secretKey exists for custom providers', () => {
+      const s = merge(initialSettingsState, {
+        settings: {
+          keyVaults: {
+            hunyuan3d: {
+              secretKey: 'secret-key',
+            },
+          },
+        },
+      }) as unknown as UserStore;
+      expect(keyVaultsConfigSelectors.isProviderApiKeyNotEmpty('hunyuan3d')(s)).toBe(true);
+    });
   });
 });

@@ -5,6 +5,7 @@ import Bedrock from './bedrock';
 import Cloudflare from './cloudflare';
 import DefaultPage from './default/ProviderDetialPage';
 import GitHub from './github';
+import Hunyuan3D from './hunyuan3d';
 import Ollama from './ollama';
 import OpenAI from './openai';
 import VertexAI from './vertexai';
@@ -30,6 +31,9 @@ const ProviderDetailPage = (props: { id?: string | null }) => {
     }
     case 'github': {
       return <GitHub />;
+    }
+    case 'hunyuan3d': {
+      return <Hunyuan3D />;
     }
     case 'ollama': {
       return <Ollama />;

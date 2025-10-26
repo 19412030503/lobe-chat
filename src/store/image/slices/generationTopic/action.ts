@@ -157,7 +157,7 @@ export const createGenerationTopicSlice: StateCreator<
     get().internal_updateGenerationTopicLoading(tmpId, true);
 
     // 2. Call backend service
-    const topicId = await generationTopicService.createTopic();
+    const topicId = await generationTopicService.createTopic({ type: 'image' });
     get().internal_updateGenerationTopicLoading(tmpId, false);
 
     // 3. Refresh data to ensure consistency
@@ -220,7 +220,7 @@ export const createGenerationTopicSlice: StateCreator<
   useFetchGenerationTopics: (enabled) =>
     useClientDataSWR<ImageGenerationTopic[]>(
       enabled ? [FETCH_GENERATION_TOPICS_KEY] : null,
-      () => generationTopicService.getAllGenerationTopics(),
+      () => generationTopicService.getAllGenerationTopics({ type: 'image' }),
       {
         suspense: true,
         onSuccess: (data) => {

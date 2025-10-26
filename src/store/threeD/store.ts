@@ -1,4 +1,4 @@
-import { AIImageModelCard, ModelParamsSchema, extractDefaultValues } from 'model-bank';
+import { AI3DModelCard, ModelParamsSchema, extractDefaultValues } from 'model-bank';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
@@ -39,7 +39,7 @@ function getModelDefaults(providerId?: string, modelId?: string) {
   }
 
   const activeModel = provider.children.find((item) => item.id === modelId) as unknown as
-    | (AIImageModelCard & { parameters?: ModelParamsSchema })
+    | (AI3DModelCard & { parameters?: ModelParamsSchema })
     | undefined;
 
   if (!activeModel) {
@@ -76,8 +76,8 @@ const createStore: StateCreator<ThreeDStore, [['zustand/devtools', never]]> = (s
       throw new Error('3D provider or model is not ready');
     }
 
-    if (!state.parameters.prompt) {
-      throw new Error('Prompt is empty');
+    if (!state.parameters.prompt && !state.parameters.imageUrl) {
+      throw new Error('Please provide a prompt or reference image URL');
     }
 
     set({ isCreating: true }, false, 'threeD/create/start');

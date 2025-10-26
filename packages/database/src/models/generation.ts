@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { FileService } from '@/server/services/file';
 import { AsyncTaskError, AsyncTaskStatus } from '@/types/asyncTask';
 import { FileSource } from '@/types/files';
-import { Generation, GenerationAsset, ImageGenerationAsset } from '@/types/generation';
+import { Generation, GenerationAsset } from '@/types/generation';
 
 import { NewFile } from '../schemas';
 import {
@@ -93,8 +93,9 @@ export class GenerationModel {
 
   async createAssetAndFile(
     id: string,
-    asset: ImageGenerationAsset,
+    asset: GenerationAsset,
     file: Omit<NewFile, 'id' | 'userId'>,
+    source: FileSource = FileSource.ImageGeneration,
   ) {
     log('Creating generation asset and file with transaction: %s', id);
 
@@ -104,7 +105,7 @@ export class GenerationModel {
       const newFile = await this.fileModel.create(
         {
           ...file,
-          source: FileSource.ImageGeneration,
+          source,
         },
         true,
         tx,

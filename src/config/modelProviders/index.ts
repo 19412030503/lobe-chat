@@ -25,6 +25,7 @@ import GroqProvider from './groq';
 import HigressProvider from './higress';
 import HuggingFaceProvider from './huggingface';
 import HunyuanProvider from './hunyuan';
+import Hunyuan3DProvider from './hunyuan3d';
 import InfiniAIProvider from './infiniai';
 import InternLMProvider from './internlm';
 import JinaProvider from './jina';
@@ -165,6 +166,7 @@ export const DEFAULT_MODEL_PROVIDER_LIST = [
   WenxinProvider,
   TencentcloudProvider,
   HunyuanProvider,
+  Hunyuan3DProvider,
   ZhiPuProvider,
   SiliconCloudProvider,
   ZeroOneProvider,
@@ -224,6 +226,7 @@ export { default as GroqProviderCard } from './groq';
 export { default as HigressProviderCard } from './higress';
 export { default as HuggingFaceProviderCard } from './huggingface';
 export { default as HunyuanProviderCard } from './hunyuan';
+export { default as Hunyuan3DProviderCard } from './hunyuan3d';
 export { default as InfiniAIProviderCard } from './infiniai';
 export { default as InternLMProviderCard } from './internlm';
 export { default as JinaProviderCard } from './jina';

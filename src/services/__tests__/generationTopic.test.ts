@@ -25,14 +25,31 @@ describe('GenerationTopic ServerService', () => {
     service = new ServerService();
   });
 
-  it('getAllGenerationTopics should call lambdaClient', async () => {
+  it('getAllGenerationTopics should call lambdaClient with default type', async () => {
     await service.getAllGenerationTopics();
-    expect(lambdaClient.generationTopic.getAllGenerationTopics.query).toBeCalled();
+    expect(lambdaClient.generationTopic.getAllGenerationTopics.query).toBeCalledWith({
+      type: 'image',
+    });
   });
 
-  it('createTopic should call lambdaClient with undefined', async () => {
+  it('getAllGenerationTopics should forward custom type', async () => {
+    await service.getAllGenerationTopics({ type: 'threeD' });
+    expect(lambdaClient.generationTopic.getAllGenerationTopics.query).toBeCalledWith({
+      type: 'threeD',
+    });
+  });
+
+  it('createTopic should call lambdaClient with default type', async () => {
     await service.createTopic();
-    expect(lambdaClient.generationTopic.createTopic.mutate).toBeCalledWith(undefined);
+    expect(lambdaClient.generationTopic.createTopic.mutate).toBeCalledWith({ type: 'image' });
+  });
+
+  it('createTopic should forward custom params', async () => {
+    await service.createTopic({ title: 'Custom', type: 'threeD' });
+    expect(lambdaClient.generationTopic.createTopic.mutate).toBeCalledWith({
+      title: 'Custom',
+      type: 'threeD',
+    });
   });
 
   it('updateTopic should call lambdaClient with correct params', async () => {

@@ -14,8 +14,6 @@ import {
   ChatMethodOptions,
   ChatStreamCallbacks,
   ChatStreamPayload,
-  Create3DModelPayload,
-  Create3DModelResponse,
   Embeddings,
   EmbeddingsOptions,
   EmbeddingsPayload,
@@ -27,6 +25,7 @@ import {
 } from '../../types';
 import { AgentRuntimeErrorType, ILobeAgentRuntimeErrorType } from '../../types/error';
 import { CreateImagePayload, CreateImageResponse } from '../../types/image';
+import { Create3DModelPayload, Create3DModelResponse } from '../../types/modeling';
 import { AgentRuntimeError } from '../../utils/createError';
 import { debugResponse, debugStream } from '../../utils/debugStream';
 import { desensitizeUrl } from '../../utils/desensitizeUrl';
@@ -609,15 +608,10 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
           provider,
         });
       }
-
-      log('fallback to createImage for 3D model generation');
-      const imageResponse = await this.createImage(payload as unknown as CreateImagePayload);
-      return {
-        format: undefined,
-        modelUrl: imageResponse.imageUrl,
-        modelUsage: imageResponse.modelUsage,
-        previewUrl: imageResponse.imageUrl,
-      };
+      throw AgentRuntimeError.createError(ErrorType.bizError, {
+        message: '3D model generation is not supported',
+        provider,
+      });
     }
 
     async embeddings(

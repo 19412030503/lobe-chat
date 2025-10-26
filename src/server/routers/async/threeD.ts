@@ -2,14 +2,64 @@ import { AgentRuntimeErrorType } from '@lobechat/model-runtime';
 import { AsyncTaskError, AsyncTaskErrorType, AsyncTaskStatus } from '@lobechat/types';
 import debug from 'debug';
 import { Runtime3DGenParams } from 'model-bank';
+import { nanoid } from 'nanoid';
+import { createHash } from 'node:crypto';
+import { extname } from 'node:path';
 import { z } from 'zod';
 
 import { ASYNC_TASK_TIMEOUT, AsyncTaskModel } from '@/database/models/asyncTask';
 import { GenerationModel } from '@/database/models/generation';
 import { asyncAuthedProcedure, asyncRouter as router } from '@/libs/trpc/async';
 import { initModelRuntimeWithUserPayload } from '@/server/modules/ModelRuntime';
+import { FileService } from '@/server/services/file';
+import { FileSource } from '@/types/files';
 
 const log = debug('lobe-threed:async');
+
+const MODEL_STORAGE_PREFIX = 'generations/threeD';
+const MODEL_PREVIEW_STORAGE_PREFIX = 'generations/threeD/previews';
+
+const MODEL_MIME_MAP: Record<string, string> = {
+  fbx: 'model/vnd.autodesk.fbx',
+  glb: 'model/gltf-binary',
+  gltf: 'model/gltf+json',
+  obj: 'model/obj',
+  ply: 'application/octet-stream',
+  stl: 'model/stl',
+  usdz: 'model/vnd.usdz+zip',
+};
+
+const resolveExtensionFromUrl = (url: string | undefined, fallback: string) => {
+  if (!url) return fallback.toLowerCase();
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname || '';
+    const ext = extname(pathname).toLowerCase().replace(/^\./, '');
+    return ext || fallback.toLowerCase();
+  } catch {
+    return fallback.toLowerCase();
+  }
+};
+
+const resolveModelMime = (extension: string) =>
+  MODEL_MIME_MAP[extension.toLowerCase()] || 'application/octet-stream';
+
+const sanitizeFilename = (value: string, fallback: string) => {
+  const sanitized = value
+    .replaceAll(/[^\w.-]+/g, '_')
+    .replaceAll(/_{2,}/g, '_')
+    .trim();
+  return sanitized ? sanitized.slice(0, 64) : fallback;
+};
+
+const downloadAsBuffer = async (url: string, signal?: AbortSignal) => {
+  const response = await fetch(url, { signal });
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.status} ${response.statusText}`);
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+};
 
 const threeDProcedure = asyncAuthedProcedure.use(async (opts) => {
   const { ctx } = opts;
@@ -17,6 +67,7 @@ const threeDProcedure = asyncAuthedProcedure.use(async (opts) => {
   return opts.next({
     ctx: {
       asyncTaskModel: new AsyncTaskModel(ctx.serverDB, ctx.userId),
+      fileService: new FileService(ctx.serverDB, ctx.userId),
       generationModel: new GenerationModel(ctx.serverDB, ctx.userId),
     },
   });
@@ -27,7 +78,7 @@ const createThreeDInputSchema = z.object({
   model: z.string(),
   params: z
     .object({
-      prompt: z.string(),
+      prompt: z.string().optional(),
     })
     .passthrough(),
   provider: z.string(),
@@ -122,14 +173,95 @@ export const threeDRouter = router({
           hasPreview: Boolean(response.previewUrl),
         });
 
-        await ctx.generationModel.update(generationId, {
-          asset: {
-            format: response.format,
-            modelUrl: response.modelUrl,
-            previewUrl: response.previewUrl,
-            type: 'threeD',
+        const modelExtension = resolveExtensionFromUrl(response.modelUrl, response.format || 'bin');
+        const modelBuffer = await downloadAsBuffer(response.modelUrl, signal);
+
+        if (signal.aborted) {
+          throw new Error('Operation was aborted');
+        }
+
+        const uploadedModel = await ctx.fileService.uploadMedia(
+          `${MODEL_STORAGE_PREFIX}/${nanoid()}.${modelExtension}`,
+          modelBuffer,
+        );
+
+        if (signal.aborted) {
+          throw new Error('Operation was aborted');
+        }
+
+        let previewKey: string | undefined;
+        if (response.previewUrl) {
+          try {
+            const previewExt = resolveExtensionFromUrl(response.previewUrl, 'png');
+            const previewBuffer = await downloadAsBuffer(response.previewUrl, signal);
+            const uploadResult = await ctx.fileService.uploadMedia(
+              `${MODEL_PREVIEW_STORAGE_PREFIX}/${nanoid()}.${previewExt}`,
+              previewBuffer,
+            );
+            previewKey = uploadResult.key;
+            if (signal.aborted) {
+              throw new Error('Operation was aborted');
+            }
+          } catch (error) {
+            log('Failed to process preview resource: %O', error);
+          }
+        }
+
+        const modelHash = createHash('sha256').update(modelBuffer).digest('hex');
+        const promptSnippet = typeof params.prompt === 'string' ? params.prompt : '';
+        const fileName = `${sanitizeFilename(promptSnippet, 'threeD-model')}-${nanoid()}.${modelExtension}`;
+        const modelMime = resolveModelMime(modelExtension);
+
+        const asset: {
+          format?: string;
+          jobId?: string;
+          modelUrl: string;
+          modelUsage?: unknown;
+          previewThumbnailUrl?: string;
+          previewUrl?: string;
+          type: 'threeD';
+        } = {
+          format: response.format ?? modelExtension.toUpperCase(),
+          modelUrl: uploadedModel.key,
+          type: 'threeD',
+        };
+
+        if (previewKey) {
+          asset.previewUrl = previewKey;
+          asset.previewThumbnailUrl = previewKey;
+        }
+
+        if (response.modelUsage) {
+          asset.modelUsage = response.modelUsage;
+        }
+
+        if (response.jobId) {
+          asset.jobId = response.jobId;
+        }
+
+        await ctx.generationModel.createAssetAndFile(
+          generationId,
+          asset,
+          {
+            fileHash: modelHash,
+            fileType: modelMime,
+            metadata: {
+              format: response.format,
+              jobId: response.jobId,
+              originalUrl: response.modelUrl,
+              previewStoredKey: previewKey,
+              provider,
+              size: modelBuffer.length,
+            },
+            name: fileName,
+            size: modelBuffer.length,
+            url: uploadedModel.key,
           },
-        });
+          FileSource.ThreeDGeneration,
+        );
+        if (signal.aborted) {
+          throw new Error('Operation was aborted');
+        }
 
         await ctx.asyncTaskModel.update(taskId, {
           status: AsyncTaskStatus.Success,

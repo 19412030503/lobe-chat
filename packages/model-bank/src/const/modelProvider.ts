@@ -24,6 +24,7 @@ export enum ModelProvider {
   Higress = 'higress',
   HuggingFace = 'huggingface',
   Hunyuan = 'hunyuan',
+  Hunyuan3D = 'hunyuan3d',
   InfiniAI = 'infiniai',
   InternLM = 'internlm',
   Jina = 'jina',
