@@ -145,13 +145,22 @@ export class S3 {
     return this.client.send(command);
   }
 
-  public async uploadMedia(key: string, buffer: Buffer) {
+  public async uploadMedia(key: string, buffer: Buffer, contentType?: string) {
+    let resolvedContentType = contentType;
+    if (!resolvedContentType) {
+      try {
+        resolvedContentType = inferContentTypeFromImageUrl(key);
+      } catch {
+        resolvedContentType = undefined;
+      }
+    }
+
     const command = new PutObjectCommand({
       ACL: this.setAcl ? 'public-read' : undefined,
       Body: buffer,
       Bucket: this.bucket,
       CacheControl: `public, max-age=${YEAR}`,
-      ContentType: inferContentTypeFromImageUrl(key)!,
+      ContentType: resolvedContentType ?? 'application/octet-stream',
       Key: key,
     });
 

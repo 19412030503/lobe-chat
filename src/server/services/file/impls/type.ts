@@ -50,5 +50,5 @@ export interface FileServiceImpl {
   /**
    * 上传媒体文件
    */
-  uploadMedia(key: string, buffer: Buffer): Promise<{ key: string }>;
+  uploadMedia(key: string, buffer: Buffer, contentType?: string): Promise<{ key: string }>;
 }

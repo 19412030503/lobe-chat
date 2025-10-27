@@ -90,7 +90,14 @@ export class FileService {
   /**
    * 上传媒体文件
    */
-  public async uploadMedia(key: string, buffer: Buffer): Promise<{ key: string }> {
+  public async uploadMedia(
+    key: string,
+    buffer: Buffer,
+    contentType?: string,
+  ): Promise<{ key: string }> {
+    if (typeof contentType === 'string' && contentType.length > 0) {
+      return this.impl.uploadMedia(key, buffer, contentType);
+    }
     return this.impl.uploadMedia(key, buffer);
   }
 

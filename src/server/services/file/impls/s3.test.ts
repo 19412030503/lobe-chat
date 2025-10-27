@@ -237,7 +237,7 @@ describe('S3StaticFileImpl', () => {
       const result = await fileService.uploadMedia(testKey, testBuffer);
 
       // 验证
-      expect(fileService['s3'].uploadMedia).toHaveBeenCalledWith(testKey, testBuffer);
+      expect(fileService['s3'].uploadMedia).toHaveBeenCalledWith(testKey, testBuffer, undefined);
       expect(result).toEqual({ key: testKey });
     });
 
@@ -252,7 +252,7 @@ describe('S3StaticFileImpl', () => {
       const result = await fileService.uploadMedia(testKey, testBuffer);
 
       // 验证
-      expect(fileService['s3'].uploadMedia).toHaveBeenCalledWith(testKey, testBuffer);
+      expect(fileService['s3'].uploadMedia).toHaveBeenCalledWith(testKey, testBuffer, undefined);
       expect(result).toEqual({ key: testKey });
     });
 
@@ -268,7 +268,7 @@ describe('S3StaticFileImpl', () => {
       await expect(fileService.uploadMedia(testKey, testBuffer)).rejects.toThrow(
         'S3 upload failed',
       );
-      expect(fileService['s3'].uploadMedia).toHaveBeenCalledWith(testKey, testBuffer);
+      expect(fileService['s3'].uploadMedia).toHaveBeenCalledWith(testKey, testBuffer, undefined);
     });
   });
 });

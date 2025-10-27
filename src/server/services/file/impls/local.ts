@@ -1,9 +1,9 @@
 import { sha256 } from 'js-sha256';
+import mime from 'mime';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { electronIpcClient } from '@/server/modules/ElectronIPCClient';
-import { inferContentTypeFromImageUrl } from '@/utils/url';
 
 import { FileServiceImpl } from './type';
 import { extractKeyFromUrlOrReturnOriginal } from './utils';
@@ -172,7 +172,7 @@ export class DesktopLocalFileImpl implements FileServiceImpl {
   /**
    * 上传媒体文件
    */
-  async uploadMedia(key: string, buffer: Buffer): Promise<{ key: string }> {
+  async uploadMedia(key: string, buffer: Buffer, contentType?: string): Promise<{ key: string }> {
     try {
       // 将 Buffer 转换为 Base64 字符串
       const content = buffer.toString('base64');
@@ -184,7 +184,7 @@ export class DesktopLocalFileImpl implements FileServiceImpl {
       const hash = sha256(buffer);
 
       // 根据文件URL推断 MIME 类型
-      const type = inferContentTypeFromImageUrl(key)!;
+      const type = contentType ?? mime.getType(key) ?? 'application/octet-stream';
 
       // 构造上传参数
       const uploadParams = {
