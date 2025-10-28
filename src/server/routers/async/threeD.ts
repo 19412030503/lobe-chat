@@ -27,6 +27,7 @@ const MODEL_MIME_MAP: Record<string, string> = {
   ply: 'application/octet-stream',
   stl: 'model/stl',
   usdz: 'model/vnd.usdz+zip',
+  zip: 'application/zip',
 };
 
 const resolveExtensionFromUrl = (url: string | undefined, fallback: string) => {
@@ -148,6 +149,7 @@ export const threeDRouter = router({
 
     try {
       const run = async (signal: AbortSignal) => {
+        log('Initializing model runtime for provider=%s', provider);
         const runtime = await initModelRuntimeWithUserPayload(provider, ctx.jwtPayload);
 
         if (!runtime.create3DModel) {
@@ -158,6 +160,7 @@ export const threeDRouter = router({
           throw new Error('Operation was aborted');
         }
 
+        log('Invoking runtime.create3DModel for generation %s', generationId);
         const response = await runtime.create3DModel({
           model,
           params: params as Runtime3DGenParams,
@@ -171,19 +174,26 @@ export const threeDRouter = router({
           format: response.format,
           hasModelUrl: Boolean(response.modelUrl),
           hasPreview: Boolean(response.previewUrl),
+          jobId: response.jobId,
         });
 
         const modelExtension = resolveExtensionFromUrl(response.modelUrl, response.format || 'bin');
+        log('Resolved model extension %s, downloading asset', modelExtension);
         const modelBuffer = await downloadAsBuffer(response.modelUrl, signal);
 
         if (signal.aborted) {
           throw new Error('Operation was aborted');
         }
 
+        log('Uploading model buffer (size=%d bytes)', modelBuffer.length);
+        const modelContentType = resolveModelMime(modelExtension);
+        const modelKey = `${MODEL_STORAGE_PREFIX}/${nanoid()}.${modelExtension}`;
         const uploadedModel = await ctx.fileService.uploadMedia(
-          `${MODEL_STORAGE_PREFIX}/${nanoid()}.${modelExtension}`,
+          modelKey,
           modelBuffer,
+          modelContentType,
         );
+        log('Model stored at key %s', uploadedModel.key);
 
         if (signal.aborted) {
           throw new Error('Operation was aborted');
@@ -193,12 +203,16 @@ export const threeDRouter = router({
         if (response.previewUrl) {
           try {
             const previewExt = resolveExtensionFromUrl(response.previewUrl, 'png');
+            log('Downloading preview asset (ext=%s)', previewExt);
             const previewBuffer = await downloadAsBuffer(response.previewUrl, signal);
+            const previewKeyPath = `${MODEL_PREVIEW_STORAGE_PREFIX}/${nanoid()}.${previewExt}`;
             const uploadResult = await ctx.fileService.uploadMedia(
-              `${MODEL_PREVIEW_STORAGE_PREFIX}/${nanoid()}.${previewExt}`,
+              previewKeyPath,
               previewBuffer,
+              'image/png',
             );
             previewKey = uploadResult.key;
+            log('Preview stored at key %s', previewKey);
             if (signal.aborted) {
               throw new Error('Operation was aborted');
             }
@@ -210,7 +224,6 @@ export const threeDRouter = router({
         const modelHash = createHash('sha256').update(modelBuffer).digest('hex');
         const promptSnippet = typeof params.prompt === 'string' ? params.prompt : '';
         const fileName = `${sanitizeFilename(promptSnippet, 'threeD-model')}-${nanoid()}.${modelExtension}`;
-        const modelMime = resolveModelMime(modelExtension);
 
         const asset: {
           format?: string;
@@ -244,7 +257,7 @@ export const threeDRouter = router({
           asset,
           {
             fileHash: modelHash,
-            fileType: modelMime,
+            fileType: modelContentType,
             metadata: {
               format: response.format,
               jobId: response.jobId,
@@ -259,6 +272,7 @@ export const threeDRouter = router({
           },
           FileSource.ThreeDGeneration,
         );
+        log('Persisted generation asset for %s (taskId=%s)', generationId, taskId);
         if (signal.aborted) {
           throw new Error('Operation was aborted');
         }
@@ -266,6 +280,7 @@ export const threeDRouter = router({
         await ctx.asyncTaskModel.update(taskId, {
           status: AsyncTaskStatus.Success,
         });
+        log('Async task %s marked as success', taskId);
 
         return { success: true };
       };

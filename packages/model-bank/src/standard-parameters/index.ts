@@ -85,6 +85,15 @@ export const ModelParamsMetaSchema = z.object({
     })
     .optional(),
 
+  multiViewImages: z
+    .object({
+      default: z.array(z.string()),
+      description: z.string().optional(),
+      maxCount: z.number().optional(),
+      type: z.literal('array').optional(),
+    })
+    .optional(),
+
   width: z
     .object({
       default: z.number(),
@@ -147,6 +156,52 @@ export const ModelParamsMetaSchema = z.object({
     })
     .optional(),
 
+  enablePBR: z
+    .object({
+      default: z.boolean().optional().default(false),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  faceCount: z
+    .object({
+      default: z.number().optional(),
+      description: z.string().optional(),
+      max: z.number().optional(),
+      min: z.number().optional(),
+      step: z.number().optional(),
+      type: z.literal('number').optional(),
+    })
+    .optional(),
+
+  generateType: z
+    .object({
+      default: z.string(),
+      description: z.string().optional(),
+      enum: z.array(z.string()),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  polygonType: z
+    .object({
+      default: z.string(),
+      description: z.string().optional(),
+      enum: z.array(z.string()),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  resultFormat: z
+    .object({
+      default: z.string(),
+      description: z.string().optional(),
+      enum: z.array(z.string()),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
   quality: z
     .object({
       default: z.string(),
@@ -198,7 +253,7 @@ export type RuntimeImageGenParamsKeys = keyof RuntimeImageGenParams;
 export type RuntimeImageGenParamsValue = RuntimeImageGenParams[RuntimeImageGenParamsKeys];
 
 /**
- * 3D 生成参数目前与图像生成保持一致，后续可根据模型能力扩展专属参数
+ * 3D 生成参数基于通用图像生成参数拓展了多视角、材质与格式等能力
  */
 export type Runtime3DGenParams = RuntimeImageGenParams;
 export type Runtime3DGenParamsKeys = RuntimeImageGenParamsKeys;

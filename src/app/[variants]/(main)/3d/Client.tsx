@@ -9,6 +9,7 @@ import {
   List,
   Select,
   Space,
+  Switch,
   Tag,
   Typography,
   message,
@@ -47,6 +48,7 @@ const ThreeDWorkspace = () => {
   const isCreating = useThreeDStore((s) => s.isCreating);
   const modelCount = useThreeDStore((s) => s.modelCount);
   const parameters = useThreeDStore((s) => s.parameters);
+  const parametersSchema = useThreeDStore((s) => s.parametersSchema);
   const provider = useThreeDStore((s) => s.provider);
   const model = useThreeDStore((s) => s.model);
 
@@ -101,12 +103,20 @@ const ThreeDWorkspace = () => {
   }, [generationBatches]);
 
   useEffect(() => {
-    if (!hasPendingGenerations || isBatchLoading) return;
-    const timer = setTimeout(() => {
-      refreshBatches();
+    if (!hasPendingGenerations) return;
+
+    const timer = setInterval(() => {
+      if (!isBatchLoading) {
+        refreshBatches();
+      }
     }, 5000);
 
-    return () => clearTimeout(timer);
+    // 立即触发一次刷新，避免等待首个轮询周期
+    if (!isBatchLoading) {
+      refreshBatches();
+    }
+
+    return () => clearInterval(timer);
   }, [hasPendingGenerations, isBatchLoading, refreshBatches]);
 
   const handleRefreshBatches = useCallback(() => {
@@ -153,6 +163,15 @@ const ThreeDWorkspace = () => {
 
     if (!topicId) return;
 
+    if (
+      model === 'hunyuan-3d-rapid' &&
+      typeof parameters.prompt === 'string' &&
+      parameters.prompt.length > 200
+    ) {
+      messageApi.error(t('config.rapidPromptLimit', '快速版提示词需控制在 200 字符以内'));
+      return;
+    }
+
     try {
       await createThreeDTask(topicId);
       await refreshBatches();
@@ -182,6 +201,46 @@ const ThreeDWorkspace = () => {
     if (!provider) return;
     setModelAndProvider(nextModel, provider);
   };
+
+  const multiViewSchema = parametersSchema?.multiViewImages;
+  const enablePBRS = parametersSchema?.enablePBR;
+  const faceCountSchema = parametersSchema?.faceCount;
+  const generateTypeSchema = parametersSchema?.generateType;
+  const polygonTypeSchema = parametersSchema?.polygonType;
+  const resultFormatSchema = parametersSchema?.resultFormat;
+
+  const generateTypeOptions = useMemo(() => {
+    if (!generateTypeSchema?.enum) return undefined;
+    return generateTypeSchema.enum.map((value: string) => ({
+      label: t(`config.generateTypeOptions.${value.toLowerCase()}`, value),
+      value,
+    }));
+  }, [generateTypeSchema, t]);
+
+  const polygonTypeOptions = useMemo(() => {
+    if (!polygonTypeSchema?.enum) return undefined;
+    return polygonTypeSchema.enum.map((value: string) => ({
+      label: t(`config.polygonTypeOptions.${value.toLowerCase()}`, value),
+      value,
+    }));
+  }, [polygonTypeSchema, t]);
+
+  const resultFormatOptions = useMemo(() => {
+    if (!resultFormatSchema?.enum) return undefined;
+    return resultFormatSchema.enum.map((value: string) => ({
+      label: value.toUpperCase(),
+      value: value.toUpperCase(),
+    }));
+  }, [resultFormatSchema]);
+
+  const hasPrompt = Boolean(parameters.prompt?.trim());
+  const hasImageUrl = Boolean(parameters.imageUrl);
+  const hasMultiView =
+    Array.isArray(parameters.multiViewImages) && parameters.multiViewImages.length > 0;
+  const disableGenerate = !hasPrompt && !hasImageUrl && !hasMultiView;
+  const isRapidModel = model === 'hunyuan-3d-rapid';
+  const multiViewMaxCount = multiViewSchema?.maxCount ?? 3;
+  const faceCountFallback = faceCountSchema?.default ?? faceCountSchema?.min ?? 40_000;
 
   return (
     <>
@@ -227,11 +286,18 @@ const ThreeDWorkspace = () => {
               <Text strong>{t('config.prompt', '提示词')}</Text>
               <Input.TextArea
                 autoSize={{ maxRows: 8, minRows: 4 }}
+                maxLength={isRapidModel ? 200 : undefined}
                 onChange={(event) => setPrompt(event.target.value)}
                 placeholder={t('config.promptPlaceholder', '描述你想要的 3D 资产')}
+                showCount={isRapidModel}
                 style={{ marginTop: 8 }}
                 value={parameters.prompt}
               />
+              {isRapidModel && (
+                <Text style={{ display: 'block', marginTop: 4 }} type="secondary">
+                  {t('config.rapidPromptHint', '快速版提示词建议控制在 200 字符以内')}
+                </Text>
+              )}
             </div>
 
             <div>
@@ -244,9 +310,117 @@ const ThreeDWorkspace = () => {
               />
             </div>
 
+            {multiViewSchema && (
+              <div>
+                <Text strong>{t('config.multiView', '多视角图片 URL')}</Text>
+                <Input.TextArea
+                  autoSize={{ maxRows: 6, minRows: 3 }}
+                  onChange={(event) => {
+                    const urls = event.target.value
+                      .split('\n')
+                      .map((line) => line.trim())
+                      .filter(Boolean)
+                      .slice(0, multiViewMaxCount);
+                    setParameter('multiViewImages', urls);
+                  }}
+                  placeholder={t('config.multiViewPlaceholder', {
+                    defaultValue: '每行输入一个图片 URL（最多 {{max}} 张）',
+                    max: multiViewMaxCount,
+                  })}
+                  style={{ marginTop: 8 }}
+                  value={(parameters.multiViewImages || []).join('\n')}
+                />
+                <Text style={{ display: 'block', marginTop: 4 }} type="secondary">
+                  {t('config.multiViewDescription', {
+                    defaultValue: '可选：每行一个 URL，最多 {{max}} 张（左/右/后视图）',
+                    max: multiViewMaxCount,
+                  })}
+                </Text>
+              </div>
+            )}
+
+            {enablePBRS && (
+              <div>
+                <Flexbox align="center" horizontal justify="space-between">
+                  <Text strong>{t('config.enablePBR', '启用 PBR 材质')}</Text>
+                  <Switch
+                    checked={Boolean(parameters.enablePBR)}
+                    onChange={(checked) => setParameter('enablePBR', checked)}
+                  />
+                </Flexbox>
+                <Text style={{ display: 'block', marginTop: 4 }} type="secondary">
+                  {t('config.enablePBRDescription', '开启后输出带物理材质的模型，处理耗时会增加。')}
+                </Text>
+              </div>
+            )}
+
+            {faceCountSchema && (
+              <div>
+                <Text strong>{t('config.faceCount', '最大面数')}</Text>
+                <InputNumber
+                  max={faceCountSchema.max}
+                  min={faceCountSchema.min}
+                  onChange={(value) =>
+                    setParameter('faceCount', typeof value === 'number' ? value : faceCountFallback)
+                  }
+                  step={faceCountSchema.step ?? 10_000}
+                  style={{ marginTop: 8, width: '100%' }}
+                  value={
+                    typeof parameters.faceCount === 'number'
+                      ? parameters.faceCount
+                      : faceCountFallback
+                  }
+                />
+                <Text style={{ display: 'block', marginTop: 4 }} type="secondary">
+                  {t('config.faceCountDescription', {
+                    defaultValue: '范围 {{min}} - {{max}}，数值越高细节越好',
+                    max: faceCountSchema.max ?? 1_500_000,
+                    min: faceCountSchema.min ?? 40_000,
+                  })}
+                </Text>
+              </div>
+            )}
+
+            {generateTypeOptions && generateTypeOptions.length > 0 && (
+              <div>
+                <Text strong>{t('config.generateType', '生成模式')}</Text>
+                <Select
+                  onChange={(value) => setParameter('generateType', value)}
+                  options={generateTypeOptions}
+                  style={{ marginTop: 8, width: '100%' }}
+                  value={parameters.generateType ?? generateTypeSchema?.default}
+                />
+              </div>
+            )}
+
+            {polygonTypeOptions && polygonTypeOptions.length > 0 && (
+              <div>
+                <Text strong>{t('config.polygonType', '多边形类型')}</Text>
+                <Select
+                  onChange={(value) => setParameter('polygonType', value)}
+                  options={polygonTypeOptions}
+                  style={{ marginTop: 8, width: '100%' }}
+                  value={parameters.polygonType ?? polygonTypeSchema?.default}
+                />
+              </div>
+            )}
+
+            {resultFormatOptions && resultFormatOptions.length > 0 && (
+              <div>
+                <Text strong>{t('config.resultFormat', '输出格式')}</Text>
+                <Select
+                  onChange={(value) => setParameter('resultFormat', value)}
+                  options={resultFormatOptions}
+                  placeholder={t('config.resultFormatPlaceholder', '选择导出的模型格式')}
+                  style={{ marginTop: 8, width: '100%' }}
+                  value={parameters.resultFormat ?? resultFormatSchema?.default}
+                />
+              </div>
+            )}
+
             <Button
               block
-              disabled={!parameters.prompt && !parameters.imageUrl}
+              disabled={disableGenerate}
               loading={isCreating}
               onClick={handleGenerate}
               size="large"

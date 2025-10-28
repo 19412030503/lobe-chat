@@ -52,9 +52,12 @@ describe('LobeHunyuan3DAI', () => {
     });
 
     expect(caller.call).toHaveBeenCalledWith('SubmitHunyuanTo3DProJob', {
-      Model: 'hunyuan-3d-pro',
       Prompt: 'test',
     });
+    const payload = caller.call.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('ImageUrl');
+    expect(payload).not.toHaveProperty('ImageBase64');
+    expect(caller.waitForJob).toHaveBeenCalledWith('job-123', 'QueryHunyuanTo3DProJob');
 
     expect(result).toEqual({
       format: 'STL',
@@ -95,16 +98,69 @@ describe('LobeHunyuan3DAI', () => {
       model: 'hunyuan-3d-pro',
       params: {
         imageUrl: 'https://example.com/reference.png',
-        imageUrls: ['https://example.com/reference.png', 'https://example.com/alt.png'],
-        prompt: 'test',
+        prompt: '',
       } as any,
     });
 
     expect(caller.call).toHaveBeenCalledWith('SubmitHunyuanTo3DProJob', {
       ImageUrl: 'https://example.com/reference.png',
-      ImageUrls: ['https://example.com/reference.png', 'https://example.com/alt.png'],
-      Model: 'hunyuan-3d-pro',
-      Prompt: 'test',
     });
+    const payload = caller.call.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('Prompt');
+    expect(caller.waitForJob).toHaveBeenCalledWith('job-123', 'QueryHunyuanTo3DProJob');
+  });
+
+  it('maps standard edition to default submit/query actions', async () => {
+    const runtime = new LobeHunyuan3DAI({ apiKey: 'test-key' });
+
+    await runtime.create3DModel!({
+      model: 'hunyuan-3d-standard',
+      params: { prompt: 'standard prompt' } as any,
+    });
+
+    expect(caller.call).toHaveBeenCalledWith('SubmitHunyuanTo3DJob', {
+      Prompt: 'standard prompt',
+    });
+    expect(caller.waitForJob).toHaveBeenCalledWith('job-123', 'QueryHunyuanTo3DJob');
+  });
+
+  it('maps rapid edition to rapid submit/query actions and drops multi view input', async () => {
+    const runtime = new LobeHunyuan3DAI({ apiKey: 'test-key' });
+
+    await runtime.create3DModel!({
+      model: 'hunyuan-3d-rapid',
+      params: {
+        imageUrl: 'https://example.com/reference.png',
+        multiViewImages: ['https://example.com/multi-view.png'],
+        prompt: '',
+      } as any,
+    });
+
+    expect(caller.call).toHaveBeenCalledWith('SubmitHunyuanTo3DRapidJob', {
+      ImageUrl: 'https://example.com/reference.png',
+    });
+    const payload = caller.call.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('MultiViewImages');
+    expect(caller.waitForJob).toHaveBeenCalledWith('job-123', 'QueryHunyuanTo3DRapidJob');
+  });
+
+  it('uppercases result format when provided', async () => {
+    const runtime = new LobeHunyuan3DAI({ apiKey: 'test-key' });
+
+    await runtime.create3DModel!({
+      model: 'hunyuan-3d-rapid',
+      params: {
+        prompt: 'format test',
+        resultFormat: 'glb',
+      } as any,
+    });
+
+    expect(caller.call).toHaveBeenCalledWith(
+      'SubmitHunyuanTo3DRapidJob',
+      expect.objectContaining({
+        Prompt: 'format test',
+        ResultFormat: 'GLB',
+      }),
+    );
   });
 });

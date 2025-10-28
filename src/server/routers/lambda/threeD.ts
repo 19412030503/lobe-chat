@@ -170,6 +170,20 @@ export const threeDRouter = router({
       };
     });
 
+    log(
+      'Created 3D generation batch %s with %d task(s)',
+      createdBatch.id,
+      generationsWithTasks.length,
+    );
+    log(
+      'Prepared async tasks: %O',
+      generationsWithTasks.map(({ asyncTaskId, generation }) => ({
+        asyncTaskId,
+        generationId: generation.id,
+        seed: generation.seed,
+      })),
+    );
+
     try {
       const asyncCaller = await createAsyncCaller({
         jwtPayload: ctx.jwtPayload,
@@ -177,6 +191,13 @@ export const threeDRouter = router({
       });
 
       generationsWithTasks.forEach(({ generation, asyncTaskId }) => {
+        log(
+          'Dispatching async 3D task %s for generation %s (provider=%s, model=%s)',
+          asyncTaskId,
+          generation.id,
+          provider,
+          model,
+        );
         asyncCaller.threeD.createModel({
           generationId: generation.id,
           model,

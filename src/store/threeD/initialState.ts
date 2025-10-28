@@ -1,4 +1,4 @@
-import { Runtime3DGenParams } from 'model-bank';
+import { ModelParamsSchema, Runtime3DGenParams } from 'model-bank';
 
 export interface ThreeDConfigState {
   activeTopicId?: string | null;
@@ -6,7 +6,7 @@ export interface ThreeDConfigState {
   model?: string;
   modelCount: number;
   parameters: Runtime3DGenParams;
-  parametersSchema?: Record<string, any>;
+  parametersSchema?: ModelParamsSchema;
   provider?: string;
 }
 

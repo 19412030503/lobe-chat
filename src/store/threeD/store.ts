@@ -76,8 +76,21 @@ const createStore: StateCreator<ThreeDStore, [['zustand/devtools', never]]> = (s
       throw new Error('3D provider or model is not ready');
     }
 
-    if (!state.parameters.prompt && !state.parameters.imageUrl) {
-      throw new Error('Please provide a prompt or reference image URL');
+    const hasPrompt = Boolean(state.parameters.prompt?.trim());
+    const hasImageUrl = Boolean(state.parameters.imageUrl);
+    const multiViewImages = state.parameters.multiViewImages;
+    const hasMultiView = Array.isArray(multiViewImages) && multiViewImages.some(Boolean);
+
+    if (!hasPrompt && !hasImageUrl && !hasMultiView) {
+      throw new Error('请至少提供提示词、参考图片或多视角图片 URL');
+    }
+
+    if (
+      state.model === 'hunyuan-3d-rapid' &&
+      typeof state.parameters.prompt === 'string' &&
+      state.parameters.prompt.length > 200
+    ) {
+      throw new Error('快速版提示词需控制在 200 字符以内');
     }
 
     set({ isCreating: true }, false, 'threeD/create/start');
