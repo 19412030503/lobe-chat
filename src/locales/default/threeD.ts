@@ -26,6 +26,11 @@ const model = {
         ultra: 'Ultra · 超细节',
       },
       goToProvider: '供应商设置',
+      header: {
+        desc: '配置 3D 模型生成参数',
+        simpleTitle: '建模',
+        title: 'AI 3D 模型生成',
+      },
       imageMode: {
         multi: '多图',
         single: '单图',
@@ -50,13 +55,14 @@ const model = {
         quadrilateral: 'Quadrilateral · 四边/三角混合',
         triangle: 'Triangle · 三角网格',
       },
-      prompt: '提示词',
+      prompt: {
+        placeholder: '描述你想要的 3D 资产',
+      },
       promptDisabledInImageMode: '当前图片模式依赖上传的图像内容，无需输入文本提示。',
       promptMode: {
         image: '图片模式',
         text: '文本模式',
       },
-      promptPlaceholder: '描述你想要的 3D 资产',
       provider: '模型提供商',
       providerEmpty: '未检测到可用 3D 供应商',
       providerPlaceholder: '选择提供商',
@@ -88,6 +94,46 @@ const model = {
       textureSeed: '贴图随机种子',
       title: '建模参数',
     },
+    generation: {
+      actions: {
+        batchDeleted: '批次已删除',
+        copyPrompt: '复制提示词',
+        deleteBatch: '删除批次',
+        generate: '生成',
+        promptCopied: '提示词已复制',
+        promptCopyFailed: '复制失败',
+        recreate: '重新生成',
+        reuseSettings: '复用参数',
+      },
+      error: {
+        failed: '生成失败',
+      },
+      metadata: {
+        count: '共 {{count}} 个模型',
+      },
+      status: {
+        generating: '生成中...',
+        pending: '等待中...',
+      },
+    },
+    notSupportGuide: {
+      desc: '当前客户端暂不支持 3D 建模功能。请在桌面应用或 Web 客户端体验完整功能。',
+      features: {
+        fileIntegration: {
+          desc: '支持本地文件上传与导出',
+          title: '本地文件集成',
+        },
+        llmAssisted: {
+          desc: 'AI 辅助优化提示词与参数',
+          title: 'LLM 辅助创作',
+        },
+        multiProviders: {
+          desc: '多家服务商一键切换',
+          title: '多供应商支持',
+        },
+      },
+      title: '3D 建模功能',
+    },
     result: {
       assetFormat: '格式：{{value}}',
       assetInfo: '模型：{{model}} · 服务商：{{provider}}',
@@ -99,6 +145,7 @@ const model = {
       convertSubmit: '提交转换',
       convertSubmitFail: '转换任务提交失败，请稍后重试',
       convertSubmitSuccess: '转换任务已提交',
+      downloadModel: '下载模型',
       empty: '暂无生成记录',
       errorMessage: '错误信息：{{message}}',
       loading: '加载中...',
@@ -119,6 +166,8 @@ const model = {
       create: '新建',
       createFail: '创建主题失败，请稍后重试',
       createdSuccess: '已创建新的建模主题',
+      deleteConfirm: '确认删除此主题？',
+      deleteConfirmDesc: '删除后无法恢复，主题内的所有生成记录将一并删除。',
       empty: '暂无建模主题',
       title: '建模主题',
       untitled: '未命名主题',

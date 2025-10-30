@@ -2189,7 +2189,7 @@ const ThreeDWorkspace = () => {
   const model = useThreeDStore((s) => s.model);
 
   const setActiveTopicId = useThreeDStore((s) => s.setActiveTopicId);
-  const createThreeDTask = useThreeDStore((s) => s.createTask);
+  const createThreeDTask = useThreeDStore((s) => s.createThreeD);
   const convertGeneration = useThreeDStore((s) => s.convertGeneration);
   const convertingGenerations = useThreeDStore((s) => s.convertingGenerations);
 
@@ -2470,7 +2470,7 @@ const ThreeDWorkspace = () => {
 
       if (!topicId) return;
 
-      await createThreeDTask(topicId);
+      await createThreeDTask();
       await refreshBatches();
       messageApi.success(t('result.submitSuccess', '建模任务已提交'));
     } catch (error: any) {

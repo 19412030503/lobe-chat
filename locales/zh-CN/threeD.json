@@ -2,16 +2,61 @@
   "workspace": {
     "config": {
       "title": "建模参数",
+      "header": {
+        "title": "AI 3D 模型生成",
+        "desc": "配置 3D 模型生成参数"
+      },
       "provider": "模型提供商",
       "providerPlaceholder": "选择提供商",
       "model": "模型",
       "modelPlaceholder": "选择模型",
       "count": "生成数量",
-      "prompt": "提示词",
-      "promptPlaceholder": "描述你想要的 3D 资产",
+      "prompt": {
+        "placeholder": "描述你想要的 3D 资产"
+      },
       "reference": "参考图像 URL",
       "referencePlaceholder": "可选：引用现有图片作为建模参考",
       "generate": "开始生成"
+    },
+    "generation": {
+      "actions": {
+        "generate": "生成",
+        "copyPrompt": "复制提示词",
+        "promptCopied": "提示词已复制",
+        "promptCopyFailed": "复制失败",
+        "reuseSettings": "复用参数",
+        "recreate": "重新生成",
+        "deleteBatch": "删除批次",
+        "batchDeleted": "批次已删除"
+      },
+      "error": {
+        "failed": "生成失败"
+      },
+      "metadata": {
+        "count": "共 {{count}} 个模型"
+      },
+      "status": {
+        "generating": "生成中...",
+        "pending": "等待中..."
+      }
+    },
+    "notSupportGuide": {
+      "title": "3D 建模功能",
+      "desc": "当前客户端暂不支持 3D 建模功能。请在桌面应用或 Web 客户端体验完整功能。",
+      "features": {
+        "multiProviders": {
+          "title": "多供应商支持",
+          "desc": "多家服务商一键切换"
+        },
+        "fileIntegration": {
+          "title": "本地文件集成",
+          "desc": "支持本地文件上传与导出"
+        },
+        "llmAssisted": {
+          "title": "LLM 辅助创作",
+          "desc": "AI 辅助优化提示词与参数"
+        }
+      }
     },
     "result": {
       "title": "生成记录",
@@ -38,7 +83,9 @@
       "untitled": "未命名主题",
       "updatedAt": "更新于 {{value}}",
       "createdSuccess": "已创建新的建模主题",
-      "createFail": "创建主题失败，请稍后重试"
+      "createFail": "创建主题失败，请稍后重试",
+      "deleteConfirm": "确认删除此主题？",
+      "deleteConfirmDesc": "删除后无法恢复，主题内的所有生成记录将一并删除。"
     },
     "status": {
       "pending": "等待中",

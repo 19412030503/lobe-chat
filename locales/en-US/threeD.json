@@ -2,16 +2,58 @@
   "workspace": {
     "config": {
       "title": "Modeling Parameters",
+      "header": {
+        "title": "AI 3D Model Generation",
+        "desc": "Configure 3D model generation parameters"
+      },
       "provider": "Provider",
       "providerPlaceholder": "Select a provider",
       "model": "Model",
       "modelPlaceholder": "Select a model",
       "count": "Quantity",
-      "prompt": "Prompt",
-      "promptPlaceholder": "Describe the 3D asset you want",
+      "prompt": {
+        "placeholder": "Describe the 3D asset you want"
+      },
       "reference": "Reference Image URL",
       "referencePlaceholder": "Optional: point to an existing image as modeling reference",
       "generate": "Generate"
+    },
+    "generation": {
+      "actions": {
+        "generate": "Generate",
+        "generating": "Generating...",
+        "copyPrompt": "Copy Prompt",
+        "promptCopied": "Prompt copied",
+        "promptCopyFailed": "Copy failed",
+        "reuseSettings": "Reuse Settings",
+        "recreate": "Regenerate",
+        "deleteBatch": "Delete Batch",
+        "batchDeleted": "Batch deleted"
+      },
+      "error": {
+        "failed": "Generation failed"
+      },
+      "status": {
+        "generating": "Generating..."
+      }
+    },
+    "notSupportGuide": {
+      "title": "3D Modeling Feature",
+      "desc": "3D modeling is not supported in this client. Please use desktop or web client for full functionality.",
+      "features": {
+        "multiProviders": {
+          "title": "Multi-Provider Support",
+          "desc": "Switch between providers instantly"
+        },
+        "fileIntegration": {
+          "title": "Local File Integration",
+          "desc": "Upload and export local files"
+        },
+        "llmAssisted": {
+          "title": "LLM-Assisted Creation",
+          "desc": "AI-powered prompt and parameter optimization"
+        }
+      }
     },
     "result": {
       "title": "Generation History",

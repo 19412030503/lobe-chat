@@ -89,6 +89,7 @@ export const HotkeyScopeEnum = {
   Global: 'global',
 
   Image: 'image',
+  ThreeD: 'threeD',
 } as const;
 
 export type HotkeyId = (typeof HotkeyEnum)[keyof typeof HotkeyEnum];
