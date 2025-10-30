@@ -31,7 +31,7 @@ export interface ModelListAction {
   refreshDefaultModelProviderList: (params?: { trigger?: string }) => Promise<void>;
   refreshModelProviderList: (params?: { trigger?: string }) => void;
   removeEnabledModels: (provider: GlobalLLMProviderKey, model: string) => Promise<void>;
-  setModelProviderConfig: <T extends GlobalLLMProviderKey>(
+  setModelProviderConfig: <T extends GlobalLLMProviderKey & keyof UserModelProviderConfig>(
     provider: T,
     config: Partial<UserModelProviderConfig[T]>,
   ) => Promise<void>;
@@ -45,7 +45,7 @@ export interface ModelListAction {
     options: { label?: string; value?: string }[],
   ) => Promise<void>;
 
-  updateKeyVaultConfig: <T extends GlobalLLMProviderKey>(
+  updateKeyVaultConfig: <T extends GlobalLLMProviderKey & keyof UserKeyVaults>(
     provider: T,
     config: Partial<UserKeyVaults[T]>,
   ) => Promise<void>;

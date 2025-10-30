@@ -74,9 +74,137 @@ const createThreeDInputSchema = z.object({
   provider: z.string(),
 });
 
+const convertThreeDInputSchema = z.object({
+  model: z.string(),
+  params: z
+    .object({
+      format: z.string(),
+    })
+    .passthrough(),
+  provider: z.string(),
+  sourceGenerationId: z.string(),
+});
+
 export type CreateThreeDServicePayload = z.infer<typeof createThreeDInputSchema>;
+export type ConvertThreeDServicePayload = z.infer<typeof convertThreeDInputSchema>;
 
 export const threeDRouter = router({
+  convertModel: threeDProcedure.input(convertThreeDInputSchema).mutation(async ({ ctx, input }) => {
+    const { asyncTaskModel, serverDB, userId } = ctx;
+    const { sourceGenerationId, params, provider, model } = input;
+
+    log('Starting 3D conversion process, input: %O', input);
+
+    const sourceGeneration = await serverDB.query.generations.findFirst({
+      where: and(eq(generations.id, sourceGenerationId), eq(generations.userId, userId)),
+    });
+
+    if (!sourceGeneration) {
+      throw new Error(`Source generation ${sourceGenerationId} not found or not owned by user`);
+    }
+
+    const sourceBatch = await serverDB.query.generationBatches.findFirst({
+      where: and(
+        eq(generationBatches.id, sourceGeneration.generationBatchId),
+        eq(generationBatches.userId, userId),
+      ),
+    });
+
+    if (!sourceBatch) {
+      throw new Error(
+        `Generation batch ${sourceGeneration.generationBatchId} not found for conversion`,
+      );
+    }
+
+    const sourceAsset = sourceGeneration.asset as Record<string, any> | null;
+    const resolvedOriginalTaskId =
+      (typeof params.originalTaskId === 'string' && params.originalTaskId.trim()) ||
+      (typeof sourceAsset?.jobId === 'string' ? sourceAsset.jobId : undefined);
+
+    if (!resolvedOriginalTaskId) {
+      throw new Error('Source generation does not contain a jobId; conversion is not supported');
+    }
+
+    const conversionParams = {
+      ...params,
+      originalTaskId: resolvedOriginalTaskId,
+    };
+
+    let asyncTaskId: string | undefined;
+    let createdGeneration: (NewGeneration & { asyncTaskId: string | null }) | undefined;
+
+    await serverDB.transaction(async (tx) => {
+      const [createdAsyncTask] = await tx
+        .insert(asyncTasks)
+        .values({
+          status: AsyncTaskStatus.Pending,
+          type: AsyncTaskType.ModelingGeneration,
+          userId,
+        })
+        .returning();
+
+      asyncTaskId = createdAsyncTask.id;
+
+      const [generation] = await tx
+        .insert(generations)
+        .values({
+          generationBatchId: sourceGeneration.generationBatchId,
+          seed: null,
+          userId,
+        })
+        .returning();
+
+      await tx
+        .update(generations)
+        .set({ asyncTaskId })
+        .where(and(eq(generations.id, generation.id), eq(generations.userId, userId)));
+
+      createdGeneration = { ...generation, asyncTaskId };
+    });
+
+    if (!asyncTaskId || !createdGeneration) {
+      throw new Error('Failed to create conversion tasks');
+    }
+
+    if (!createdGeneration.id) {
+      throw new Error('Failed to resolve generation id for conversion');
+    }
+
+    try {
+      const asyncCaller = await createAsyncCaller({
+        jwtPayload: ctx.jwtPayload,
+        userId: ctx.userId,
+      });
+
+      await asyncCaller.threeD.convertModel({
+        generationId: createdGeneration.id,
+        model: sourceBatch.model || model,
+        originalTaskId: resolvedOriginalTaskId,
+        params: conversionParams,
+        provider: sourceBatch.provider || provider,
+        sourceGenerationId,
+        taskId: asyncTaskId,
+      });
+    } catch (e) {
+      log('Failed to dispatch conversion async task: %O', e);
+
+      await asyncTaskModel.update(asyncTaskId, {
+        error: new AsyncTaskError(
+          AsyncTaskErrorType.ServerError,
+          'start async conversion task error: ' +
+            (e instanceof Error ? e.message : 'Unknown error'),
+        ),
+        status: AsyncTaskStatus.Error,
+      });
+    }
+
+    return {
+      data: {
+        generation: createdGeneration,
+      },
+      success: true,
+    };
+  }),
   createModel: threeDProcedure.input(createThreeDInputSchema).mutation(async ({ ctx, input }) => {
     const { userId, serverDB, asyncTaskModel, fileService } = ctx;
     const { generationTopicId, provider, model, params } = input;

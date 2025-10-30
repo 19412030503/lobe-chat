@@ -8,6 +8,7 @@ import GitHub from './github';
 import Hunyuan3D from './hunyuan3d';
 import Ollama from './ollama';
 import OpenAI from './openai';
+import Tripo3D from './tripo3d';
 import VertexAI from './vertexai';
 
 const ProviderDetailPage = (props: { id?: string | null }) => {
@@ -34,6 +35,9 @@ const ProviderDetailPage = (props: { id?: string | null }) => {
     }
     case 'hunyuan3d': {
       return <Hunyuan3D />;
+    }
+    case 'tripo3d': {
+      return <Tripo3D />;
     }
     case 'ollama': {
       return <Ollama />;

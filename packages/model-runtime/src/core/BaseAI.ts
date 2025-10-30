@@ -4,6 +4,8 @@ import OpenAI from 'openai';
 import {
   ChatMethodOptions,
   ChatStreamPayload,
+  Convert3DModelPayload,
+  Convert3DModelResponse,
   Create3DModelPayload,
   Create3DModelResponse,
   CreateImagePayload,
@@ -33,6 +35,7 @@ export interface LobeRuntimeAI {
   textToImage?: (payload: TextToImagePayload) => Promise<string[]>;
   createImage?: (payload: CreateImagePayload) => Promise<CreateImageResponse>;
   create3DModel?: (payload: Create3DModelPayload) => Promise<Create3DModelResponse>;
+  convert3DModel?: (payload: Convert3DModelPayload) => Promise<Convert3DModelResponse>;
 
   textToSpeech?: (
     payload: TextToSpeechPayload,
@@ -51,6 +54,7 @@ export abstract class LobeOpenAICompatibleRuntime {
   abstract chat(payload: ChatStreamPayload, options?: ChatMethodOptions): Promise<Response>;
   abstract createImage(payload: CreateImagePayload): Promise<CreateImageResponse>;
   create3DModel?(payload: Create3DModelPayload): Promise<Create3DModelResponse>;
+  convert3DModel?(payload: Convert3DModelPayload): Promise<Convert3DModelResponse>;
   abstract generateObject(
     payload: GenerateObjectPayload,
     options?: GenerateObjectOptions,

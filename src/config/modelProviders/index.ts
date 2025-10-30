@@ -55,6 +55,7 @@ import StepfunProvider from './stepfun';
 import TaichuProvider from './taichu';
 import TencentcloudProvider from './tencentcloud';
 import TogetherAIProvider from './togetherai';
+import Tripo3DProvider from './tripo3d';
 import UpstageProvider from './upstage';
 import V0Provider from './v0';
 import VercelAIGatewayProvider from './vercelaigateway';
@@ -167,6 +168,7 @@ export const DEFAULT_MODEL_PROVIDER_LIST = [
   TencentcloudProvider,
   HunyuanProvider,
   Hunyuan3DProvider,
+  Tripo3DProvider,
   ZhiPuProvider,
   SiliconCloudProvider,
   ZeroOneProvider,
@@ -257,6 +259,7 @@ export { default as StepfunProviderCard } from './stepfun';
 export { default as TaichuProviderCard } from './taichu';
 export { default as TencentCloudProviderCard } from './tencentcloud';
 export { default as TogetherAIProviderCard } from './togetherai';
+export { default as Tripo3DProviderCard } from './tripo3d';
 export { default as UpstageProviderCard } from './upstage';
 export { default as V0ProviderCard } from './v0';
 export { default as VercelAIGatewayProviderCard } from './vercelaigateway';

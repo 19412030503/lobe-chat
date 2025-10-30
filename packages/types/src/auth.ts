@@ -37,6 +37,9 @@ export interface ClientSecretPayload {
   hunyuan3dSecretKey?: string;
   hunyuan3dVersion?: string;
 
+  tripo3dPollInterval?: string | number;
+  tripo3dPollTimeout?: string | number;
+
   /**
    * user id
    * in client db mode it's a uuid

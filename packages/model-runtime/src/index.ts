@@ -33,6 +33,7 @@ export { LobePerplexityAI } from './providers/perplexity';
 export { LobeQwenAI } from './providers/qwen';
 export { LobeStepfunAI } from './providers/stepfun';
 export { LobeTogetherAI } from './providers/togetherai';
+export { LobeTripo3DAI } from './providers/tripo3d';
 export { LobeVolcengineAI } from './providers/volcengine';
 export { LobeZeroOneAI } from './providers/zeroone';
 export { LobeZhipuAI } from './providers/zhipu';

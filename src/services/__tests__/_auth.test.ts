@@ -23,7 +23,7 @@ const mockTogetherAIAPIKey = 'togetherai-api-key';
 // mock the traditional zustand
 vi.mock('zustand/traditional');
 
-const setModelProviderConfig = <T extends GlobalLLMProviderKey>(
+const setModelProviderConfig = <T extends GlobalLLMProviderKey & keyof UserKeyVaults>(
   provider: T,
   config: Partial<UserKeyVaults[T]>,
 ) => {
@@ -211,6 +211,20 @@ describe('getProviderAuthPayload', () => {
       hunyuan3dSecretId: 'hunyuan3d-secret-id',
       hunyuan3dSecretKey: 'hunyuan3d-secret-key',
       hunyuan3dVersion: '2025-05-13',
+    });
+  });
+
+  it('should return correct payload for Tripo3D provider', () => {
+    const payload = getProviderAuthPayload(ModelProvider.Tripo3D, {
+      apiKey: 'tripo-api-key',
+      baseURL: 'https://api.tripo3d.ai/v2/openapi',
+      pollInterval: '5000',
+      pollTimeout: '180000',
+    } as any);
+
+    expect(payload).toEqual({
+      apiKey: 'tripo-api-key',
+      baseURL: 'https://api.tripo3d.ai/v2/openapi',
     });
   });
 

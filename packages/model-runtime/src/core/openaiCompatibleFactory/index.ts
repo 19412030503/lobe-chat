@@ -25,7 +25,12 @@ import {
 } from '../../types';
 import { AgentRuntimeErrorType, ILobeAgentRuntimeErrorType } from '../../types/error';
 import { CreateImagePayload, CreateImageResponse } from '../../types/image';
-import { Create3DModelPayload, Create3DModelResponse } from '../../types/modeling';
+import {
+  Convert3DModelPayload,
+  Convert3DModelResponse,
+  Create3DModelPayload,
+  Create3DModelResponse,
+} from '../../types/modeling';
 import { AgentRuntimeError } from '../../utils/createError';
 import { debugResponse, debugStream } from '../../utils/debugStream';
 import { desensitizeUrl } from '../../utils/desensitizeUrl';
@@ -108,6 +113,10 @@ export interface OpenAICompatibleFactoryOptions<T extends Record<string, any> = 
     useResponseModels?: Array<string | RegExp>;
   };
   constructorOptions?: ConstructorOptions<T>;
+  convert3DModel?: (
+    payload: Convert3DModelPayload,
+    options: CreateImageOptions,
+  ) => Promise<Convert3DModelResponse>;
   create3DModel?: (
     payload: Create3DModelPayload,
     options: CreateImageOptions,
@@ -166,6 +175,7 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
   customClient,
   responses,
   createImage: customCreateImage,
+  convert3DModel: customConvert3DModel,
   create3DModel: customCreate3DModel,
   generateObject: generateObjectConfig,
 }: OpenAICompatibleFactoryOptions<T>) => {
@@ -610,6 +620,25 @@ export const createOpenAICompatibleRuntime = <T extends Record<string, any> = an
       }
       throw AgentRuntimeError.createError(ErrorType.bizError, {
         message: '3D model generation is not supported',
+        provider,
+      });
+    }
+
+    async convert3DModel(payload: Convert3DModelPayload) {
+      const log = debug(`${this.logPrefix}:convert3DModel`);
+      if (customConvert3DModel) {
+        log('using custom convert3DModel implementation');
+        return customConvert3DModel(payload, {
+          ...this._options,
+          apiKey: this._options.apiKey!,
+          client: this.client,
+          provider: this.id,
+          runtime: this,
+        });
+      }
+
+      throw AgentRuntimeError.createError(ErrorType.bizError, {
+        message: '3D model conversion is not supported',
         provider,
       });
     }

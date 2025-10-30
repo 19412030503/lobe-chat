@@ -8,6 +8,7 @@ import { providerRuntimeMap } from '../runtimeMap';
 import {
   ChatMethodOptions,
   ChatStreamPayload,
+  Convert3DModelPayload,
   Create3DModelPayload,
   EmbeddingsOptions,
   EmbeddingsPayload,
@@ -83,6 +84,13 @@ export class ModelRuntime {
       throw new Error('3D model generation is not supported');
     }
     return this._runtime.create3DModel(payload);
+  }
+
+  async convert3DModel(payload: Convert3DModelPayload) {
+    if (!this._runtime.convert3DModel) {
+      throw new Error('3D model conversion is not supported');
+    }
+    return this._runtime.convert3DModel(payload);
   }
 
   async models() {

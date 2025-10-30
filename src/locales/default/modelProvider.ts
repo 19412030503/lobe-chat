@@ -417,6 +417,14 @@ export default {
     title: '自定义排序',
     update: '更新',
   },
+  tripo3d: {
+    apiKey: {
+      desc: '请输入 Tripo3D 控制台获取的 API Key',
+      placeholder: 'Tripo3D API Key',
+      title: 'API Key',
+    },
+    title: 'Tripo 3D',
+  },
   updateAiProvider: {
     confirmDelete: '即将删除该 AI 服务商，删除后将无法找回，确认是否删除？',
     deleteSuccess: '删除成功',

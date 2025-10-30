@@ -71,6 +71,29 @@ const getParamsFromPayload = (provider: string, payload: ClientSecretPayload) =>
       };
     }
 
+    case ModelProvider.Tripo3D: {
+      const apiKey = apiKeyManager.pick(
+        payload.apiKey || llmConfig.TRIPO3D_API_KEY || process.env.TRIPO3D_API_KEY,
+      );
+      const baseURL = payload.baseURL || llmConfig.TRIPO3D_BASE_URL || process.env.TRIPO3D_BASE_URL;
+      const pollInterval =
+        payload.tripo3dPollInterval ||
+        llmConfig.TRIPO3D_POLL_INTERVAL ||
+        process.env.TRIPO3D_POLL_INTERVAL;
+      const pollTimeout =
+        payload.tripo3dPollTimeout ||
+        llmConfig.TRIPO3D_POLL_TIMEOUT ||
+        process.env.TRIPO3D_POLL_TIMEOUT;
+
+      return {
+        apiKey,
+        baseURL,
+        tripo3dBaseURL: baseURL,
+        tripo3dPollInterval: pollInterval,
+        tripo3dPollTimeout: pollTimeout,
+      };
+    }
+
     default: {
       let upperProvider = provider.toUpperCase();
 

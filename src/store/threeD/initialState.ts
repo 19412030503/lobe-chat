@@ -11,6 +11,7 @@ export interface ThreeDConfigState {
 }
 
 export interface ThreeDMetaState {
+  convertingGenerations: Record<string, boolean>;
   isCreating: boolean;
 }
 
@@ -18,6 +19,7 @@ export type ThreeDStoreState = ThreeDConfigState & ThreeDMetaState;
 
 export const initialState: ThreeDStoreState = {
   activeTopicId: null,
+  convertingGenerations: {},
   isCreating: false,
   isInit: false,
   modelCount: 1,

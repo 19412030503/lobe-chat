@@ -55,6 +55,7 @@ export enum ModelProvider {
   Taichu = 'taichu',
   TencentCloud = 'tencentcloud',
   TogetherAI = 'togetherai',
+  Tripo3D = 'tripo3d',
   Upstage = 'upstage',
   V0 = 'v0',
   VLLM = 'vllm',

@@ -94,6 +94,34 @@ export const ModelParamsMetaSchema = z.object({
     })
     .optional(),
 
+  modelSeed: z
+    .object({
+      default: z.number().nullable().default(null),
+      description: z.string().optional(),
+      max: z.number().optional(),
+      min: z.number().optional(),
+      type: z.tuple([z.literal('number'), z.literal('null')]).optional(),
+    })
+    .optional(),
+
+  negativePrompt: z
+    .object({
+      default: z.string().optional().default(''),
+      description: z.string().optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  imageSeed: z
+    .object({
+      default: z.number().nullable().default(null),
+      description: z.string().optional(),
+      max: z.number().optional(),
+      min: z.number().optional(),
+      type: z.tuple([z.literal('number'), z.literal('null')]).optional(),
+    })
+    .optional(),
+
   width: z
     .object({
       default: z.number(),
@@ -145,6 +173,121 @@ export const ModelParamsMetaSchema = z.object({
     })
     .optional(),
 
+  texture: z
+    .object({
+      default: z.boolean().optional().default(true),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  textureSeed: z
+    .object({
+      default: z.number().nullable().default(null),
+      description: z.string().optional(),
+      max: z.number().optional(),
+      min: z.number().optional(),
+      type: z.tuple([z.literal('number'), z.literal('null')]).optional(),
+    })
+    .optional(),
+
+  textureAlignment: z
+    .object({
+      default: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  textureQuality: z
+    .object({
+      default: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  autoSize: z
+    .object({
+      default: z.boolean().optional().default(false),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  style: z
+    .object({
+      default: z.string().optional().default(''),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  orientation: z
+    .object({
+      default: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  quad: z
+    .object({
+      default: z.boolean().optional().default(false),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  compress: z
+    .object({
+      default: z.string().optional().default(''),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  smartLowPoly: z
+    .object({
+      default: z.boolean().optional().default(false),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  generateParts: z
+    .object({
+      default: z.boolean().optional().default(false),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  geometryQuality: z
+    .object({
+      default: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  faceLimit: z
+    .object({
+      default: z.number().nullable().default(null),
+      description: z.string().optional(),
+      max: z.number().optional(),
+      min: z.number().optional(),
+      step: z.number().optional(),
+      type: z.tuple([z.literal('number'), z.literal('null')]).optional(),
+    })
+    .optional(),
+
   steps: z
     .object({
       default: z.number(),
@@ -159,6 +302,14 @@ export const ModelParamsMetaSchema = z.object({
   enablePBR: z
     .object({
       default: z.boolean().optional().default(false),
+      description: z.string().optional(),
+      type: z.literal('boolean').optional(),
+    })
+    .optional(),
+
+  pbr: z
+    .object({
+      default: z.boolean().optional().default(true),
       description: z.string().optional(),
       type: z.literal('boolean').optional(),
     })
@@ -198,6 +349,23 @@ export const ModelParamsMetaSchema = z.object({
       default: z.string(),
       description: z.string().optional(),
       enum: z.array(z.string()),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  imageToken: z
+    .object({
+      default: z.string().optional().default(''),
+      description: z.string().optional(),
+      type: z.literal('string').optional(),
+    })
+    .optional(),
+
+  imageFileType: z
+    .object({
+      default: z.string().optional(),
+      description: z.string().optional(),
+      enum: z.array(z.string()).optional(),
       type: z.literal('string').optional(),
     })
     .optional(),

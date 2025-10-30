@@ -46,6 +46,15 @@ export interface ImageGenerationAsset extends BaseGenerationAsset {
 
 export interface ThreeDGenerationAsset extends BaseGenerationAsset {
   /**
+   * 若为转换任务，记录源任务及参数
+   */
+  conversion?: {
+    originalTaskId: string;
+    params: Record<string, any>;
+    sourceFormat?: string;
+    sourceGenerationId: string;
+  };
+  /**
    * 3D 资产格式，如 glb/obj/fbx
    */
   format?: string;

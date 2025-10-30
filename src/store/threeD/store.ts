@@ -14,7 +14,15 @@ import { createDevtools } from '../middleware/createDevtools';
 import type { ThreeDStoreState } from './initialState';
 import { initialState } from './initialState';
 
+const LEGACY_TRIPO_MODEL_IDS = new Set(['tripo-image-to-model', 'tripo-text-to-model']);
+
 export interface ThreeDStore extends ThreeDStoreState {
+  convertGeneration: (payload: {
+    generationId: string;
+    model: string;
+    params: Record<string, any>;
+    provider: string;
+  }) => Promise<Awaited<ReturnType<typeof threeDService.convertModel>>>;
   createTask: (generationTopicId: string) => Promise<void>;
   initializeConfig: (isLogin?: boolean | null, lastModel?: string, lastProvider?: string) => void;
   setActiveTopicId: (id: string | null) => void;
@@ -32,7 +40,12 @@ function getModelDefaults(providerId?: string, modelId?: string) {
     return { parameters: initialState.parameters, schema: undefined };
   }
 
-  const providerList = aiProviderSelectors.enabledThreeDModelList(useAiInfraStore.getState());
+  const providerList = aiProviderSelectors
+    .enabledThreeDModelList(useAiInfraStore.getState())
+    .map((item) => ({
+      ...item,
+      children: item.children.filter((child) => !LEGACY_TRIPO_MODEL_IDS.has(child.id)),
+    }));
   const provider = providerList.find((item) => item.id === providerId);
   if (!provider) {
     throw new Error(`Provider "${providerId}" not found in enabled 3D provider list.`);
@@ -42,15 +55,19 @@ function getModelDefaults(providerId?: string, modelId?: string) {
     | (AI3DModelCard & { parameters?: ModelParamsSchema })
     | undefined;
 
-  if (!activeModel) {
-    throw new Error(
-      `Model "${modelId}" not found in provider "${providerId}". Available models: ${provider.children
-        .map((m) => m.id)
-        .join(', ')}`,
-    );
+  const resolvedModel =
+    activeModel ??
+    (provider.children.length > 0
+      ? (provider.children[0] as unknown as AI3DModelCard & {
+          parameters?: ModelParamsSchema;
+        })
+      : undefined);
+
+  if (!resolvedModel) {
+    throw new Error(`Provider "${providerId}" does not have any 3D models.`);
   }
 
-  const parametersSchema = activeModel.parameters as ModelParamsSchema | undefined;
+  const parametersSchema = resolvedModel.parameters as ModelParamsSchema | undefined;
   if (!parametersSchema) {
     return { parameters: { prompt: '' }, schema: undefined };
   }
@@ -70,26 +87,57 @@ function getModelDefaults(providerId?: string, modelId?: string) {
 const createStore: StateCreator<ThreeDStore, [['zustand/devtools', never]]> = (set, get) => ({
   ...initialState,
 
+  convertGeneration: async ({ generationId, provider, model, params }) => {
+    set(
+      (state) => ({
+        convertingGenerations: {
+          ...state.convertingGenerations,
+          [generationId]: true,
+        },
+      }),
+      false,
+      `threeD/convert/start/${generationId}`,
+    );
+
+    try {
+      return await threeDService.convertModel({
+        model,
+        params: params as { format: string } & Record<string, unknown>,
+        provider,
+        sourceGenerationId: generationId,
+      });
+    } finally {
+      set(
+        (state) => {
+          const next = { ...state.convertingGenerations };
+          delete next[generationId];
+          return { convertingGenerations: next };
+        },
+        false,
+        `threeD/convert/end/${generationId}`,
+      );
+    }
+  },
+
   createTask: async (generationTopicId: string) => {
     const state = get();
     if (!state.provider || !state.model) {
       throw new Error('3D provider or model is not ready');
     }
 
-    const hasPrompt = Boolean(state.parameters.prompt?.trim());
-    const hasImageUrl = Boolean(state.parameters.imageUrl);
-    const multiViewImages = state.parameters.multiViewImages;
-    const hasMultiView = Array.isArray(multiViewImages) && multiViewImages.some(Boolean);
+    const promptRaw = typeof state.parameters.prompt === 'string' ? state.parameters.prompt : '';
+    const trimmedPrompt = promptRaw.trim();
+    const imageUrlValue = state.parameters.imageUrl;
+    const multiViewImagesValue = state.parameters.multiViewImages;
+    const hasSingleImage = typeof imageUrlValue === 'string' && imageUrlValue.trim().length > 0;
+    const hasMultiImage = Array.isArray(multiViewImagesValue) && multiViewImagesValue.length > 0;
+    const hasImageReference = hasSingleImage || hasMultiImage;
 
-    if (!hasPrompt && !hasImageUrl && !hasMultiView) {
-      throw new Error('请至少提供提示词、参考图片或多视角图片 URL');
+    if (!trimmedPrompt && !hasImageReference) {
+      throw new Error('请先输入提示词');
     }
 
-    if (
-      state.model === 'hunyuan-3d-rapid' &&
-      typeof state.parameters.prompt === 'string' &&
-      state.parameters.prompt.length > 200
-    ) {
+    if (state.model === 'hunyuan-3d-rapid' && trimmedPrompt && trimmedPrompt.length > 200) {
       throw new Error('快速版提示词需控制在 200 字符以内');
     }
 
@@ -116,7 +164,12 @@ const createStore: StateCreator<ThreeDStore, [['zustand/devtools', never]]> = (s
   },
 
   initializeConfig: (isLogin, lastModel, lastProvider) => {
-    const providerList = aiProviderSelectors.enabledThreeDModelList(useAiInfraStore.getState());
+    const providerList = aiProviderSelectors
+      .enabledThreeDModelList(useAiInfraStore.getState())
+      .map((item) => ({
+        ...item,
+        children: item.children.filter((child) => !LEGACY_TRIPO_MODEL_IDS.has(child.id)),
+      }));
     if (!providerList.length) {
       set({ isInit: true }, false, 'threeD/init/empty');
       return;

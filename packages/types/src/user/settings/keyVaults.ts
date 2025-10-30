@@ -57,6 +57,17 @@ export interface Hunyuan3DKeyVault extends OpenAICompatibleKeyVault {
   version?: string;
 }
 
+export interface Tripo3DKeyVault extends OpenAICompatibleKeyVault {
+  /**
+   * 轮询间隔（毫秒）
+   */
+  pollInterval?: string;
+  /**
+   * 轮询超时（毫秒）
+   */
+  pollTimeout?: string;
+}
+
 export interface SearchEngineKeyVaults {
   searchxng?: {
     apiKey?: string;
@@ -122,6 +133,7 @@ export interface UserKeyVaults extends SearchEngineKeyVaults {
   taichu?: OpenAICompatibleKeyVault;
   tencentcloud?: OpenAICompatibleKeyVault;
   togetherai?: OpenAICompatibleKeyVault;
+  tripo3d?: Tripo3DKeyVault;
   upstage?: OpenAICompatibleKeyVault;
   v0?: OpenAICompatibleKeyVault;
   vercelaigateway?: OpenAICompatibleKeyVault;
