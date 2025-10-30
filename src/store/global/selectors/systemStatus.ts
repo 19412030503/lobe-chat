@@ -71,6 +71,11 @@ const getAgentSystemRoleExpanded =
     return map[agentId] !== false; // 角色设定默认为展开状态
   };
 
+const lastSelectedThreeDModel = (s: GlobalState): string | undefined =>
+  s.status.lastSelectedThreeDModel;
+const lastSelectedThreeDProvider = (s: GlobalState): string | undefined =>
+  s.status.lastSelectedThreeDProvider;
+
 export const systemStatusSelectors = {
   chatInputHeight,
   expandInputActionbar,
@@ -88,6 +93,8 @@ export const systemStatusSelectors = {
   isSideNavCollapsed,
   isStatusInit,
   language,
+  lastSelectedThreeDModel,
+  lastSelectedThreeDProvider,
   mobileShowPortal,
   mobileShowTopic,
   portalWidth,

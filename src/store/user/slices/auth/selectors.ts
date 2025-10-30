@@ -61,4 +61,5 @@ export const authSelectors = {
   isLoginWithAuth: (s: UserStore) => s.isSignedIn,
   isLoginWithClerk: (s: UserStore): boolean => (s.isSignedIn && enableClerk) || false,
   isLoginWithNextAuth: (s: UserStore): boolean => (s.isSignedIn && !!enableNextAuth) || false,
+  roles: (s: UserStore) => s.roles ?? [],
 };

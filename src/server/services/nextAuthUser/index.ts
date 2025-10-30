@@ -16,6 +16,7 @@ import { pino } from '@/libs/logger';
 import { merge } from '@/utils/merge';
 
 import { AgentService } from '../agent';
+import { RoleService } from '../role';
 import {
   mapAdapterUserToLobeUser,
   mapAuthenticatorQueryResutlToAdapterAuthenticator,
@@ -25,6 +26,7 @@ import {
 
 export class NextAuthUserService {
   private db: LobeChatDatabase;
+  private static readonly DEFAULT_USER_ROLE = 'user';
 
   constructor(db: LobeChatDatabase) {
     this.db = db;
@@ -113,6 +115,10 @@ export class NextAuthUserService {
     }
     if (existingUser) {
       const adapterUser = mapLobeUserToAdapterUser(existingUser);
+      if (existingUser.id) {
+        const roleService = new RoleService(this.db);
+        await roleService.assignRoles(existingUser.id, [NextAuthUserService.DEFAULT_USER_ROLE]);
+      }
       return adapterUser;
     }
 
@@ -135,6 +141,8 @@ export class NextAuthUserService {
     // 3. Create an inbox session for the user
     const agentService = new AgentService(this.db, uid);
     await agentService.createInbox();
+    const roleService = new RoleService(this.db);
+    await roleService.assignRoles(uid, [NextAuthUserService.DEFAULT_USER_ROLE]);
 
     return { ...user, id: uid };
   };

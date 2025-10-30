@@ -1,0 +1,48 @@
+# 角色权限控制（RBAC）概览
+
+本文介绍 LobeChat 中的 RBAC 实现方式，并说明开发者可以扩展的关键位置。
+
+## 默认角色
+
+迁移脚本 `packages/database/migrations/0040_seed_rbac_roles.sql` 会预置三种系统角色，并确保重复执行时保持幂等。
+
+| 角色    | 说明      | 权限覆盖                                       |
+| ----- | ------- | ------------------------------------------ |
+| root  | 超级管理员   | `system.manage`、`admin.manage`、`app.basic` |
+| admin | 后台管理管理员 | `admin.manage`、`app.basic`                 |
+| user  | 普通产品用户  | `app.basic`                                |
+
+## 服务端能力
+
+`RoleService`（`src/server/services/role/index.ts`）提供以下能力：
+
+- 列出全部有效角色
+- 查询用户角色与权限
+- 批量赋予或收回角色
+
+tRPC 路由 `roleRouter`（`src/server/routers/lambda/role.ts`）使用 `requireRoles` 中间件校验：只有 `admin` 或 `root` 才能进行角色管理，且仅有 `root` 可以操作 `root` 角色的授权 / 回收。
+
+## NextAuth 集成
+
+NextAuth 的 JWT /session 回调（`src/libs/next-auth/auth.config.ts`）在后端数据库启用时，会为 token 与 session 注入 `roles` 数组。前端可通过 `session.user.roles` 获取角色。
+
+`UserUpdater`（`src/layout/AuthProvider/NextAuth/UserUpdater.tsx`）会将 roles 规范化后写入用户 store，供全局使用。
+
+## 前端使用方式
+
+- `useHasRole`（`src/hooks/useHasRole.ts`）是主要的角色判断 Hook，支持 `anyOf` / `allOf` / `not` 配置，并在未启用鉴权时自动放行。
+- `HasRole` 组件（`src/components/AccessControl/HasRole.tsx`）提供声明式写法，方便包裹部分 UI。
+- 用户下拉菜单（`src/features/User/UserPanel/useMenu.tsx`）已经基于角色隐藏敏感入口。例如只有 `admin`/`root` 能看到数据导入项，`root` 独占 “权限管理” 入口。
+
+## 扩展 RBAC
+
+1. **新增权限**：在 `packages/database/src/schemas/rbac.ts` 定义权限，并通过迁移插入数据。
+2. **服务端校验**：在 tRPC Procedure 中使用 `requireRoles`，或在业务逻辑中调用 `assertHasRole`（`src/server/utils/authorization.ts`）。
+3. **前端控制**：使用 `useHasRole` / `HasRole` 控制组件显隐，也可直接读取 `session.user.roles` 进行简单判断。
+
+## 测试与验证
+
+- `src/server/services/role/index.test.ts` 单测覆盖 RoleService 核心行为。
+- `src/features/User/__tests__/useMenu.test.tsx` 验证不同角色下菜单的展示差异。
+
+如果在 npm 环境下执行 Vitest 时出现 `Cannot find module @rollup/rollup-linux-x64-gnu` 错误，通常是 npm 对可选依赖处理存在兼容性问题。建议使用 pnpm 重新安装依赖，或删除 `node_modules` 后再次安装。

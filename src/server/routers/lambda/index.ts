@@ -24,6 +24,7 @@ import { marketRouter } from './market';
 import { messageRouter } from './message';
 import { pluginRouter } from './plugin';
 import { ragEvalRouter } from './ragEval';
+import { roleRouter } from './role';
 import { sessionRouter } from './session';
 import { sessionGroupRouter } from './sessionGroup';
 import { threadRouter } from './thread';
@@ -55,6 +56,7 @@ export const lambdaRouter = router({
   message: messageRouter,
   plugin: pluginRouter,
   ragEval: ragEvalRouter,
+  role: roleRouter,
   session: sessionRouter,
   sessionGroup: sessionGroupRouter,
   thread: threadRouter,

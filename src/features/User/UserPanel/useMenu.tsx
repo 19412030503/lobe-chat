@@ -14,6 +14,7 @@ import {
   LogOut,
   Mail,
   Settings2,
+  ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { PropsWithChildren, memo } from 'react';
@@ -34,6 +35,7 @@ import {
 } from '@/const/url';
 import { isDesktop } from '@/const/version';
 import DataImporter from '@/features/DataImporter';
+import { useHasRole } from '@/hooks/useHasRole';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { useUserStore } from '@/store/user';
@@ -68,6 +70,8 @@ export const useMenu = () => {
   const hasNewVersion = useNewVersion();
   const { t } = useTranslation(['common', 'setting', 'auth']);
   const { showCloudPromotion, hideDocs } = useServerConfigStore(featureFlagsSelectors);
+  const { allowed: canManageData } = useHasRole({ anyOf: ['admin', 'root'] });
+  const { allowed: canManageRoles } = useHasRole({ anyOf: ['root'] });
   const [isLogin, isLoginWithAuth] = useUserStore((s) => [
     authSelectors.isLogin(s),
     authSelectors.isLoginWithAuth(s),
@@ -117,18 +121,33 @@ export const useMenu = () => {
     },
   ];
 
-  const data = !isLogin
-    ? []
-    : ([
-        {
-          icon: <Icon icon={HardDriveDownload} />,
-          key: 'import',
-          label: <DataImporter>{t('importData')}</DataImporter>,
-        },
-        {
-          type: 'divider',
-        },
-      ].filter(Boolean) as ItemType[]);
+  const data =
+    !isLogin || !canManageData
+      ? []
+      : ([
+          {
+            icon: <Icon icon={HardDriveDownload} />,
+            key: 'import',
+            label: <DataImporter>{t('importData')}</DataImporter>,
+          },
+          {
+            type: 'divider',
+          },
+        ].filter(Boolean) as ItemType[]);
+
+  const admin: MenuProps['items'] =
+    !isLogin || !canManageRoles
+      ? []
+      : [
+          {
+            icon: <Icon icon={ShieldCheck} />,
+            key: 'admin-console',
+            label: <Link href={'/settings?tab=roles'}>{t('userPanel.adminConsole')}</Link>,
+          },
+          {
+            type: 'divider',
+          },
+        ];
 
   const helps: MenuProps['items'] = [
     showCloudPromotion && {
@@ -198,6 +217,7 @@ export const useMenu = () => {
       type: 'divider',
     },
     ...(!enableAuth || (enableAuth && isLoginWithAuth) ? profile : []),
+    ...admin,
     ...(isLogin ? settings : []),
     /* ↓ cloud slot ↓ */
 

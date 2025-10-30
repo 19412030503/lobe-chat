@@ -64,12 +64,15 @@ vi.mock('@/const/auth', () => ({
 afterEach(() => {
   enableAuth = true;
   enableClerk = true;
+  act(() => {
+    useUserStore.setState({ isSignedIn: false, roles: [] });
+  });
 });
 
 describe('useMenu', () => {
   it('should provide correct menu items when user is logged in with auth', () => {
     act(() => {
-      useUserStore.setState({ isSignedIn: true, enableAuth: () => true });
+      useUserStore.setState({ enableAuth: () => true, isSignedIn: true, roles: ['admin'] });
     });
     enableAuth = true;
     enableClerk = false;
@@ -81,14 +84,31 @@ describe('useMenu', () => {
       expect(mainItems?.some((item) => item?.key === 'profile')).toBe(true);
       expect(mainItems?.some((item) => item?.key === 'setting')).toBe(true);
       expect(mainItems?.some((item) => item?.key === 'import')).toBe(true);
+      expect(mainItems?.some((item) => item?.key === 'admin-console')).toBe(false);
       expect(mainItems?.some((item) => item?.key === 'changelog')).toBe(true);
       expect(logoutItems.some((item) => item?.key === 'logout')).toBe(true);
     });
   });
 
+  it('should expose admin console when user has root role', () => {
+    act(() => {
+      useUserStore.setState({ enableAuth: () => true, isSignedIn: true, roles: ['root'] });
+    });
+    enableAuth = true;
+    enableClerk = false;
+
+    const { result } = renderHook(() => useMenu(), { wrapper });
+
+    act(() => {
+      const { mainItems } = result.current;
+      expect(mainItems?.some((item) => item?.key === 'admin-console')).toBe(true);
+      expect(mainItems?.some((item) => item?.key === 'import')).toBe(true);
+    });
+  });
+
   it('should provide correct menu items when user is logged in without auth', () => {
     act(() => {
-      useUserStore.setState({ isSignedIn: false, enableAuth: () => false });
+      useUserStore.setState({ enableAuth: () => false, isSignedIn: false, roles: [] });
     });
     enableAuth = false;
 
@@ -106,7 +126,7 @@ describe('useMenu', () => {
 
   it('should provide correct menu items when user is not logged in', () => {
     act(() => {
-      useUserStore.setState({ isSignedIn: false, enableAuth: () => true });
+      useUserStore.setState({ enableAuth: () => true, isSignedIn: false, roles: [] });
     });
     enableAuth = true;
 

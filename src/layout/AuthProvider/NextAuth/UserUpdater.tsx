@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { createStoreUpdater } from 'zustand-utils';
 
 import { useUserStore } from '@/store/user';
@@ -17,9 +17,21 @@ const UserUpdater = memo(() => {
   const nextUser = session?.user;
   const useStoreUpdater = createStoreUpdater(useUserStore);
 
+  const normalizedRoles = useMemo(() => {
+    if (!Array.isArray(nextUser?.roles)) return [];
+    return Array.from(
+      new Set(
+        nextUser.roles
+          .filter((role): role is string => typeof role === 'string' && role.trim().length > 0)
+          .map((role) => role.trim().toLowerCase()),
+      ),
+    );
+  }, [nextUser?.roles]);
+
   useStoreUpdater('isLoaded', isLoaded);
   useStoreUpdater('isSignedIn', isSignedIn);
   useStoreUpdater('nextSession', session!);
+  useStoreUpdater('roles', normalizedRoles);
 
   // 使用 useEffect 处理需要保持同步的用户数据
   useEffect(() => {

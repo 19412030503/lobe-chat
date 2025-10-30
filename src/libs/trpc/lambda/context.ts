@@ -37,6 +37,7 @@ export interface AuthContext {
   resHeaders?: Headers;
   userAgent?: string;
   userId?: string | null;
+  userRoles?: string[];
 }
 
 /**
@@ -51,6 +52,7 @@ export const createContextInner = async (params?: {
   oidcAuth?: OIDCAuth | null;
   userAgent?: string;
   userId?: string | null;
+  userRoles?: string[];
 }): Promise<AuthContext> => {
   log('createContextInner called with params: %O', params);
   const responseHeaders = new Headers();
@@ -64,6 +66,7 @@ export const createContextInner = async (params?: {
     resHeaders: responseHeaders,
     userAgent: params?.userAgent,
     userId: params?.userId,
+    userRoles: params?.userRoles,
   };
 };
 
@@ -166,17 +169,18 @@ export const createLambdaContext = async (request: NextRequest): Promise<LambdaC
       const { default: NextAuth } = await import('@/libs/next-auth');
 
       const session = await NextAuth.auth();
+      let roles: string[] | undefined;
       if (session && session?.user?.id) {
         auth = session.user;
         userId = session.user.id;
+        roles = session.user.roles;
         log('NextAuth authentication successful, userId: %s', userId);
-      } else {
-        log('NextAuth authentication failed, no valid session');
       }
       return createContextInner({
         nextAuth: auth,
         ...commonContext,
         userId,
+        userRoles: auth?.roles ?? roles ?? undefined,
       });
     } catch (e) {
       log('NextAuth authentication error: %O', e);

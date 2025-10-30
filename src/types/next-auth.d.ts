@@ -7,10 +7,12 @@ declare module 'next-auth' {
   interface Session {
     user: {
       firstName?: string;
+      roles?: string[];
     } & DefaultSession['user'];
   }
   interface User {
     providerAccountId?: string;
+    roles?: string[];
   }
   /**
    * More types can be extends here
@@ -22,5 +24,6 @@ declare module '@auth/core/jwt' {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     userId: string;
+    userRoles?: string[];
   }
 }

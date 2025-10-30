@@ -1,0 +1,50 @@
+# Role-Based Access Control (RBAC)
+
+This document provides an overview of the RBAC implementation in LobeChat and highlights the main extension points for contributors.
+
+## Default Roles
+
+LobeChat seeds three system roles through the migration `packages/database/migrations/0040_seed_rbac_roles.sql`.
+
+| Role  | Description                         | Permission Coverage                          |
+| ----- | ----------------------------------- | -------------------------------------------- |
+| root  | Super administrator                 | `system.manage`, `admin.manage`, `app.basic` |
+| admin | Back-office management capabilities | `admin.manage`, `app.basic`                  |
+| user  | Regular product access              | `app.basic`                                  |
+
+The migration is idempotent and can be re-run safely during deployment.
+
+## Backend Services
+
+`RoleService` (`src/server/services/role/index.ts`) exposes helpers to:
+
+- list all active roles
+- fetch a user's roles and permissions
+- assign or revoke roles
+
+The new tRPC router `roleRouter` (`src/server/routers/lambda/role.ts`) uses the `requireRoles` middleware to enforce that only `admin` or `root` users can manage roles, with `root` exclusively allowed to grant or revoke the `root` role.
+
+## NextAuth Integration
+
+The NextAuth JWT/session callbacks (`src/libs/next-auth/auth.config.ts`) now enrich tokens and session data with the user's roles when the server database is enabled. The session exposes the roles array via `session.user.roles`.
+
+`UserUpdater` (`src/layout/AuthProvider/NextAuth/UserUpdater.tsx`) normalises the roles and persists them into the user store, making them available throughout the frontend.
+
+## Frontend Usage
+
+- `useHasRole` (`src/hooks/useHasRole.ts`) is the primary hook to check for role membership. It supports `anyOf`, `allOf`, and `not` matchers and gracefully degrades when authentication is disabled.
+- `HasRole` (`src/components/AccessControl/HasRole.tsx`) offers a declarative wrapper for JSX.
+- The user dropdown menu (`src/features/User/UserPanel/useMenu.tsx`) uses `useHasRole` to hide sensitive entries. For example, only `admin`/`root` see the data import option, and only `root` users see the “Admin Console” link.
+
+## Extending RBAC
+
+1. **Define permissions** – add new entries to `packages/database/src/schemas/rbac.ts` and seed them via a migration.
+2. **Server-side enforcement** – wrap TRPC procedures or service logic with `requireRoles` or call `assertHasRole` from `src/server/utils/authorization.ts`.
+3. **Frontend gating** – use `useHasRole`/`HasRole` for component-level visibility, or read `session.user.roles` for lightweight scenarios.
+
+## Testing
+
+- `src/server/services/role/index.test.ts` covers service behaviour.
+- `src/features/User/__tests__/useMenu.test.tsx` verifies the menu visibility rules for different roles.
+
+When running the main Vitest suite with npm, older npm versions may fail to download optional Rollup binaries. If you encounter `Cannot find module @rollup/rollup-linux-x64-gnu`, reinstall dependencies with pnpm or remove `node_modules` and retry with a compatible package manager.

@@ -22,7 +22,10 @@ export interface UserAuthState {
   nextSession?: Session;
   nextUser?: User;
   oAuthSSOProviders?: string[];
+  roles?: string[];
   user?: LobeUser;
 }
 
-export const initialAuthState: UserAuthState = {};
+export const initialAuthState: UserAuthState = {
+  roles: [],
+};

@@ -412,6 +412,7 @@
     "newVersion": "New version available: {{version}}"
   },
   "userPanel": {
+    "adminConsole": "Admin Console",
     "anonymousNickName": "Anonymous User",
     "billing": "Billing Management",
     "cloud": "Launch {{name}}",
