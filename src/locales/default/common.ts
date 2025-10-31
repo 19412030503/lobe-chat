@@ -379,6 +379,7 @@ export default {
     courseCenter: '课程中心',
     files: '内容库',
     home: '首页',
+    management: '管理',
     me: '我',
     setting: '设置',
   },

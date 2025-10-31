@@ -2,6 +2,57 @@ export default {
   about: {
     title: '关于',
   },
+  account: {
+    actions: {
+      changePassword: '修改密码',
+      joinOrganization: '加入组织',
+    },
+    dialogs: {
+      changePassword: {
+        confirmLabel: '确认新密码',
+        confirmPlaceholder: '请再次输入新密码',
+        currentLabel: '当前密码',
+        currentPlaceholder: '请输入当前密码',
+        newLabel: '新密码',
+        newPlaceholder: '请输入新密码（至少6位）',
+        title: '修改密码',
+      },
+    },
+    inviteCode: {
+      copy: '复制邀请码',
+      copySuccess: '邀请码已复制',
+      desc: '生成邀请码供新用户注册使用',
+      generate: '生成邀请码',
+      generateSuccess: '邀请码生成成功',
+      joinFailed: '加入组织失败',
+      joinSuccess: '成功加入组织',
+      label: '邀请码',
+      validUntil: '有效期至：{{date}}',
+    },
+    messages: {
+      changePasswordFailed: '修改密码失败',
+      changePasswordSuccess: '密码修改成功',
+      passwordMismatch: '两次输入的密码不一致',
+    },
+    organization: {
+      desc: '输入管理员提供的邀请码以加入组织',
+      inviteCodeLabel: '邀请码',
+      inviteCodePlaceholder: '请输入邀请码',
+      inviteCodeRequired: '请输入邀请码',
+    },
+    sections: {
+      inviteCode: '邀请码管理',
+      organization: '组织管理',
+      password: '密码管理',
+    },
+    title: '账户设置',
+    validation: {
+      confirmPassword: '请确认新密码',
+      currentPassword: '请输入当前密码',
+      newPassword: '请输入新密码',
+      passwordLength: '密码至少需要6位',
+    },
+  },
   agentTab: {
     chat: '聊天偏好',
     meta: '助手信息',
@@ -149,46 +200,87 @@ export default {
     waitingForMore: '更多模型正在 <1>计划接入</1> 中，敬请期待',
   },
   management: {
-    accessDenied: '当前账号无权限访问该页面',
+    accessDenied: '无权访问',
     actions: {
-      createOrganization: '创建组织',
-      renameOrganization: '重命名组织',
+      createOrganization: '新建组织',
+      createUser: '新增用户',
+      disableUser: '禁用用户',
+      enableUser: '启用用户',
+      inviteUser: '邀请用户',
+      renameOrganization: '重命名',
     },
     columns: {
-      actions: '角色设置',
+      actions: '操作',
       email: '邮箱',
       name: '姓名',
       organization: '所属组织',
       organizationActions: '操作',
       organizationName: '组织名称',
-      organizationType: '组织类型',
+      organizationType: '类型',
       roles: '角色',
+      status: '状态',
     },
     dialogs: {
+      createUser: {
+        title: '新增用户',
+      },
       deleteOrganization: {
-        content: '确定要删除组织 {{name}} 吗？',
+        content: '确认删除组织「{{name}}」？',
         title: '删除组织',
+      },
+      disableUser: {
+        content: '确认禁用用户「{{name}}」？禁用后用户将无法登录。',
+        title: '禁用用户',
+      },
+      enableUser: {
+        content: '确认启用用户「{{name}}」？',
+        title: '启用用户',
+      },
+      inviteUser: {
+        title: '邀请用户',
       },
       renameOrganization: {
         title: '重命名组织',
       },
     },
     fields: {
+      inviteCode: '邀请码',
       organization: {
+        all: '全部组织',
         name: '组织名称',
-        none: '无组织',
+        none: '无所属组织',
         type: '组织类型',
       },
+      user: {
+        displayName: '显示名称',
+        email: '邮箱',
+        inviteCode: '邀请码',
+        name: '用户名',
+        password: '密码',
+      },
+    },
+    filters: {
+      organizationLabel: '筛选组织',
+    },
+    header: {
+      desc: '组织与用户管理',
+      title: '管理',
     },
     hints: {
-      lockedOrganization: '该组织无法删除',
+      lockedOrganization: '系统组织不可删除',
     },
     messages: {
-      operationFailed: '操作失败，请稍后重试',
+      invalidInviteCode: '邀请码无效或已过期',
+      inviteCodeRequired: '请输入邀请码',
+      operationFailed: '操作失败',
       organizationCreated: '组织创建成功',
-      organizationDeleted: '组织已删除',
-      organizationUpdated: '组织更新成功',
-      roleUpdated: '角色更新成功',
+      organizationDeleted: '组织删除成功',
+      organizationUpdated: '组织信息已更新',
+      roleUpdated: '角色已更新',
+      userCreated: '用户创建成功',
+      userDisabled: '用户已禁用',
+      userEnabled: '用户已启用',
+      userInvited: '用户邀请成功',
       userUpdated: '用户信息已更新',
     },
     organizationTypes: {
@@ -196,19 +288,40 @@ export default {
       school: '学校',
     },
     placeholders: {
+      inviteCode: '请输入邀请码',
       organizationName: '请输入组织名称',
+      userDisplayName: '请输入显示名称',
+      userEmail: '请输入邮箱',
+      userName: '请输入用户名',
+      userPassword: '请输入密码（至少6位）',
     },
     roles: {
-      admin: '学校',
-      root: '管理层',
+      admin: '管理员',
+      root: '超级管理员',
       user: '学生',
+    },
+    search: {
+      organizationPlaceholder: '搜索组织名称',
+      userPlaceholder: '搜索用户名、邮箱',
     },
     sections: {
       organizations: '组织管理',
       users: '用户管理',
     },
+    status: {
+      active: '正常',
+      disabled: '已禁用',
+    },
+    tabs: {
+      organizations: '组织管理',
+      users: '用户管理',
+    },
     validation: {
+      inviteCode: '请输入邀请码',
       organizationName: '请输入组织名称',
+      userEmail: '请输入有效的邮箱地址',
+      userName: '请输入用户名',
+      userPassword: '密码至少需要6位',
     },
   },
   message: {
@@ -729,6 +842,7 @@ export default {
   },
   tab: {
     'about': '关于',
+    'account': '账户设置',
     'agent': '默认助手',
     'common': '通用设置',
     'experiment': '实验',

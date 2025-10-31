@@ -1,4 +1,5 @@
 import { UserJSON } from '@clerk/backend';
+import { TRPCError } from '@trpc/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 
@@ -13,6 +14,7 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { KeyVaultsGateKeeper } from '@/server/modules/KeyVaultsEncrypt';
 import { S3 } from '@/server/modules/S3';
+import { casdoorService } from '@/server/services/casdoor';
 import { FileService } from '@/server/services/file';
 import { NextAuthUserService } from '@/server/services/nextAuthUser';
 import { UserService } from '@/server/services/user';
@@ -36,6 +38,44 @@ const userProcedure = authedProcedure.use(serverDatabase).use(async ({ ctx, next
 });
 
 export const userRouter = router({
+  changePassword: userProcedure
+    .input(
+      z.object({
+        currentPassword: z.string().min(1),
+        newPassword: z.string().min(6),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = ctx.serverDB;
+      if (!db) {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database unavailable' });
+      }
+
+      // 获取当前用户信息
+      const user = await db.query.users.findFirst({
+        where: (users: any, { eq }: any) => eq(users.id, ctx.userId),
+      });
+
+      if (!user || !user.username) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+
+      try {
+        // 在 Casdoor 更新密码
+        await casdoorService.updateUser(user.username, {
+          password: input.newPassword,
+        } as any);
+
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to change password:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : '修改密码失败',
+        });
+      }
+    }),
+
   getUserRegistrationDuration: userProcedure.query(async ({ ctx }) => {
     return ctx.userModel.getUserRegistrationDuration();
   }),

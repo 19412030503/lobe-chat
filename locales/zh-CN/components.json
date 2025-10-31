@@ -111,7 +111,7 @@
       "file": "该模型支持上传文件读取与识别",
       "functionCall": "该模型支持函数调用（Function Call）",
       "imageOutput": "该模型支持生成图片",
-      "modelOutput": "该模型支持生成3D模型",
+      "modelOutput": "该模型支持生成 3D 模型",
       "reasoning": "该模型支持深度思考",
       "search": "该模型支持联网搜索",
       "tokens": "该模型单个会话最多支持 {{tokens}} Tokens",

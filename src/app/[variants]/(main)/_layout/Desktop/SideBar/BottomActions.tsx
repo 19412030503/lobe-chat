@@ -1,8 +1,9 @@
-import { ChevronsLeft, ChevronsRight, FolderClosed } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, FolderClosed, ShieldCheck } from 'lucide-react';
 import { MouseEvent, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flexbox } from 'react-layout-kit';
 
+import { useHasRole } from '@/hooks/useHasRole';
 import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
 import NavItem from './NavItem';
@@ -15,6 +16,7 @@ export interface BottomActionsProps {
 const BottomActions = memo<BottomActionsProps>(({ collapsed, onToggleCollapse }) => {
   const { t } = useTranslation('common');
   const { enableKnowledgeBase } = useServerConfigStore(featureFlagsSelectors);
+  const { allowed: canManage } = useHasRole({ anyOf: ['admin', 'root'] });
 
   const toggleLabel = collapsed ? t('nav.expand') : t('nav.collapse');
   const ToggleIcon = collapsed ? ChevronsRight : ChevronsLeft;
@@ -28,6 +30,14 @@ const BottomActions = memo<BottomActionsProps>(({ collapsed, onToggleCollapse })
     <Flexbox gap={8}>
       {enableKnowledgeBase && (
         <NavItem collapsed={collapsed} href={'/files'} icon={FolderClosed} label={t('tab.files')} />
+      )}
+      {canManage && (
+        <NavItem
+          collapsed={collapsed}
+          href={'/management'}
+          icon={ShieldCheck}
+          label={t('tab.management')}
+        />
       )}
       <NavItem collapsed={collapsed} icon={ToggleIcon} label={toggleLabel} onClick={handleToggle} />
     </Flexbox>

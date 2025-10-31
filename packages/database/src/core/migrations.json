@@ -701,10 +701,18 @@
   },
   {
     "sql": [
-      "CREATE TABLE IF NOT EXISTS \"organizations\" (\n  \"id\" uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  \"name\" text NOT NULL UNIQUE,\n  \"type\" text NOT NULL,\n  \"parent_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE SET NULL,\n  \"accessed_at\" timestamptz NOT NULL DEFAULT now(),\n  \"created_at\" timestamptz NOT NULL DEFAULT now(),\n  \"updated_at\" timestamptz NOT NULL DEFAULT now()\n);\n\nALTER TABLE \"users\"\n  ADD COLUMN IF NOT EXISTS \"organization_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE SET NULL;\n\nCREATE INDEX IF NOT EXISTS \"users_organization_id_idx\" ON \"users\" (\"organization_id\");\n"
+      "CREATE TABLE IF NOT EXISTS \"organizations\" (\r\n  \"id\" uuid PRIMARY KEY DEFAULT gen_random_uuid(),\r\n  \"name\" text NOT NULL UNIQUE,\r\n  \"type\" text NOT NULL,\r\n  \"parent_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE SET NULL,\r\n  \"accessed_at\" timestamptz NOT NULL DEFAULT now(),\r\n  \"created_at\" timestamptz NOT NULL DEFAULT now(),\r\n  \"updated_at\" timestamptz NOT NULL DEFAULT now()\r\n);\r\n\r\nALTER TABLE \"users\"\r\n  ADD COLUMN IF NOT EXISTS \"organization_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE SET NULL;\r\n\r\nCREATE INDEX IF NOT EXISTS \"users_organization_id_idx\" ON \"users\" (\"organization_id\");\r\n"
     ],
     "bps": true,
     "folderMillis": 1761882997261,
-    "hash": "428cc35e7b0210842b4fc63735822be4b8a116f039e9b5d2a5b17297edf60857"
+    "hash": "26dc95af59e28f570520ced6ec1ba91f3457cb2a28688ee9588384755fe22c8a"
+  },
+  {
+    "sql": [
+      "CREATE TABLE IF NOT EXISTS \"invite_codes\" (\n  \"id\" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,\n  \"code\" text UNIQUE NOT NULL,\n  \"creator_id\" text NOT NULL REFERENCES \"users\" (\"id\") ON DELETE CASCADE,\n  \"organization_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE CASCADE,\n  \"expires_at\" timestamptz NOT NULL,\n  \"used_at\" timestamptz,\n  \"used_by\" text REFERENCES \"users\" (\"id\") ON DELETE SET NULL,\n  \"accessed_at\" timestamptz NOT NULL DEFAULT now(),\n  \"created_at\" timestamptz NOT NULL DEFAULT now(),\n  \"updated_at\" timestamptz NOT NULL DEFAULT now()\n);\n\nCREATE INDEX IF NOT EXISTS \"invite_codes_code_idx\" ON \"invite_codes\" (\"code\");\nCREATE INDEX IF NOT EXISTS \"invite_codes_creator_id_idx\" ON \"invite_codes\" (\"creator_id\");\nCREATE INDEX IF NOT EXISTS \"invite_codes_organization_id_idx\" ON \"invite_codes\" (\"organization_id\");\n"
+    ],
+    "bps": true,
+    "folderMillis": 1761900934000,
+    "hash": "c594df9cea1facbf83acff6988016cd9575cfe6b3557524998dbb9380e064209"
   }
 ]

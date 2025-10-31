@@ -1,33 +1,109 @@
 {
   "workspace": {
     "config": {
-      "title": "建模参数",
-      "header": {
-        "title": "AI 3D 模型生成",
-        "desc": "配置 3D 模型生成参数"
-      },
-      "provider": "模型提供商",
-      "providerPlaceholder": "选择提供商",
-      "model": "模型",
-      "modelPlaceholder": "选择模型",
+      "autoSize": "自动缩放至真实尺寸",
       "count": "生成数量",
+      "enablePBR": "启用 PBR 材质",
+      "enablePBRDescription": "开启后输出带物理材质的模型，处理耗时会增加。",
+      "faceCount": "最大面数",
+      "faceCountDescription": "范围 {{min}} - {{max}}，数值越高细节越好。",
+      "faceLimit": "面数上限",
+      "faceLimitDescription": "smart_low_poly 建议 1000~16000，quad 模式建议 500~8000。",
+      "generate": "开始生成",
+      "generateParts": "生成可分段模型",
+      "generatePartsDescription": "启用后将关闭贴图/PBR/四边形输出，适合后续编辑分件。",
+      "generateType": "生成模式",
+      "generateTypeOptions": {
+        "geometry": "Geometry · 白模",
+        "lowpoly": "LowPoly · 减面",
+        "normal": "Normal · 默认",
+        "sketch": "Sketch · 草图"
+      },
+      "geometryQuality": "几何质量",
+      "geometryQualityOptions": {
+        "detailed": "Detailed · 高细节",
+        "standard": "Standard · 平衡",
+        "ultra": "Ultra · 超细节"
+      },
+      "goToProvider": "供应商设置",
+      "header": {
+        "desc": "配置 3D 模型生成参数",
+        "simpleTitle": "建模",
+        "title": "AI 3D 模型生成"
+      },
+      "imageMode": {
+        "multi": "多图",
+        "single": "单图"
+      },
+      "imageModeNotSupported": "当前模型不支持图片输入",
+      "imagePlaceholder": "上传参考图像",
+      "imageRequired": "请先上传参考图片",
+      "imageToken": "图片 Token",
+      "imageTokenDescription": "当参考图片无法公网访问时，可通过上传接口获取 token 后在此填写。",
+      "imageTokenPlaceholder": "可选：上传接口返回的 image_token",
+      "model": "模型",
+      "modelEmpty": "该提供商暂无可用模型",
+      "modelPlaceholder": "选择模型",
+      "modelSeed": "几何随机种子",
+      "modelSeedDescription": "留空使用随机值，指定后可复现实验中的网格结果。",
+      "multiView": "多视角图片 URL",
+      "multiViewDescription": "可选：每行一个 URL，最多 {{max}} 张（左/右/后视图）",
+      "multiViewPlaceholder": "每行输入一个图片 URL（最多 {{max}} 张）",
+      "multiViewRequired": "请上传至少一张视角图像",
+      "polygonType": "多边形类型",
+      "polygonTypeOptions": {
+        "quadrilateral": "Quadrilateral · 四边/三角混合",
+        "triangle": "Triangle · 三角网格"
+      },
       "prompt": {
         "placeholder": "描述你想要的 3D 资产"
       },
+      "promptDisabledInImageMode": "当前图片模式依赖上传的图像内容，无需输入文本提示。",
+      "promptMode": {
+        "image": "图片模式",
+        "text": "文本模式"
+      },
+      "provider": "模型提供商",
+      "providerEmpty": "未检测到可用 3D 供应商",
+      "providerPlaceholder": "选择提供商",
+      "quad": "输出四边形网格",
+      "quadDescription": "开启后将以 FBX 形式输出四边形网格模型。",
+      "rapidPromptHint": "快速版提示词建议控制在 200 字符以内",
+      "rapidPromptLimit": "快速版提示词需控制在 200 字符以内",
       "reference": "参考图像 URL",
       "referencePlaceholder": "可选：引用现有图片作为建模参考",
-      "generate": "开始生成"
+      "resultFormat": "输出格式",
+      "resultFormatPlaceholder": "选择导出的模型格式",
+      "selectedModel": "当前：{{provider}} · {{model}}",
+      "smartLowPoly": "智能低多边形",
+      "smartLowPolyDescription": "适用于需要低面数模型的场景，复杂模型可能失败。",
+      "style": "艺术风格",
+      "stylePlaceholder": "可选：选择一种艺术风格",
+      "texture": "生成贴图",
+      "textureAlignment": "贴图对齐方式",
+      "textureAlignmentOptions": {
+        "geometry": "Geometry · 几何体",
+        "original_image": "Original Image · 参考图"
+      },
+      "textureDescription": "关闭后仅输出几何模型，不包含贴图资源。",
+      "textureQuality": "贴图质量",
+      "textureQualityOptions": {
+        "detailed": "Detailed · 高分辨率",
+        "standard": "Standard · 标准"
+      },
+      "textureSeed": "贴图随机种子",
+      "title": "建模参数"
     },
     "generation": {
       "actions": {
-        "generate": "生成",
+        "batchDeleted": "批次已删除",
         "copyPrompt": "复制提示词",
+        "deleteBatch": "删除批次",
+        "generate": "生成",
         "promptCopied": "提示词已复制",
         "promptCopyFailed": "复制失败",
-        "reuseSettings": "复用参数",
         "recreate": "重新生成",
-        "deleteBatch": "删除批次",
-        "batchDeleted": "批次已删除"
+        "reuseSettings": "复用参数"
       },
       "error": {
         "failed": "生成失败"
@@ -41,57 +117,61 @@
       }
     },
     "notSupportGuide": {
-      "title": "3D 建模功能",
       "desc": "当前客户端暂不支持 3D 建模功能。请在桌面应用或 Web 客户端体验完整功能。",
       "features": {
-        "multiProviders": {
-          "title": "多供应商支持",
-          "desc": "多家服务商一键切换"
-        },
         "fileIntegration": {
-          "title": "本地文件集成",
-          "desc": "支持本地文件上传与导出"
+          "desc": "支持本地文件上传与导出",
+          "title": "本地文件集成"
         },
         "llmAssisted": {
-          "title": "LLM 辅助创作",
-          "desc": "AI 辅助优化提示词与参数"
+          "desc": "AI 辅助优化提示词与参数",
+          "title": "LLM 辅助创作"
+        },
+        "multiProviders": {
+          "desc": "多家服务商一键切换",
+          "title": "多供应商支持"
         }
-      }
+      },
+      "title": "3D 建模功能"
     },
     "result": {
-      "title": "生成记录",
-      "loading": "加载中...",
-      "empty": "暂无生成记录",
+      "assetFormat": "格式：{{value}}",
       "assetInfo": "模型：{{model}} · 服务商：{{provider}}",
-      "viewModel": "查看模型文件",
-      "viewPreview": "预览",
-      "submitSuccess": "建模任务已提交",
-      "submitFail": "建模任务提交失败",
-      "refresh": "刷新",
-      "pendingTag": "有任务正在处理中",
-      "noGeneration": "该批次暂无生成结果",
+      "conversionInfo": "来源任务：{{id}}，原格式：{{format}}",
+      "conversionTag": "转换",
+      "convert": "转换格式",
+      "convertModalTitle": "转换模型格式",
+      "convertSourceInfo": "源模型格式：{{format}}",
+      "convertSubmit": "提交转换",
+      "convertSubmitFail": "转换任务提交失败，请稍后重试",
+      "convertSubmitSuccess": "转换任务已提交",
+      "downloadModel": "下载模型",
+      "empty": "暂无生成记录",
+      "errorMessage": "错误信息：{{message}}",
+      "loading": "加载中...",
       "noAsset": "生成结果暂未提供可预览文件",
+      "noGeneration": "该批次暂无生成结果",
+      "pendingTag": "有任务正在处理中",
+      "reconvert": "再次转换",
+      "refresh": "刷新",
       "seed": "种子：{{value}}",
       "seedUnknown": "未提供种子",
-      "assetFormat": "格式：{{value}}",
-      "errorMessage": "错误：{{message}}"
+      "submitFail": "建模任务提交失败",
+      "submitSuccess": "建模任务已提交",
+      "title": "生成记录",
+      "viewModel": "查看模型文件",
+      "viewPreview": "预览"
     },
     "topic": {
-      "title": "建模主题",
       "create": "新建",
-      "empty": "暂无建模主题",
-      "untitled": "未命名主题",
-      "updatedAt": "更新于 {{value}}",
-      "createdSuccess": "已创建新的建模主题",
       "createFail": "创建主题失败，请稍后重试",
+      "createdSuccess": "已创建新的建模主题",
       "deleteConfirm": "确认删除此主题？",
-      "deleteConfirmDesc": "删除后无法恢复，主题内的所有生成记录将一并删除。"
-    },
-    "status": {
-      "pending": "等待中",
-      "processing": "处理中",
-      "success": "已完成",
-      "error": "失败"
+      "deleteConfirmDesc": "删除后无法恢复，主题内的所有生成记录将一并删除。",
+      "empty": "暂无建模主题",
+      "title": "建模主题",
+      "untitled": "未命名主题",
+      "updatedAt": "更新于 {{value}}"
     }
   }
 }

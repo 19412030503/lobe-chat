@@ -143,6 +143,7 @@ export default {
     words: '累计字数',
   },
   tab: {
+    account: '账户管理',
     apikey: 'API Key 管理',
     profile: '个人资料',
     security: '安全',

@@ -50,6 +50,7 @@ export enum SettingsTabs {
 
 export enum ProfileTabs {
   APIKey = 'apikey',
+  Account = 'account',
   Profile = 'profile',
   Security = 'security',
   Stats = 'stats',

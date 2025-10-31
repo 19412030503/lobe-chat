@@ -294,6 +294,13 @@
       "when": 1761882997261,
       "tag": "0041_add_organizations",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1761900934000,
+      "tag": "0042_add_invite_codes",
+      "breakpoints": true
     }
   ],
   "version": "6"

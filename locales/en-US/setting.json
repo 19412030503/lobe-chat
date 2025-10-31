@@ -147,24 +147,17 @@
     "waitingForMore": "More models are <1>planned to be added</1>, stay tuned"
   },
   "management": {
-    "accessDenied": "You do not have permission to access this view.",
-    "actions": {
-      "createOrganization": "Create Organization",
-      "renameOrganization": "Rename Organization"
-    },
+    "actions": {},
     "columns": {
-      "actions": "Role Settings",
       "email": "Email",
       "name": "Name",
       "organization": "Organization",
       "organizationActions": "Actions",
       "organizationName": "Organization Name",
-      "organizationType": "Organization Type",
       "roles": "Roles"
     },
     "dialogs": {
       "deleteOrganization": {
-        "content": "Are you sure you want to delete {{name}}?",
         "title": "Delete Organization"
       },
       "renameOrganization": {
@@ -174,20 +167,13 @@
     "fields": {
       "organization": {
         "name": "Organization Name",
-        "none": "No Organization",
         "type": "Organization Type"
       }
     },
-    "hints": {
-      "lockedOrganization": "This organization cannot be deleted"
-    },
+    "hints": {},
     "messages": {
       "organizationCreated": "Organization created",
-      "organizationDeleted": "Organization deleted",
-      "organizationUpdated": "Organization updated",
-      "roleUpdated": "Role updated",
-      "userUpdated": "User updated",
-      "operationFailed": "Operation failed, please try again later."
+      "userUpdated": "User updated"
     },
     "organizationTypes": {
       "management": "Management",
@@ -197,8 +183,6 @@
       "organizationName": "Enter organization name"
     },
     "roles": {
-      "admin": "Admin",
-      "root": "Root",
       "user": "Student"
     },
     "sections": {

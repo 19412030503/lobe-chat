@@ -41,6 +41,8 @@ export const config = {
     '/chat(.*)',
     '/changelog(.*)',
     '/settings(.*)',
+    '/management',
+    '/management(.*)',
     '/image',
     '/files',
     '/files(.*)',
@@ -195,6 +197,7 @@ const isPublicRoute = createRouteMatcher([
 
 const isProtectedRoute = createRouteMatcher([
   '/settings(.*)',
+  '/management(.*)',
   '/files(.*)',
   '/onboard(.*)',
   '/oauth(.*)',

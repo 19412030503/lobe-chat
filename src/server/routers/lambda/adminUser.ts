@@ -1,6 +1,7 @@
 import type { LobeChatDatabase } from '@lobechat/database';
 import { TRPCError } from '@trpc/server';
 import { eq, inArray } from 'drizzle-orm';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 import { ADMIN_ROLE, ROOT_ROLE, type SystemRole, USER_ROLE } from '@/const/rbac';
@@ -11,6 +12,7 @@ import { roles as rolesTable, userRoles } from '@/database/schemas/rbac';
 import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { requireRoles } from '@/libs/trpc/lambda/middleware/roleGuard';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware/serverDatabase';
+import { casdoorService } from '@/server/services/casdoor';
 import { RoleService } from '@/server/services/role';
 
 const baseProcedure = authedProcedure.use(serverDatabase);
@@ -93,6 +95,92 @@ const summarizeUsers = async (db: LobeChatDatabase, userIds: string[]): Promise<
 };
 
 export const adminUserRouter = router({
+  createUser: adminOrRootProcedure
+    .input(
+      z.object({
+        displayName: z.string().optional(),
+        email: z.string().email(),
+        name: z.string().min(1),
+        organizationId: z.string().uuid().nullable().optional(),
+        password: z.string().min(6),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = ensureServerDB(ctx);
+      if (!ctx.userId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
+      }
+
+      const roleSet = normalizeRoles(ctx.userRoles ?? ctx.nextAuth?.roles ?? []);
+      const isRoot = roleSet.has(ROOT_ROLE);
+      const isAdmin = roleSet.has(ADMIN_ROLE);
+
+      if (!isRoot && !isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+      }
+
+      // 学校管理员只能在自己的组织创建用户
+      let finalOrganizationId = input.organizationId;
+      if (!isRoot) {
+        const actor = await UserModel.findById(db, ctx.userId);
+        if (!actor?.organizationId) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Admin must belong to an organization',
+          });
+        }
+        finalOrganizationId = actor.organizationId;
+      }
+
+      // 验证组织是否存在
+      if (finalOrganizationId) {
+        const organization = await OrganizationModel.findById(db, finalOrganizationId);
+        if (!organization) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Organization not found' });
+        }
+      }
+
+      // 在 Casdoor 创建用户
+      try {
+        await casdoorService.createUser({
+          displayName: input.displayName,
+          email: input.email,
+          name: input.name,
+          password: input.password,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : '创建用户失败',
+        });
+      }
+
+      // 在本地数据库创建用户记录
+      const userId = randomUUID();
+      const result = await UserModel.createUser(db, {
+        email: input.email,
+        fullName: input.displayName || input.name,
+        id: userId,
+        organizationId: finalOrganizationId,
+        username: input.name,
+      });
+
+      if (result.duplicate) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: '用户已存在' });
+      }
+
+      if (!result.user) {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '创建用户失败' });
+      }
+
+      // 为新用户分配默认角色（学生）
+      const roleService = new RoleService(db);
+      await roleService.assignRoles(result.user.id, [USER_ROLE]);
+
+      const [summary] = await summarizeUsers(db, [result.user.id]);
+      return summary;
+    }),
+
   list: adminOrRootProcedure.query(async ({ ctx }) => {
     const db = ensureServerDB(ctx);
     if (!ctx.userId) {
@@ -262,6 +350,71 @@ export const adminUserRouter = router({
 
       if (!existingRoles.includes(input.role)) {
         await roleService.assignRoles(input.userId, [input.role]);
+      }
+
+      const [summary] = await summarizeUsers(db, [input.userId]);
+      return summary;
+    }),
+
+  toggleUserStatus: adminOrRootProcedure
+    .input(
+      z.object({
+        isForbidden: z.boolean(),
+        userId: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = ensureServerDB(ctx);
+      if (!ctx.userId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
+      }
+
+      const roleSet = normalizeRoles(ctx.userRoles ?? ctx.nextAuth?.roles ?? []);
+      const isRoot = roleSet.has(ROOT_ROLE);
+      const isAdmin = roleSet.has(ADMIN_ROLE);
+
+      if (!isRoot && !isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+      }
+
+      const targetUser = await UserModel.findById(db, input.userId);
+      if (!targetUser) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+
+      // 学校管理员只能管理本组织用户
+      if (!isRoot) {
+        const actor = await UserModel.findById(db, ctx.userId);
+        if (!actor?.organizationId || actor.organizationId !== targetUser.organizationId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot manage this user' });
+        }
+
+        // 学校管理员只能管理学生
+        const roleService = new RoleService(db);
+        const targetRolesResult = await roleService.getUserRoles(input.userId);
+        const targetRoles = targetRolesResult.map((role) => role.name.toLowerCase());
+        if (!targetRoles.includes(USER_ROLE)) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only students can be managed' });
+        }
+      }
+
+      // 在 Casdoor 更新用户状态
+      try {
+        const casdoorUsername = targetUser.username || targetUser.email;
+        if (!casdoorUsername) {
+          throw new Error('User has no username or email');
+        }
+
+        if (input.isForbidden) {
+          await casdoorService.disableUser(casdoorUsername);
+        } else {
+          await casdoorService.enableUser(casdoorUsername);
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : '更新用户状态失败',
+        });
       }
 
       const [summary] = await summarizeUsers(db, [input.userId]);

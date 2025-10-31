@@ -6,6 +6,7 @@ export * from './chatGroup';
 export * from './document';
 export * from './file';
 export * from './generation';
+export * from './inviteCode';
 export * from './message';
 export * from './nextauth';
 export * from './oidc';

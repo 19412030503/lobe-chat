@@ -137,30 +137,26 @@
     }
   },
   "hunyuan3d": {
-    "endpoint": {
-      "desc": "默认使用腾讯云公共接口地址，如需私有化可在此填写完整 HTTPS 地址",
-      "placeholder": "https://ai3d.tencentcloudapi.com",
-      "title": "API 接口地址"
-    },
     "region": {
-      "desc": "可选，指定调用区域，例如 ap-guangzhou（默认）",
-      "placeholder": "ap-guangzhou",
-      "title": "调用区域 (可选)"
+      "desc": "腾讯云服务地域，例如 ap-guangzhou（默认）",
+      "placeholder": "Region (如 ap-guangzhou)",
+      "title": "Region"
     },
     "secretId": {
-      "desc": "填写腾讯云账号的 SecretId，用于标识访问凭证",
-      "placeholder": "AKIDxxxxxxxxxxxxxxxx",
+      "desc": "请输入腾讯云混元 3D API 的 SecretId",
+      "placeholder": "Tencent Cloud SecretId",
       "title": "SecretId"
     },
     "secretKey": {
-      "desc": "填写腾讯云账号的 SecretKey，用于签名请求",
-      "placeholder": "SecretKey",
+      "desc": "请输入腾讯云混元 3D API 的 SecretKey",
+      "placeholder": "Tencent Cloud SecretKey",
       "title": "SecretKey"
     },
+    "title": "Hunyuan 3D",
     "version": {
-      "desc": "可选，若腾讯云更新版本，可在此调整 API 版本号，默认 2025-05-13",
-      "placeholder": "2025-05-13",
-      "title": "API 版本 (可选)"
+      "desc": "使用腾讯云 API 版本，默认 2025-05-13",
+      "placeholder": "例如：2025-05-13",
+      "title": "API Version"
     }
   },
   "list": {
@@ -332,10 +328,10 @@
         "type": {
           "extra": "不同模型类型拥有差异化的使用场景与能力",
           "options": {
+            "3d": "3D 建模",
             "chat": "对话",
             "embedding": "向量化",
             "image": "图片生成",
-            "3d": "3D 建模",
             "realtime": "实时对话",
             "stt": "语音转文本",
             "text2music": "文本转音乐",
@@ -400,11 +396,11 @@
     },
     "searchNotFound": "未找到搜索结果",
     "tabs": {
+      "3d": "3D 建模",
       "all": "全部",
       "chat": "对话",
       "embedding": "向量化",
       "image": "图片",
-      "3d": "3D 建模",
       "stt": "ASR",
       "tts": "TTS"
     }
@@ -413,6 +409,14 @@
     "success": "排序更新成功",
     "title": "自定义排序",
     "update": "更新"
+  },
+  "tripo3d": {
+    "apiKey": {
+      "desc": "请输入 Tripo3D 控制台获取的 API Key",
+      "placeholder": "Tripo3D API Key",
+      "title": "API Key"
+    },
+    "title": "Tripo 3D"
   },
   "updateAiProvider": {
     "confirmDelete": "即将删除该 AI 服务商，删除后将无法找回，确认是否删除？",

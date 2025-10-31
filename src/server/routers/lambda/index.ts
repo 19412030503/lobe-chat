@@ -20,6 +20,7 @@ import { generationTopicRouter } from './generationTopic';
 import { groupRouter } from './group';
 import { imageRouter } from './image';
 import { importerRouter } from './importer';
+import { inviteRouter } from './invite';
 import { knowledgeBaseRouter } from './knowledgeBase';
 import { marketRouter } from './market';
 import { messageRouter } from './message';
@@ -54,6 +55,7 @@ export const lambdaRouter = router({
   healthcheck: publicProcedure.query(() => "i'm live!"),
   image: imageRouter,
   importer: importerRouter,
+  invite: inviteRouter,
   knowledgeBase: knowledgeBaseRouter,
   market: marketRouter,
   message: messageRouter,

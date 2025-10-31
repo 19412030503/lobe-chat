@@ -194,46 +194,6 @@
   "home": {
     "hero": {
       "cta": "Quick Access",
-      "desc": "Start here to launch a chat, explore the marketplace, or manage your workspace.",
-      "title": "Welcome to LobeChat"
-    },
-    "notice": {
-      "label": "What’s New",
-      "0": {
-        "cta": "Explore assistants",
-        "desc": "Discover curated assistants, models, and plugins to supercharge your workflow.",
-        "title": "New assistant collections are now live"
-      },
-      "1": {
-        "cta": "Review settings",
-        "desc": "Before you begin, confirm your model, sync, and system preferences.",
-        "title": "Complete your workspace configuration"
-      },
-      "2": {
-        "desc": "Platform announcements and community events will appear here—stay tuned.",
-        "title": "Community competitions coming soon"
-      }
-    },
-    "banner": {
-      "desc": "Join the LobeChat Agent Challenge and show the community what you’ve built. Share your workflows, submit entries, and earn spotlight opportunities.",
-      "items": [
-        "Register your team, confirm the schedule, and prepare the submission checklist.",
-        "Design a distinctive assistant experience—including prompts, plugins, and datasets.",
-        "Submit before the deadline and record a short demo for the showcase session."
-      ],
-      "tag": "Competition Charter",
-      "title": "LobeChat Agent Challenge is now open"
-    },
-    "quick": {
-      "chat": "Start a new conversation with your assistants",
-      "discover": "Browse featured assistants, models, and plugins",
-      "files": "Organize knowledge bases and important files",
-      "settings": "Configure models, sync options, and system preferences"
-    }
-  },
-  "home": {
-    "hero": {
-      "cta": "Quick Access",
       "desc": "Jump into conversations, explore the marketplace, or fine-tune your workspace.",
       "title": "Welcome to LobeChat"
     },

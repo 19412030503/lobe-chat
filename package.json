@@ -191,6 +191,7 @@
     "antd": "^5.27.4",
     "antd-style": "^3.7.1",
     "brotli-wasm": "^3.0.1",
+    "casdoor-nodejs-sdk": "^1.31.0",
     "chroma-js": "^3.1.2",
     "cookie": "^1.0.2",
     "countries-and-timezones": "^3.8.0",

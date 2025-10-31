@@ -1,5 +1,5 @@
 import { Icon } from '@lobehub/ui';
-import { ChartColumnBigIcon, KeyIcon, ShieldCheck, UserCircle } from 'lucide-react';
+import { ChartColumnBigIcon, KeyIcon, ShieldCheck, User, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,7 @@ import { useUserStore } from '@/store/user';
 import { authSelectors } from '@/store/user/slices/auth/selectors';
 
 export const useCategory = () => {
-  const { t } = useTranslation('auth');
+  const { t } = useTranslation(['auth', 'setting']);
   const [isLoginWithClerk] = useUserStore((s) => [authSelectors.isLoginWithClerk(s)]);
   const { showApiKeyManage } = useServerConfigStore(featureFlagsSelectors);
 
@@ -23,6 +23,15 @@ export const useCategory = () => {
       label: (
         <Link href={'/profile'} onClick={(e) => e.preventDefault()}>
           {t('tab.profile')}
+        </Link>
+      ),
+    },
+    {
+      icon: <Icon icon={User} />,
+      key: ProfileTabs.Account,
+      label: (
+        <Link href={'/profile/account'} onClick={(e) => e.preventDefault()}>
+          {t('setting:tab.account')}
         </Link>
       ),
     },
