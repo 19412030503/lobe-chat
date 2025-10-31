@@ -714,5 +714,13 @@
     "bps": true,
     "folderMillis": 1761900934000,
     "hash": "c594df9cea1facbf83acff6988016cd9575cfe6b3557524998dbb9380e064209"
+  },
+  {
+    "sql": [
+      "-- 创建课程分类表\nCREATE TABLE IF NOT EXISTS \"course_categories\" (\n  \"id\" text PRIMARY KEY NOT NULL,\n  \"name\" text NOT NULL,\n  \"description\" text,\n  \"sort_order\" integer DEFAULT 0,\n  \"user_id\" text NOT NULL REFERENCES \"users\" (\"id\") ON DELETE CASCADE,\n  \"organization_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE CASCADE,\n  \"is_public\" boolean DEFAULT false,\n  \"client_id\" text,\n  \"metadata\" jsonb,\n  \"created_at\" timestamptz NOT NULL DEFAULT now(),\n  \"updated_at\" timestamptz NOT NULL DEFAULT now()\n);\n\n-- 创建课程文件表\nCREATE TABLE IF NOT EXISTS \"course_files\" (\n  \"id\" text PRIMARY KEY NOT NULL,\n  \"name\" text NOT NULL,\n  \"file_type\" varchar(255) NOT NULL,\n  \"size\" integer NOT NULL,\n  \"url\" text NOT NULL,\n  \"category_id\" text NOT NULL REFERENCES \"course_categories\" (\"id\") ON DELETE CASCADE,\n  \"user_id\" text NOT NULL REFERENCES \"users\" (\"id\") ON DELETE CASCADE,\n  \"organization_id\" uuid REFERENCES \"organizations\" (\"id\") ON DELETE CASCADE,\n  \"is_public\" boolean DEFAULT false,\n  \"description\" text,\n  \"download_count\" integer DEFAULT 0,\n  \"client_id\" text,\n  \"metadata\" jsonb,\n  \"created_at\" timestamptz NOT NULL DEFAULT now(),\n  \"updated_at\" timestamptz NOT NULL DEFAULT now()\n);\n\n-- 创建索引\nCREATE UNIQUE INDEX IF NOT EXISTS \"course_categories_client_id_user_id_unique\" ON \"course_categories\" (\"client_id\", \"user_id\");\nCREATE INDEX IF NOT EXISTS \"course_categories_organization_idx\" ON \"course_categories\" (\"organization_id\");\n\nCREATE INDEX IF NOT EXISTS \"course_files_category_idx\" ON \"course_files\" (\"category_id\");\nCREATE INDEX IF NOT EXISTS \"course_files_organization_idx\" ON \"course_files\" (\"organization_id\");\nCREATE UNIQUE INDEX IF NOT EXISTS \"course_files_client_id_user_id_unique\" ON \"course_files\" (\"client_id\", \"user_id\");\n"
+    ],
+    "bps": true,
+    "folderMillis": 1730361600000,
+    "hash": "9ee4d91bc6e5b26cfbae46563bb5a738ba741466ec97069887bc942fca9b4cc6"
   }
 ]

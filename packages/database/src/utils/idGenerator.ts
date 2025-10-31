@@ -8,6 +8,8 @@ export const createNanoId = (size = 8) =>
 const prefixes = {
   agents: 'agt',
   chatGroups: 'cg',
+  courseCategories: 'cc',
+  courseFiles: 'cf',
   documents: 'docs',
   files: 'file',
   generationBatches: 'gb',

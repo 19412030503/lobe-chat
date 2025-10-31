@@ -5,6 +5,7 @@ import clerk from './clerk';
 import color from './color';
 import common from './common';
 import components from './components';
+import course from './course';
 import discover from './discover';
 import editor from './editor';
 import electron from './electron';
@@ -39,6 +40,7 @@ const resources = {
   color,
   common,
   components,
+  course,
   discover,
   editor,
   electron,

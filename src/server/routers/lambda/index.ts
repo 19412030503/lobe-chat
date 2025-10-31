@@ -11,6 +11,7 @@ import { aiProviderRouter } from './aiProvider';
 import { apiKeyRouter } from './apiKey';
 import { chunkRouter } from './chunk';
 import { configRouter } from './config';
+import { courseRouter } from './course';
 import { documentRouter } from './document';
 import { exporterRouter } from './exporter';
 import { fileRouter } from './file';
@@ -45,6 +46,7 @@ export const lambdaRouter = router({
   apiKey: apiKeyRouter,
   chunk: chunkRouter,
   config: configRouter,
+  course: courseRouter,
   document: documentRouter,
   exporter: exporterRouter,
   file: fileRouter,

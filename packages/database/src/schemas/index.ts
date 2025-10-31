@@ -3,6 +3,7 @@ export * from './aiInfra';
 export * from './apiKey';
 export * from './asyncTask';
 export * from './chatGroup';
+export * from './course';
 export * from './document';
 export * from './file';
 export * from './generation';
