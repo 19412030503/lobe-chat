@@ -39,26 +39,8 @@ export default {
         token.userId = user?.id;
       }
 
-      const userId = user?.id ?? (token.userId as string | undefined) ?? undefined;
-
-      if (NEXT_PUBLIC_ENABLED_SERVER_SERVICE && userId) {
-        const isEdgeRuntime = typeof (globalThis as any).EdgeRuntime === 'string';
-        const shouldLoadFromDB = user || !Array.isArray(token.userRoles);
-
-        if (!isEdgeRuntime && shouldLoadFromDB) {
-          try {
-            const [{ getServerDB }, { RoleService }] = await Promise.all([
-              import('@/database/core/db-adaptor'),
-              import('@/server/services/role'),
-            ]);
-            const db = await getServerDB();
-            const roleService = new RoleService(db);
-            const roles = await roleService.getUserRoles(userId);
-            token.userRoles = roles.map((role) => role.name);
-          } catch (error) {
-            console.error('[NextAuth] Failed to resolve user roles from database', error);
-          }
-        }
+      if (NEXT_PUBLIC_ENABLED_SERVER_SERVICE && Array.isArray(user?.roles)) {
+        token.userRoles = user.roles;
       }
 
       if (!Array.isArray(token.userRoles)) token.userRoles = [];

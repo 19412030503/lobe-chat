@@ -1,6 +1,6 @@
 import { LobeChatDatabase } from '@lobechat/database';
 import { and, eq } from 'drizzle-orm';
-import { Adapter, AdapterAccount } from 'next-auth/adapters';
+import { Adapter, AdapterAccount, AdapterUser } from 'next-auth/adapters';
 import { NextResponse } from 'next/server';
 
 import { UserModel } from '@/database/models/user';
@@ -26,10 +26,29 @@ import {
 
 export class NextAuthUserService {
   private db: LobeChatDatabase;
+  private roleService: RoleService;
   private static readonly DEFAULT_USER_ROLE = 'user';
 
   constructor(db: LobeChatDatabase) {
     this.db = db;
+    this.roleService = new RoleService(db);
+  }
+
+  private async resolveRoleNames(userId: string): Promise<string[]> {
+    try {
+      const roles = await this.roleService.getUserRoles(userId);
+      return roles.map((role) => role.name);
+    } catch (error) {
+      pino.error({ error, userId }, 'NextAuthUserService: Failed to resolve roles for user');
+      return [];
+    }
+  }
+
+  private async attachRoles<T extends AdapterUser | null>(user: T): Promise<T> {
+    if (!user) return user;
+
+    const roles = await this.resolveRoleNames(user.id);
+    return { ...user, roles } as T;
   }
 
   safeUpdateUser = async (
@@ -116,10 +135,11 @@ export class NextAuthUserService {
     if (existingUser) {
       const adapterUser = mapLobeUserToAdapterUser(existingUser);
       if (existingUser.id) {
-        const roleService = new RoleService(this.db);
-        await roleService.assignRoles(existingUser.id, [NextAuthUserService.DEFAULT_USER_ROLE]);
+        await this.roleService.assignRoles(existingUser.id, [
+          NextAuthUserService.DEFAULT_USER_ROLE,
+        ]);
       }
-      return adapterUser;
+      return await this.attachRoles(adapterUser);
     }
 
     // create a new user if it does not exist
@@ -141,10 +161,9 @@ export class NextAuthUserService {
     // 3. Create an inbox session for the user
     const agentService = new AgentService(this.db, uid);
     await agentService.createInbox();
-    const roleService = new RoleService(this.db);
-    await roleService.assignRoles(uid, [NextAuthUserService.DEFAULT_USER_ROLE]);
+    await this.roleService.assignRoles(uid, [NextAuthUserService.DEFAULT_USER_ROLE]);
 
-    return { ...user, id: uid };
+    return await this.attachRoles({ ...user, id: uid });
   };
 
   createVerificationToken: NonNullable<Adapter['createVerificationToken']> = async (data) => {
@@ -204,14 +223,14 @@ export class NextAuthUserService {
     if (!adapterUser) return null;
     return {
       session: result.session,
-      user: adapterUser,
+      user: await this.attachRoles(adapterUser),
     };
   };
 
   getUser: NonNullable<Adapter['getUser']> = async (id) => {
     const lobeUser = await UserModel.findById(this.db, id);
     if (!lobeUser) return null;
-    return mapLobeUserToAdapterUser(lobeUser);
+    return await this.attachRoles(mapLobeUserToAdapterUser(lobeUser));
   };
 
   getUserByAccount: NonNullable<Adapter['getUserByAccount']> = async (account) => {
@@ -230,7 +249,7 @@ export class NextAuthUserService {
       )
       .then((res: any) => res[0]);
 
-    return result?.users ? mapLobeUserToAdapterUser(result.users) : null;
+    return result?.users ? await this.attachRoles(mapLobeUserToAdapterUser(result.users)) : null;
   };
 
   getUserByEmail: NonNullable<Adapter['getUserByEmail']> = async (email) => {
@@ -238,7 +257,7 @@ export class NextAuthUserService {
       email && typeof email === 'string' && email.trim()
         ? await UserModel.findByEmail(this.db, email)
         : undefined;
-    return lobeUser ? mapLobeUserToAdapterUser(lobeUser) : null;
+    return lobeUser ? await this.attachRoles(mapLobeUserToAdapterUser(lobeUser)) : null;
   };
 
   linkAccount: NonNullable<Adapter['linkAccount']> = async (data) => {
@@ -313,7 +332,8 @@ export class NextAuthUserService {
     if (!newAdapterUser) {
       throw new Error('NextAuth: Failed to map user data to adapter user');
     }
-    return merge(newAdapterUser, user);
+    const mergedUser = merge(newAdapterUser, user);
+    return await this.attachRoles(mergedUser as AdapterUser);
   };
 
   useVerificationToken: NonNullable<Adapter['useVerificationToken']> = async (identifier_token) => {
