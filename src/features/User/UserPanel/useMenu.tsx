@@ -142,7 +142,7 @@ export const useMenu = () => {
           {
             icon: <Icon icon={ShieldCheck} />,
             key: 'admin-console',
-            label: <Link href={'/settings?tab=roles'}>{t('userPanel.adminConsole')}</Link>,
+            label: <Link href={'/settings?tab=management'}>{t('userPanel.adminConsole')}</Link>,
           },
           {
             type: 'divider',

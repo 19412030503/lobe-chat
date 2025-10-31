@@ -146,6 +146,69 @@
     },
     "waitingForMore": "More models are <1>planned to be added</1>, stay tuned"
   },
+  "management": {
+    "accessDenied": "You do not have permission to access this view.",
+    "actions": {
+      "createOrganization": "Create Organization",
+      "renameOrganization": "Rename Organization"
+    },
+    "columns": {
+      "actions": "Role Settings",
+      "email": "Email",
+      "name": "Name",
+      "organization": "Organization",
+      "organizationActions": "Actions",
+      "organizationName": "Organization Name",
+      "organizationType": "Organization Type",
+      "roles": "Roles"
+    },
+    "dialogs": {
+      "deleteOrganization": {
+        "content": "Are you sure you want to delete {{name}}?",
+        "title": "Delete Organization"
+      },
+      "renameOrganization": {
+        "title": "Rename Organization"
+      }
+    },
+    "fields": {
+      "organization": {
+        "name": "Organization Name",
+        "none": "No Organization",
+        "type": "Organization Type"
+      }
+    },
+    "hints": {
+      "lockedOrganization": "This organization cannot be deleted"
+    },
+    "messages": {
+      "organizationCreated": "Organization created",
+      "organizationDeleted": "Organization deleted",
+      "organizationUpdated": "Organization updated",
+      "roleUpdated": "Role updated",
+      "userUpdated": "User updated",
+      "operationFailed": "Operation failed, please try again later."
+    },
+    "organizationTypes": {
+      "management": "Management",
+      "school": "School"
+    },
+    "placeholders": {
+      "organizationName": "Enter organization name"
+    },
+    "roles": {
+      "admin": "Admin",
+      "root": "Root",
+      "user": "Student"
+    },
+    "sections": {
+      "organizations": "Organization Management",
+      "users": "User Management"
+    },
+    "validation": {
+      "organizationName": "Please enter an organization name"
+    }
+  },
   "message": {
     "success": "Update successful"
   },
@@ -673,7 +736,8 @@
     "storage": "Data Storage",
     "sync": "Cloud Sync",
     "system-agent": "System Assistant",
-    "tts": "Text-to-Speech"
+    "tts": "Text-to-Speech",
+    "management": "Organizations & Users"
   },
   "tools": {
     "builtins": {

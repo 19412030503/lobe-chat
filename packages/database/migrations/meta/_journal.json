@@ -280,6 +280,20 @@
       "when": 1760112000000,
       "tag": "0039_add_generation_types",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1761882997260,
+      "tag": "0040_seed_rbac_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1761882997261,
+      "tag": "0041_add_organizations",
+      "breakpoints": true
     }
   ],
   "version": "6"

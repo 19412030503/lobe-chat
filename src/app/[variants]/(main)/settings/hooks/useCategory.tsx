@@ -9,6 +9,7 @@ import {
   KeyboardIcon,
   Mic2,
   Settings2,
+  ShieldCheck,
   Sparkles,
 } from 'lucide-react';
 import { useMemo } from 'react';
@@ -16,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { MenuProps } from '@/components/Menu';
 import { isDeprecatedEdition, isDesktop } from '@/const/version';
+import { useHasRole } from '@/hooks/useHasRole';
 import { SettingsTabs } from '@/store/global/initialState';
 import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
@@ -23,6 +25,7 @@ export const useCategory = () => {
   const { t } = useTranslation('setting');
   const mobile = useServerConfigStore((s) => s.isMobile);
   const { showLLM, enableSTT, hideDocs } = useServerConfigStore(featureFlagsSelectors);
+  const { allowed: canManage } = useHasRole({ anyOf: ['admin', 'root'] });
 
   const cateItems: MenuProps['items'] = useMemo(
     () =>
@@ -68,6 +71,11 @@ export const useCategory = () => {
           key: SettingsTabs.TTS,
           label: t('tab.tts'),
         },
+        canManage && {
+          icon: <Icon icon={ShieldCheck} />,
+          key: SettingsTabs.Management,
+          label: t('tab.management'),
+        },
         {
           icon: <Icon icon={Sparkles} />,
           key: SettingsTabs.SystemAgent,
@@ -92,7 +100,7 @@ export const useCategory = () => {
           label: t('tab.about'),
         },
       ].filter(Boolean) as MenuProps['items'],
-    [t, showLLM, enableSTT, hideDocs, mobile],
+    [t, showLLM, enableSTT, hideDocs, mobile, canManage],
   );
 
   return cateItems;

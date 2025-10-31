@@ -10,6 +10,7 @@ import { documentChunks, documents } from './document';
 import { files, knowledgeBases } from './file';
 import { generationBatches, generationTopics, generations } from './generation';
 import { messageGroups, messages, messagesFiles } from './message';
+import { organizations } from './organization';
 import { chunks, unstructuredChunks } from './rag';
 import { sessionGroups, sessions } from './session';
 import { threads, topicDocuments, topics } from './topic';
@@ -245,6 +246,22 @@ export const documentChunksRelations = relations(documentChunks, ({ one }) => ({
   document: one(documents, {
     fields: [documentChunks.documentId],
     references: [documents.id],
+  }),
+}));
+
+export const organizationsRelations = relations(organizations, ({ many, one }) => ({
+  parent: one(organizations, {
+    fields: [organizations.parentId],
+    references: [organizations.id],
+  }),
+  children: many(organizations),
+  users: many(users),
+}));
+
+export const usersRelations = relations(users, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [users.organizationId],
+    references: [organizations.id],
   }),
 }));
 

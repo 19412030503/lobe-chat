@@ -148,6 +148,69 @@ export default {
     },
     waitingForMore: '更多模型正在 <1>计划接入</1> 中，敬请期待',
   },
+  management: {
+    accessDenied: '当前账号无权限访问该页面',
+    actions: {
+      createOrganization: '创建组织',
+      renameOrganization: '重命名组织',
+    },
+    columns: {
+      actions: '角色设置',
+      email: '邮箱',
+      name: '姓名',
+      organization: '所属组织',
+      organizationActions: '操作',
+      organizationName: '组织名称',
+      organizationType: '组织类型',
+      roles: '角色',
+    },
+    dialogs: {
+      deleteOrganization: {
+        content: '确定要删除组织 {{name}} 吗？',
+        title: '删除组织',
+      },
+      renameOrganization: {
+        title: '重命名组织',
+      },
+    },
+    fields: {
+      organization: {
+        name: '组织名称',
+        none: '无组织',
+        type: '组织类型',
+      },
+    },
+    hints: {
+      lockedOrganization: '该组织无法删除',
+    },
+    messages: {
+      operationFailed: '操作失败，请稍后重试',
+      organizationCreated: '组织创建成功',
+      organizationDeleted: '组织已删除',
+      organizationUpdated: '组织更新成功',
+      roleUpdated: '角色更新成功',
+      userUpdated: '用户信息已更新',
+    },
+    organizationTypes: {
+      management: '管理层',
+      school: '学校',
+    },
+    placeholders: {
+      organizationName: '请输入组织名称',
+    },
+    roles: {
+      admin: '学校',
+      root: '管理层',
+      user: '学生',
+    },
+    sections: {
+      organizations: '组织管理',
+      users: '用户管理',
+    },
+    validation: {
+      organizationName: '请输入组织名称',
+    },
+  },
   message: {
     success: '更新成功',
   },
@@ -672,6 +735,7 @@ export default {
     'hotkey': '快捷键',
     'image': 'AI 绘画',
     'llm': '语言模型',
+    'management': '组织与用户',
     'provider': 'AI 服务商',
     'proxy': '网络代理',
     'storage': '数据存储',

@@ -276,6 +276,7 @@ table generation_batches {
   provider text [not null]
   model text [not null]
   prompt text [not null]
+  type varchar(16) [not null, default: 'image']
   width integer
   height integer
   ratio varchar(64)
@@ -290,6 +291,7 @@ table generation_topics {
   user_id text [not null]
   title text
   cover_url text
+  type varchar(16) [not null, default: 'image']
   accessed_at "timestamp with time zone" [not null, default: `now()`]
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
@@ -633,6 +635,16 @@ table oidc_sessions {
   updated_at "timestamp with time zone" [not null, default: `now()`]
 }
 
+table organizations {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null, unique]
+  type text [not null]
+  parent_id uuid
+  accessed_at "timestamp with time zone" [not null, default: `now()`]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+}
+
 table chunks {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   text text
@@ -961,6 +973,7 @@ table users {
   clerk_created_at "timestamp with time zone"
   email_verified_at "timestamp with time zone"
   preference jsonb
+  organization_id uuid
   accessed_at "timestamp with time zone" [not null, default: `now()`]
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
@@ -1157,6 +1170,8 @@ ref: threads.source_message_id - messages.id
 
 ref: messages.message_group_id > message_groups.id
 
+ref: organizations.parent_id > organizations.id
+
 ref: sessions.group_id - session_groups.id
 
 ref: topic_documents.document_id > documents.id
@@ -1164,3 +1179,5 @@ ref: topic_documents.document_id > documents.id
 ref: topic_documents.topic_id > topics.id
 
 ref: topics.session_id - sessions.id
+
+ref: users.organization_id > organizations.id

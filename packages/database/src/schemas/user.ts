@@ -1,11 +1,12 @@
 /* eslint-disable sort-keys-fix/sort-keys-fix  */
 import { LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk';
-import { boolean, jsonb, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
+import { boolean, jsonb, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 
 import { DEFAULT_PREFERENCE } from '@/const/user';
 import { CustomPluginParams } from '@/types/tool/plugin';
 
 import { timestamps, timestamptz } from './_helpers';
+import { organizations } from './organization';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey().notNull(),
@@ -24,6 +25,10 @@ export const users = pgTable('users', {
 
   // Required by nextauth, all null allowed
   emailVerifiedAt: timestamptz('email_verified_at'),
+
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'set null',
+  }),
 
   preference: jsonb('preference').$defaultFn(() => DEFAULT_PREFERENCE),
 

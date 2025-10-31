@@ -68,6 +68,7 @@ export class UserModel {
         fullName: users.fullName,
         isOnboarded: users.isOnboarded,
         lastName: users.lastName,
+        organizationId: users.organizationId,
         preference: users.preference,
         settingsDefaultAgent: userSettings.defaultAgent,
 
@@ -119,6 +120,7 @@ export class UserModel {
       fullName: state.fullName || undefined,
       isOnboarded: state.isOnboarded,
       lastName: state.lastName || undefined,
+      organizationId: state.organizationId || undefined,
       preference: state.preference as UserPreference,
       settings,
       userId: this.userId,

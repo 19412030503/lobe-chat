@@ -3,6 +3,7 @@
  */
 import { publicProcedure, router } from '@/libs/trpc/lambda';
 
+import { adminUserRouter } from './adminUser';
 import { agentRouter } from './agent';
 import { aiChatRouter } from './aiChat';
 import { aiModelRouter } from './aiModel';
@@ -22,6 +23,7 @@ import { importerRouter } from './importer';
 import { knowledgeBaseRouter } from './knowledgeBase';
 import { marketRouter } from './market';
 import { messageRouter } from './message';
+import { organizationRouter } from './organization';
 import { pluginRouter } from './plugin';
 import { ragEvalRouter } from './ragEval';
 import { roleRouter } from './role';
@@ -34,6 +36,7 @@ import { uploadRouter } from './upload';
 import { userRouter } from './user';
 
 export const lambdaRouter = router({
+  adminUser: adminUserRouter,
   agent: agentRouter,
   aiChat: aiChatRouter,
   aiModel: aiModelRouter,
@@ -54,6 +57,7 @@ export const lambdaRouter = router({
   knowledgeBase: knowledgeBaseRouter,
   market: marketRouter,
   message: messageRouter,
+  organization: organizationRouter,
   plugin: pluginRouter,
   ragEval: ragEvalRouter,
   role: roleRouter,

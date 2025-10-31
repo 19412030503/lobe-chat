@@ -42,6 +42,9 @@ const componentMap = {
   [SettingsTabs.SystemAgent]: dynamic(() => import('../system-agent'), {
     loading: () => <Loading />,
   }),
+  [SettingsTabs.Management]: dynamic(() => import('../management'), {
+    loading: () => <Loading />,
+  }),
 };
 
 interface SettingsContentProps {
