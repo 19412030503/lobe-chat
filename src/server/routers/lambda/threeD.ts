@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import debug from 'debug';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -14,6 +15,9 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { keyVaults, serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { createAsyncCaller } from '@/server/routers/async/caller';
 import { FileService } from '@/server/services/file';
+import { ModelCreditError, ModelCreditService } from '@/server/services/modelCredit';
+import { calculateThreeDCredits } from '@/server/services/modelCredit/creditCalculator';
+import { createAiInfraRepos, resolveModelPricing } from '@/server/services/modelCredit/pricing';
 import {
   AsyncTaskError,
   AsyncTaskErrorType,
@@ -23,6 +27,9 @@ import {
 import { generateUniqueSeeds } from '@/utils/number';
 
 const log = debug('lobe-threed:lambda');
+
+const toTRPCCreditError = (error: ModelCreditError) =>
+  new TRPCError({ code: 'FORBIDDEN', message: error.message });
 
 const validateNoUrlsInConfig = (obj: any, path: string = ''): void => {
   if (typeof obj === 'string') {
@@ -48,11 +55,16 @@ const threeDProcedure = authedProcedure
   .use(serverDatabase)
   .use(async (opts) => {
     const { ctx } = opts;
+    const creditService = new ModelCreditService(ctx.serverDB);
+    const aiInfraRepos = await createAiInfraRepos(ctx.serverDB, ctx.userId);
 
     return opts.next({
       ctx: {
+        aiInfraRepos,
         asyncTaskModel: new AsyncTaskModel(ctx.serverDB, ctx.userId),
+        creditService,
         fileService: new FileService(ctx.serverDB, ctx.userId),
+        userId: ctx.userId,
       },
     });
   });
@@ -130,6 +142,29 @@ export const threeDRouter = router({
       originalTaskId: resolvedOriginalTaskId,
     };
 
+    const resolvedProviderId = sourceBatch.provider || provider;
+    const resolvedModelId = sourceBatch.model || model;
+
+    const pricing = await resolveModelPricing(
+      ctx.aiInfraRepos,
+      resolvedProviderId,
+      resolvedModelId,
+    );
+    const creditsRequired = calculateThreeDCredits(1, pricing);
+
+    let allowance;
+    try {
+      allowance = await ctx.creditService.ensureAllowance({
+        requiredCredits: creditsRequired,
+        userId,
+      });
+    } catch (error) {
+      if (error instanceof ModelCreditError) {
+        throw toTRPCCreditError(error);
+      }
+      throw error;
+    }
+
     let asyncTaskId: string | undefined;
     let createdGeneration: (NewGeneration & { asyncTaskId: string | null }) | undefined;
 
@@ -178,14 +213,38 @@ export const threeDRouter = router({
 
       await asyncCaller.threeD.convertModel({
         generationId: createdGeneration.id,
-        model: sourceBatch.model || model,
+        model: resolvedModelId,
         originalTaskId: resolvedOriginalTaskId,
         params: conversionParams,
-        provider: sourceBatch.provider || provider,
+        provider: resolvedProviderId,
         sourceGenerationId,
         taskId: asyncTaskId,
       });
+
+      await ctx.creditService.charge(
+        {
+          credits: creditsRequired,
+          organizationId: allowance.organizationId,
+          reason: 'three_d_conversion',
+          usage: {
+            countUsed: 1,
+            metadata: {
+              asyncTaskId,
+              sourceGenerationId,
+            },
+            model: resolvedModelId,
+            provider: resolvedProviderId,
+            usageType: 'threeD',
+          },
+          userId,
+        },
+        allowance,
+      );
     } catch (e) {
+      if (e instanceof ModelCreditError) {
+        throw toTRPCCreditError(e);
+      }
+
       log('Failed to dispatch conversion async task: %O', e);
 
       await asyncTaskModel.update(asyncTaskId, {
@@ -240,6 +299,22 @@ export const threeDRouter = router({
     } catch (error) {
       log('Validation failed when checking config URLs: %O', error);
       configForDatabase = { ...params };
+    }
+
+    const pricing = await resolveModelPricing(ctx.aiInfraRepos, provider, model);
+    const creditsRequired = calculateThreeDCredits(modelNum, pricing);
+
+    let allowance;
+    try {
+      allowance = await ctx.creditService.ensureAllowance({
+        requiredCredits: creditsRequired,
+        userId,
+      });
+    } catch (error) {
+      if (error instanceof ModelCreditError) {
+        throw toTRPCCreditError(error);
+      }
+      throw error;
     }
 
     const { batch: createdBatch, generationsWithTasks } = await serverDB.transaction(async (tx) => {
@@ -311,6 +386,39 @@ export const threeDRouter = router({
         seed: generation.seed,
       })),
     );
+
+    try {
+      const chargeResult = await ctx.creditService.charge(
+        {
+          credits: creditsRequired,
+          organizationId: allowance.organizationId,
+          reason: 'three_d_generation',
+          usage: {
+            countUsed: modelNum,
+            metadata: {
+              batchId: createdBatch.id,
+              generationTopicId,
+            },
+            model,
+            provider,
+            usageType: 'threeD',
+          },
+          userId,
+        },
+        allowance,
+      );
+
+      allowance = {
+        memberQuota: chargeResult.memberQuota,
+        organization: chargeResult.organization,
+        organizationId: allowance.organizationId,
+      };
+    } catch (error) {
+      if (error instanceof ModelCreditError) {
+        throw toTRPCCreditError(error);
+      }
+      throw error;
+    }
 
     try {
       const asyncCaller = await createAsyncCaller({

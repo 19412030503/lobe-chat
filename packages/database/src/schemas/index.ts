@@ -9,6 +9,7 @@ export * from './file';
 export * from './generation';
 export * from './inviteCode';
 export * from './message';
+export * from './modelCredit';
 export * from './nextauth';
 export * from './oidc';
 export * from './organization';

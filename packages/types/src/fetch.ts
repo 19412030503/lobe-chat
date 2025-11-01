@@ -22,6 +22,9 @@ export const ChatErrorType = {
   PluginFailToTransformArguments: 'PluginFailToTransformArguments',
   UnknownChatFetchError: 'UnknownChatFetchError',
   SystemTimeNotMatchError: 'SystemTimeNotMatchError',
+  OrganizationCreditInsufficient: 'OrganizationCreditInsufficient',
+  MemberQuotaExceeded: 'MemberQuotaExceeded',
+  UserOrganizationRequired: 'UserOrganizationRequired',
 
   // ******* 客户端错误 ******* //
   BadRequest: 400,

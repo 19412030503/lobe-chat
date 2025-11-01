@@ -13,6 +13,7 @@ import { UserModel } from '@/database/models/user';
 import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { requireRoles } from '@/libs/trpc/lambda/middleware/roleGuard';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware/serverDatabase';
+import { ModelCreditService } from '@/server/services/modelCredit';
 import { OrganizationService } from '@/server/services/organization';
 
 const baseProcedure = authedProcedure.use(serverDatabase);
@@ -35,6 +36,11 @@ const updateOrganizationSchema = z.object({
 });
 
 const deleteOrganizationSchema = z.object({
+  id: z.string().uuid(),
+});
+
+const setOrganizationCreditSchema = z.object({
+  balance: z.number().min(0),
   id: z.string().uuid(),
 });
 
@@ -95,6 +101,23 @@ export const organizationRouter = router({
 
     const organization = await OrganizationModel.findById(db, actor.organizationId);
     return organization ? [organization] : [];
+  }),
+
+  setCredit: rootProcedure.input(setOrganizationCreditSchema).mutation(async ({ ctx, input }) => {
+    const db = ensureServerDB(ctx);
+    const creditService = new ModelCreditService(db);
+
+    const updated = await creditService.setOrganizationBalance(
+      input.id,
+      input.balance,
+      ctx.userId ?? undefined,
+    );
+
+    return {
+      balance: updated.balance,
+      organizationId: input.id,
+      success: true,
+    };
   }),
 
   update: rootProcedure.input(updateOrganizationSchema).mutation(async ({ ctx, input }) => {

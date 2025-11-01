@@ -13,6 +13,7 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { requireRoles } from '@/libs/trpc/lambda/middleware/roleGuard';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware/serverDatabase';
 import { casdoorService } from '@/server/services/casdoor';
+import { ModelCreditService } from '@/server/services/modelCredit';
 import { RoleService } from '@/server/services/role';
 
 const baseProcedure = authedProcedure.use(serverDatabase);
@@ -24,6 +25,12 @@ const ensureServerDB = (ctx: { serverDB?: LobeChatDatabase }) => {
   }
   return ctx.serverDB;
 };
+
+const setQuotaSchema = z.object({
+  limit: z.number().min(0).nullable(),
+  organizationId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
 
 const normalizeRoles = (roles: (string | null | undefined)[] | undefined): Set<SystemRole> => {
   const normalized = (roles ?? [])
@@ -294,6 +301,65 @@ export const adminUserRouter = router({
       const [summary] = await summarizeUsers(db, [input.userId]);
       return summary;
     }),
+
+  setQuota: adminOrRootProcedure.input(setQuotaSchema).mutation(async ({ ctx, input }) => {
+    const db = ensureServerDB(ctx);
+    if (!ctx.userId) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+
+    const roleSet = normalizeRoles(ctx.userRoles ?? ctx.nextAuth?.roles ?? []);
+    const isRoot = roleSet.has(ROOT_ROLE);
+    const isAdmin = roleSet.has(ADMIN_ROLE);
+
+    if (!isRoot && !isAdmin) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+    }
+
+    let targetOrganizationId = input.organizationId;
+    if (!isRoot) {
+      const actor = await UserModel.findById(db, ctx.userId);
+      if (!actor?.organizationId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin must belong to an organization',
+        });
+      }
+
+      if (actor.organizationId !== input.organizationId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Cannot modify other organizations quota',
+        });
+      }
+
+      targetOrganizationId = actor.organizationId;
+    }
+
+    const targetUser = await UserModel.findById(db, input.userId);
+    if (!targetUser) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Target user not found' });
+    }
+
+    if (targetUser.organizationId !== targetOrganizationId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'User does not belong to specified organization',
+      });
+    }
+
+    const creditService = new ModelCreditService(db);
+    const quota = await creditService.setMemberQuotaLimit(
+      targetOrganizationId,
+      input.userId,
+      input.limit ?? null,
+    );
+
+    return {
+      memberQuota: quota,
+      success: true,
+    };
+  }),
 
   setRole: adminOrRootProcedure
     .input(

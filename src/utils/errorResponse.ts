@@ -26,6 +26,18 @@ const getStatus = (errorType: ILobeAgentRuntimeErrorType | ErrorType) => {
       return 404;
     }
 
+    case ChatErrorType.OrganizationCreditInsufficient: {
+      return 402;
+    }
+
+    case ChatErrorType.MemberQuotaExceeded: {
+      return 429;
+    }
+
+    case ChatErrorType.UserOrganizationRequired: {
+      return 403;
+    }
+
     case AgentRuntimeErrorType.InsufficientQuota:
     case AgentRuntimeErrorType.QuotaLimitReached: {
       return 429;
