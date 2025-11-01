@@ -32,7 +32,7 @@ const Layout = memo<LayoutProps>(({ children, category }) => {
         {md ? (
           <SideBar>{category}</SideBar>
         ) : (
-          <Header getContainer={() => ref.current} title={<>{t(`tab.${activeKey}`)}</>}>
+          <Header getContainer={() => ref.current} title={<>{t(`tab.${activeKey}` as any)}</>}>
             {category}
           </Header>
         )}
@@ -41,7 +41,10 @@ const Layout = memo<LayoutProps>(({ children, category }) => {
           style={{
             paddingBlock: 24,
             paddingInline: 32,
-          }}>{children}</SettingContainer>
+          }}
+        >
+          {children}
+        </SettingContainer>
       </Flexbox>
       <InitClientDB />
     </>

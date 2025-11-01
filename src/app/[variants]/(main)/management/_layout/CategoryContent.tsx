@@ -1,7 +1,7 @@
 'use client';
 
 import { Icon } from '@lobehub/ui';
-import { Building2, Users } from 'lucide-react';
+import { BarChart3, Building2, ChartColumnBig, CoinsIcon, Users } from 'lucide-react';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -36,6 +36,21 @@ const CategoryContent = memo((props: CategoryContentProps) => {
           icon: <Icon icon={Building2} />,
           key: ManagementTabs.Organizations,
           label: t('management.tabs.organizations'),
+        },
+        {
+          icon: <Icon icon={CoinsIcon} />,
+          key: ManagementTabs.Quota,
+          label: t('management.tabs.quota'),
+        },
+        {
+          icon: <Icon icon={ChartColumnBig} />,
+          key: ManagementTabs.Statistics,
+          label: t('management.tabs.statistics'),
+        },
+        {
+          icon: <Icon icon={BarChart3} />,
+          key: ManagementTabs.Usage,
+          label: t('management.tabs.usage'),
         },
       ].filter(Boolean) as MenuProps['items'],
     [t, isRoot],

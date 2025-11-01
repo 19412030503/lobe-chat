@@ -44,21 +44,28 @@ const OrganizationsManagement = () => {
   const updateOrganizationMutation = lambdaQuery.organization.update.useMutation();
   const deleteOrganizationMutation = lambdaQuery.organization.delete.useMutation();
 
-  const [createForm] = Form.useForm<{ name: string; type: OrganizationType }>();
-  const [renameForm] = Form.useForm<{ name: string }>();
+  const [createForm] = Form.useForm<{ maxUsers?: number; name: string; type: OrganizationType }>();
+  const [editForm] = Form.useForm<{ maxUsers?: number; name: string }>();
   const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [pageSize, setPageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const handleCreateOrganization = async (values: { name: string; type: OrganizationType }) => {
+  const handleCreateOrganization = async (values: {
+    maxUsers?: number;
+    name: string;
+    type: OrganizationType;
+  }) => {
     try {
       await createOrganizationMutation.mutateAsync({
+        maxUsers: values.maxUsers,
         name: values.name,
         parentId: null,
         type: values.type,
       });
       messageApi.success(t('management.messages.organizationCreated'));
+      setIsCreateModalOpen(false);
       createForm.resetFields();
       await refetchOrganizations();
     } catch (error: any) {
@@ -66,16 +73,17 @@ const OrganizationsManagement = () => {
     }
   };
 
-  const handleRenameOrganization = async (values: { name: string }) => {
+  const handleUpdateOrganization = async (values: { maxUsers?: number; name: string }) => {
     if (!editingOrganization) return;
     try {
       await updateOrganizationMutation.mutateAsync({
         id: editingOrganization.id,
+        maxUsers: values.maxUsers,
         name: values.name,
       });
       messageApi.success(t('management.messages.organizationUpdated'));
       setEditingOrganization(null);
-      renameForm.resetFields();
+      editForm.resetFields();
       await refetchOrganizations();
     } catch (error: any) {
       messageApi.error(error?.message ?? t('management.messages.operationFailed'));
@@ -127,45 +135,9 @@ const OrganizationsManagement = () => {
               style={{ width: 240 }}
               value={searchText}
             />
-            <Form
-              form={createForm}
-              initialValues={{ type: ORGANIZATION_TYPE_SCHOOL }}
-              layout="inline"
-              onFinish={handleCreateOrganization}
-            >
-              <Form.Item
-                name="name"
-                rules={[{ message: t('management.validation.organizationName'), required: true }]}
-                style={{ marginBottom: 0 }}
-              >
-                <Input
-                  allowClear
-                  maxLength={60}
-                  placeholder={t('management.placeholders.organizationName')}
-                  style={{ width: 200 }}
-                />
-              </Form.Item>
-              <Form.Item name="type" style={{ marginBottom: 0 }}>
-                <Select<OrganizationType>
-                  options={[
-                    {
-                      label: translateOrganizationType(ORGANIZATION_TYPE_SCHOOL),
-                      value: ORGANIZATION_TYPE_SCHOOL,
-                    },
-                  ]}
-                  style={{ width: 120 }}
-                />
-              </Form.Item>
-              <Form.Item style={{ marginBottom: 0 }}>
-                <Button
-                  htmlType="submit"
-                  loading={createOrganizationMutation.isPending}
-                  type="primary"
-                >
-                  {t('management.actions.createOrganization')}
-                </Button>
-              </Form.Item>
-            </Form>
+            <Button onClick={() => setIsCreateModalOpen(true)} type="primary">
+              {t('management.actions.createOrganization')}
+            </Button>
           </Space>
         }
         style={{ margin: 24 }}
@@ -195,17 +167,24 @@ const OrganizationsManagement = () => {
               width: 150,
             },
             {
+              dataIndex: 'maxUsers',
+              key: 'maxUsers',
+              render: (value: number | null) => value ?? t('management.labels.unlimited'),
+              title: t('management.columns.maxUsers'),
+              width: 120,
+            },
+            {
               key: 'id',
               render: (_value, record) => (
                 <Space>
                   <Button
                     onClick={() => {
                       setEditingOrganization(record);
-                      renameForm.setFieldsValue({ name: record.name });
+                      editForm.setFieldsValue({ maxUsers: record.maxUsers, name: record.name });
                     }}
                     size="small"
                   >
-                    {t('management.actions.renameOrganization')}
+                    {t('management.actions.updateOrganization')}
                   </Button>
                   {record.type !== ORGANIZATION_TYPE_SCHOOL ? (
                     <Text type="secondary">{t('management.hints.lockedOrganization')}</Text>
@@ -246,24 +225,82 @@ const OrganizationsManagement = () => {
         />
       </Card>
 
+      {/* 新增组织弹窗 */}
       <Modal
-        confirmLoading={updateOrganizationMutation.isPending}
-        okText={t('common:save')}
+        confirmLoading={createOrganizationMutation.isPending}
         onCancel={() => {
-          setEditingOrganization(null);
-          renameForm.resetFields();
+          setIsCreateModalOpen(false);
+          createForm.resetFields();
         }}
-        onOk={() => renameForm.submit()}
-        open={!!editingOrganization}
-        title={t('management.dialogs.renameOrganization.title')}
+        onOk={() => createForm.submit()}
+        open={isCreateModalOpen}
+        title={t('management.dialogs.createOrganization.title')}
       >
-        <Form form={renameForm} layout="vertical" onFinish={handleRenameOrganization}>
+        <Form
+          form={createForm}
+          initialValues={{ type: ORGANIZATION_TYPE_SCHOOL }}
+          layout="vertical"
+          onFinish={handleCreateOrganization}
+        >
           <Form.Item
             label={t('management.fields.organization.name')}
             name="name"
             rules={[{ message: t('management.validation.organizationName'), required: true }]}
           >
             <Input maxLength={60} placeholder={t('management.placeholders.organizationName')} />
+          </Form.Item>
+
+          <Form.Item
+            label={t('management.fields.organization.type')}
+            name="type"
+            rules={[{ message: t('management.validation.organizationType'), required: true }]}
+          >
+            <Select<OrganizationType>
+              options={[
+                {
+                  label: translateOrganizationType(ORGANIZATION_TYPE_SCHOOL),
+                  value: ORGANIZATION_TYPE_SCHOOL,
+                },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label={t('management.fields.organization.maxUsers')}
+            name="maxUsers"
+            rules={[{ message: t('management.validation.maxUsers'), min: 1, type: 'number' }]}
+          >
+            <Input min={1} placeholder={t('management.placeholders.maxUsers')} type="number" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 修改组织弹窗 */}
+      <Modal
+        confirmLoading={updateOrganizationMutation.isPending}
+        okText={t('common:save')}
+        onCancel={() => {
+          setEditingOrganization(null);
+          editForm.resetFields();
+        }}
+        onOk={() => editForm.submit()}
+        open={!!editingOrganization}
+        title={t('management.dialogs.updateOrganization.title')}
+      >
+        <Form form={editForm} layout="vertical" onFinish={handleUpdateOrganization}>
+          <Form.Item
+            label={t('management.fields.organization.name')}
+            name="name"
+            rules={[{ message: t('management.validation.organizationName'), required: true }]}
+          >
+            <Input maxLength={60} placeholder={t('management.placeholders.organizationName')} />
+          </Form.Item>
+          <Form.Item
+            label={t('management.fields.organization.maxUsers')}
+            name="maxUsers"
+            rules={[{ message: t('management.validation.maxUsers'), min: 1, type: 'number' }]}
+          >
+            <Input min={1} placeholder={t('management.placeholders.maxUsers')} type="number" />
           </Form.Item>
         </Form>
       </Modal>

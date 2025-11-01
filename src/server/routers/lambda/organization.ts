@@ -23,6 +23,7 @@ const adminOrRootProcedure = baseProcedure.use(requireRoles([ADMIN_ROLE, ROOT_RO
 const organizationTypeSchema = z.enum([ORGANIZATION_TYPE_MANAGEMENT, ORGANIZATION_TYPE_SCHOOL]);
 
 const createOrganizationSchema = z.object({
+  maxUsers: z.number().int().positive().nullable().optional(),
   name: z.string().min(1),
   parentId: z.string().uuid().nullable().optional(),
   type: organizationTypeSchema,
@@ -30,6 +31,7 @@ const createOrganizationSchema = z.object({
 
 const updateOrganizationSchema = z.object({
   id: z.string().uuid(),
+  maxUsers: z.number().int().positive().nullable().optional(),
   name: z.string().min(1).optional(),
   parentId: z.string().uuid().nullable().optional(),
   type: organizationTypeSchema.optional(),
@@ -60,10 +62,10 @@ export const organizationRouter = router({
       // ensure only one management organization exists
       const existing = await OrganizationModel.list(db);
       if (existing.some((item) => item.type === ORGANIZATION_TYPE_MANAGEMENT)) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Management organization already exists',
-        });
+        const { BusinessErrorType, createBusinessError } = await import(
+          '@/server/utils/businessError'
+        );
+        throw createBusinessError(BusinessErrorType.MANAGEMENT_ORGANIZATION_ALREADY_EXISTS);
       }
     }
 
@@ -125,6 +127,7 @@ export const organizationRouter = router({
     const service = new OrganizationService(db);
 
     return service.updateOrganization(input.id, {
+      maxUsers: input.maxUsers,
       name: input.name,
       parentId: input.parentId,
       type: input.type,

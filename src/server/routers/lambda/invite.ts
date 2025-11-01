@@ -169,6 +169,26 @@ export const inviteRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invite code expired' });
       }
 
+      // 检查组织是否已达到最大用户数量
+      if (inviteCode.organizationId) {
+        const organization = await db.query.organizations.findFirst({
+          where: (orgs: any, { eq }: any) => eq(orgs.id, inviteCode.organizationId),
+        });
+
+        if (organization && organization.maxUsers !== null && organization.maxUsers !== undefined) {
+          const orgUsers = await db.query.users.findMany({
+            where: (u: any, { eq }: any) => eq(u.organizationId, inviteCode.organizationId),
+          });
+
+          if (orgUsers.length >= organization.maxUsers) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `组织已达到最大用户数量限制（${organization.maxUsers}人）`,
+            });
+          }
+        }
+      }
+
       // 通过 Casdoor 创建用户
       const casdoorService = new CasdoorService();
       const casdoorUser = await casdoorService.createUser({

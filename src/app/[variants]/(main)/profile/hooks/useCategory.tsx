@@ -1,5 +1,5 @@
 import { Icon } from '@lobehub/ui';
-import { ChartColumnBigIcon, KeyIcon, ShieldCheck, User, UserCircle } from 'lucide-react';
+import { ChartColumnBigIcon, KeyIcon, Receipt, ShieldCheck, User, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 
@@ -51,6 +51,15 @@ export const useCategory = () => {
       label: (
         <Link href={'/profile/stats'} onClick={(e) => e.preventDefault()}>
           {t('tab.stats')}
+        </Link>
+      ),
+    },
+    {
+      icon: <Icon icon={Receipt} />,
+      key: ProfileTabs.Usage,
+      label: (
+        <Link href={'/profile/usage'} onClick={(e) => e.preventDefault()}>
+          {t('setting:account.sections.usage')}
         </Link>
       ),
     },

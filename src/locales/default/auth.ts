@@ -148,5 +148,6 @@ export default {
     profile: '个人资料',
     security: '安全',
     stats: '数据统计',
+    usage: '使用记录',
   },
 };

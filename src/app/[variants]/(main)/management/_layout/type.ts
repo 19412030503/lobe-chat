@@ -6,5 +6,8 @@ export interface LayoutProps {
 
 export enum ManagementTabs {
   Organizations = 'organizations',
+  Quota = 'quota',
+  Statistics = 'statistics',
+  Usage = 'usage',
   Users = 'users',
 }

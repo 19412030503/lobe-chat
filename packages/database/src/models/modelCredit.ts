@@ -101,6 +101,32 @@ export class MemberQuotaModel {
     });
   };
 
+  /**
+   * 查询组织的所有成员额度
+   */
+  findByOrganizationId = async (
+    organizationId: string,
+    trx?: Transaction,
+  ): Promise<MemberQuotaItem[]> => {
+    const db = trx || this.db;
+
+    return db.query.memberQuotas.findMany({
+      orderBy: (table, { desc }) => [desc(table.used)],
+      where: eq(memberQuotas.organizationId, organizationId),
+    });
+  };
+
+  /**
+   * 查询所有成员额度（root专用）
+   */
+  findAll = async (trx?: Transaction): Promise<MemberQuotaItem[]> => {
+    const db = trx || this.db;
+
+    return db.query.memberQuotas.findMany({
+      orderBy: (table, { desc }) => [desc(table.used)],
+    });
+  };
+
   ensure = async (
     organizationId: string,
     userId: string,
@@ -195,6 +221,74 @@ export class ModelUsageModel {
     const result = await db.insert(modelUsages).values(payload).returning();
 
     return result[0];
+  };
+
+  /**
+   * 查询用户的使用记录
+   */
+  findByUserId = async (
+    userId: string,
+    options?: {
+      endDate?: Date;
+      limit?: number;
+      offset?: number;
+      startDate?: Date;
+    },
+    trx?: Transaction,
+  ): Promise<ModelUsageItem[]> => {
+    const db = trx || this.db;
+    let query = db.query.modelUsages.findMany({
+      limit: options?.limit,
+      offset: options?.offset,
+      orderBy: (table, { desc }) => [desc(table.createdAt)],
+      where: eq(modelUsages.userId, userId),
+    });
+
+    return query;
+  };
+
+  /**
+   * 查询组织的使用记录
+   */
+  findByOrganizationId = async (
+    organizationId: string,
+    options?: {
+      endDate?: Date;
+      limit?: number;
+      offset?: number;
+      startDate?: Date;
+    },
+    trx?: Transaction,
+  ): Promise<ModelUsageItem[]> => {
+    const db = trx || this.db;
+
+    return db.query.modelUsages.findMany({
+      limit: options?.limit,
+      offset: options?.offset,
+      orderBy: (table, { desc }) => [desc(table.createdAt)],
+      where: eq(modelUsages.organizationId, organizationId),
+    });
+  };
+
+  /**
+   * 查询所有使用记录（root专用）
+   */
+  findAll = async (
+    options?: {
+      endDate?: Date;
+      limit?: number;
+      offset?: number;
+      startDate?: Date;
+    },
+    trx?: Transaction,
+  ): Promise<ModelUsageItem[]> => {
+    const db = trx || this.db;
+
+    return db.query.modelUsages.findMany({
+      limit: options?.limit,
+      offset: options?.offset,
+      orderBy: (table, { desc }) => [desc(table.createdAt)],
+    });
   };
 }
 

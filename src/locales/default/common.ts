@@ -1,5 +1,6 @@
 export default {
   about: '关于',
+  actions: '操作',
   advanceSettings: '高级设置',
   alert: {
     cloud: {
@@ -155,6 +156,7 @@ export default {
   download: '下载',
   duplicate: '创建副本',
   edit: '编辑',
+  endDate: '结束日期',
   export: '导出配置',
   exportType: {
     agent: '导出助手设定',
@@ -346,6 +348,7 @@ export default {
   send: '发送',
   setting: '设置',
   share: '分享',
+  startDate: '开始日期',
   stop: '停止',
   sync: {
     actions: { settings: '同步设置', sync: '立即同步' },
@@ -392,8 +395,10 @@ export default {
   },
   temp: '临时',
   terms: '服务条款',
+  totalItems: '共 {{count}} 条',
   update: '更新',
   updateAgent: '更新助理信息',
+  updatedAt: '更新时间',
   upgradeVersion: {
     action: '升级',
     hasNew: '有可用更新',

@@ -10,6 +10,7 @@ import { documentChunks, documents } from './document';
 import { files, knowledgeBases } from './file';
 import { generationBatches, generationTopics, generations } from './generation';
 import { messageGroups, messages, messagesFiles } from './message';
+import { memberQuotas, modelCreditTransactions, modelCredits, modelUsages } from './modelCredit';
 import { organizations } from './organization';
 import { chunks, unstructuredChunks } from './rag';
 import { sessionGroups, sessions } from './session';
@@ -345,4 +346,49 @@ export const messageGroupsRelations = relations(messageGroups, ({ many, one }) =
   }),
   childGroups: many(messageGroups),
   messages: many(messages),
+}));
+
+// Model Credit 相关关系定义
+export const modelCreditsRelations = relations(modelCredits, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [modelCredits.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+export const memberQuotasRelations = relations(memberQuotas, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [memberQuotas.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [memberQuotas.userId],
+    references: [users.id],
+  }),
+}));
+
+export const modelUsagesRelations = relations(modelUsages, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [modelUsages.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [modelUsages.userId],
+    references: [users.id],
+  }),
+}));
+
+export const modelCreditTransactionsRelations = relations(modelCreditTransactions, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [modelCreditTransactions.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [modelCreditTransactions.userId],
+    references: [users.id],
+  }),
+  usage: one(modelUsages, {
+    fields: [modelCreditTransactions.usageId],
+    references: [modelUsages.id],
+  }),
 }));

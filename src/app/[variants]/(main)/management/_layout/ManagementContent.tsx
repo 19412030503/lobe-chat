@@ -9,10 +9,19 @@ import Loading from '@/components/Loading/BrandTextLoading';
 import { ManagementTabs } from './type';
 
 const componentMap = {
-  [ManagementTabs.Users]: dynamic(() => import('../users/index'), {
+  [ManagementTabs.Organizations]: dynamic(() => import('../organizations/index'), {
     loading: () => <Loading />,
   }),
-  [ManagementTabs.Organizations]: dynamic(() => import('../organizations/index'), {
+  [ManagementTabs.Quota]: dynamic(() => import('../quota/index'), {
+    loading: () => <Loading />,
+  }),
+  [ManagementTabs.Statistics]: dynamic(() => import('../statistics/index'), {
+    loading: () => <Loading />,
+  }),
+  [ManagementTabs.Usage]: dynamic(() => import('../usage/index'), {
+    loading: () => <Loading />,
+  }),
+  [ManagementTabs.Users]: dynamic(() => import('../users/index'), {
     loading: () => <Loading />,
   }),
 };

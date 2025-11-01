@@ -368,7 +368,7 @@ const ManagementSettings = () => {
                           renameForm.setFieldsValue({ name: record.name });
                         }}
                       >
-                        {t('management.actions.renameOrganization')}
+                        {t('management.actions.updateOrganization')}
                       </Button>
                       {record.type !== ORGANIZATION_TYPE_SCHOOL ? (
                         <Text type="secondary">{t('management.hints.lockedOrganization')}</Text>
@@ -410,7 +410,7 @@ const ManagementSettings = () => {
         }}
         onOk={() => renameForm.submit()}
         open={!!editingOrganization}
-        title={t('management.dialogs.renameOrganization.title')}
+        title={t('management.dialogs.updateOrganization.title')}
       >
         <Form form={renameForm} layout="vertical" onFinish={handleRenameOrganization}>
           <Form.Item

@@ -1,5 +1,4 @@
 import type { LobeChatDatabase } from '@lobechat/database';
-import { TRPCError } from '@trpc/server';
 
 import {
   ORGANIZATION_TYPE_MANAGEMENT,
@@ -7,14 +6,22 @@ import {
   OrganizationType,
 } from '@/const/rbac';
 import { OrganizationModel } from '@/database/models/organization';
+import {
+  BusinessErrorType,
+  createBusinessError,
+  createInternalError,
+  createNotFoundError,
+} from '@/server/utils/businessError';
 
 export interface CreateOrganizationInput {
+  maxUsers?: number | null;
   name: string;
   parentId?: string | null;
   type: OrganizationType;
 }
 
 export interface UpdateOrganizationInput {
+  maxUsers?: number | null;
   name?: string;
   parentId?: string | null;
   type?: OrganizationType;
@@ -27,26 +34,24 @@ export class OrganizationService {
     return OrganizationModel.list(this.db);
   };
 
-  createOrganization = async ({ name, parentId, type }: CreateOrganizationInput) => {
+  createOrganization = async ({ maxUsers, name, parentId, type }: CreateOrganizationInput) => {
     if (!name.trim()) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Organization name is required' });
+      throw createBusinessError(BusinessErrorType.ORGANIZATION_NAME_REQUIRED);
     }
 
     if (!([ORGANIZATION_TYPE_MANAGEMENT, ORGANIZATION_TYPE_SCHOOL] as string[]).includes(type)) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Unsupported organization type' });
+      throw createBusinessError(BusinessErrorType.ORGANIZATION_TYPE_UNSUPPORTED);
     }
 
     const organization = await OrganizationModel.create(this.db, {
+      maxUsers: maxUsers ?? null,
       name: name.trim(),
       parentId: parentId ?? null,
       type,
     });
 
     if (!organization) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to create organization',
-      });
+      throw createInternalError('创建组织失败');
     }
 
     return organization;
@@ -55,29 +60,23 @@ export class OrganizationService {
   updateOrganization = async (id: string, input: UpdateOrganizationInput) => {
     const existing = await OrganizationModel.findById(this.db, id);
     if (!existing) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Organization not found' });
+      throw createNotFoundError('组织');
     }
 
     if (existing.type === ORGANIZATION_TYPE_MANAGEMENT && input.type) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Management organization type cannot be changed',
-      });
+      throw createBusinessError(BusinessErrorType.ORGANIZATION_TYPE_IMMUTABLE);
     }
 
     if (
       input.type &&
       !([ORGANIZATION_TYPE_MANAGEMENT, ORGANIZATION_TYPE_SCHOOL] as string[]).includes(input.type)
     ) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Unsupported organization type' });
+      throw createBusinessError(BusinessErrorType.ORGANIZATION_TYPE_UNSUPPORTED);
     }
 
     const updated = await OrganizationModel.update(this.db, id, input);
     if (!updated) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to update organization',
-      });
+      throw createInternalError('更新组织失败');
     }
     return updated;
   };
@@ -85,29 +84,20 @@ export class OrganizationService {
   deleteOrganization = async (id: string) => {
     const existing = await OrganizationModel.findById(this.db, id);
     if (!existing) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Organization not found' });
+      throw createNotFoundError('组织');
     }
 
     if (existing.type === ORGANIZATION_TYPE_MANAGEMENT) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Cannot delete management organization',
-      });
+      throw createBusinessError(BusinessErrorType.ORGANIZATION_MANAGEMENT_UNDELETABLE);
     }
 
     if (await OrganizationModel.hasUsers(this.db, id)) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Organization has users and cannot be deleted',
-      });
+      throw createBusinessError(BusinessErrorType.ORGANIZATION_HAS_USERS);
     }
 
     const removed = await OrganizationModel.delete(this.db, id);
     if (!removed) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to delete organization',
-      });
+      throw createInternalError('删除组织失败');
     }
     return removed;
   };

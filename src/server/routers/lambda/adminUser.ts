@@ -15,6 +15,13 @@ import { serverDatabase } from '@/libs/trpc/lambda/middleware/serverDatabase';
 import { casdoorService } from '@/server/services/casdoor';
 import { ModelCreditService } from '@/server/services/modelCredit';
 import { RoleService } from '@/server/services/role';
+import {
+  BusinessErrorType,
+  createBusinessError,
+  createInternalError,
+  createNotFoundError,
+  createPermissionError,
+} from '@/server/utils/businessError';
 
 const baseProcedure = authedProcedure.use(serverDatabase);
 const adminOrRootProcedure = baseProcedure.use(requireRoles([ADMIN_ROLE, ROOT_ROLE]));
@@ -123,7 +130,7 @@ export const adminUserRouter = router({
       const isAdmin = roleSet.has(ADMIN_ROLE);
 
       if (!isRoot && !isAdmin) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+        throw createPermissionError();
       }
 
       // 学校管理员只能在自己的组织创建用户
@@ -131,20 +138,56 @@ export const adminUserRouter = router({
       if (!isRoot) {
         const actor = await UserModel.findById(db, ctx.userId);
         if (!actor?.organizationId) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Admin must belong to an organization',
-          });
+          throw createBusinessError(BusinessErrorType.ADMIN_MUST_BELONG_TO_ORGANIZATION);
         }
         finalOrganizationId = actor.organizationId;
       }
 
-      // 验证组织是否存在
+      // 验证组织是否存在并检查用户数量限制
       if (finalOrganizationId) {
         const organization = await OrganizationModel.findById(db, finalOrganizationId);
         if (!organization) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Organization not found' });
+          throw createNotFoundError('组织');
         }
+
+        // 检查组织是否已达到最大用户数量
+        if (organization.maxUsers !== null && organization.maxUsers !== undefined) {
+          const currentUserCount = await OrganizationModel.getUserCount(db, finalOrganizationId);
+          if (currentUserCount >= organization.maxUsers) {
+            throw createBusinessError(
+              BusinessErrorType.ORGANIZATION_MAX_USERS_REACHED,
+              `组织已达到最大用户数量限制（${organization.maxUsers}人）`,
+            );
+          }
+        }
+      }
+
+      // 检查本地数据库中用户名是否已存在
+      const existingUserByUsername = await db.query.users.findFirst({
+        where: eq(users.username, input.name),
+      });
+      if (existingUserByUsername) {
+        throw createBusinessError(BusinessErrorType.USERNAME_ALREADY_EXISTS);
+      }
+
+      // 检查本地数据库中邮箱是否已存在
+      const existingUserByEmail = await UserModel.findByEmail(db, input.email);
+      if (existingUserByEmail) {
+        throw createBusinessError(BusinessErrorType.EMAIL_ALREADY_EXISTS);
+      }
+
+      // 检查 Casdoor 中用户名是否已存在
+      try {
+        const casdoorUser = await casdoorService.getUser(input.name);
+        if (casdoorUser?.data?.data) {
+          throw createBusinessError(BusinessErrorType.USERNAME_EXISTS_IN_AUTH_SYSTEM);
+        }
+      } catch (error) {
+        // getUser 抛出错误说明用户不存在，可以继续创建
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        // 其他错误继续执行（用户不存在是正常情况）
       }
 
       // 在 Casdoor 创建用户
@@ -156,10 +199,7 @@ export const adminUserRouter = router({
           password: input.password,
         });
       } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : '创建用户失败',
-        });
+        throw createInternalError(error instanceof Error ? error.message : '创建用户失败');
       }
 
       // 在本地数据库创建用户记录
@@ -173,11 +213,11 @@ export const adminUserRouter = router({
       });
 
       if (result.duplicate) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: '用户已存在' });
+        throw createBusinessError(BusinessErrorType.USER_ALREADY_EXISTS);
       }
 
       if (!result.user) {
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '创建用户失败' });
+        throw createInternalError('创建用户失败');
       }
 
       // 为新用户分配默认角色（学生）
@@ -199,7 +239,7 @@ export const adminUserRouter = router({
     const isAdmin = roleSet.has(ADMIN_ROLE);
 
     if (!isRoot && !isAdmin) {
-      throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+      throw createPermissionError();
     }
 
     let rows;
@@ -247,12 +287,12 @@ export const adminUserRouter = router({
       const isAdmin = roleSet.has(ADMIN_ROLE);
 
       if (!isRoot && !isAdmin) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+        throw createPermissionError();
       }
 
       const targetUser = await UserModel.findById(db, input.userId);
       if (!targetUser) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        throw createNotFoundError('用户');
       }
 
       const roleService = new RoleService(db);
@@ -262,18 +302,15 @@ export const adminUserRouter = router({
       if (!isRoot) {
         const actor = await UserModel.findById(db, ctx.userId);
         if (!actor?.organizationId) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Admin must belong to an organization',
-          });
+          throw createBusinessError(BusinessErrorType.ADMIN_MUST_BELONG_TO_ORGANIZATION);
         }
 
         if (input.organizationId && input.organizationId !== actor.organizationId) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot manage other organizations' });
+          throw createBusinessError(BusinessErrorType.CANNOT_MANAGE_OTHER_ORGANIZATIONS);
         }
 
         if (!targetRoles.includes(USER_ROLE)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only students can be managed' });
+          throw createBusinessError(BusinessErrorType.ONLY_STUDENTS_CAN_BE_MANAGED);
         }
 
         if (
@@ -281,17 +318,29 @@ export const adminUserRouter = router({
           targetUser.organizationId !== actor.organizationId &&
           input.organizationId !== actor.organizationId
         ) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Cannot move students outside your organization',
-          });
+          throw createBusinessError(BusinessErrorType.CANNOT_MOVE_STUDENTS_OUTSIDE_ORGANIZATION);
         }
       }
 
       if (input.organizationId) {
         const organization = await OrganizationModel.findById(db, input.organizationId);
         if (!organization) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Organization not found' });
+          throw createNotFoundError('组织');
+        }
+
+        // 如果用户之前不在该组织，检查组织是否已达到最大用户数量
+        if (
+          targetUser.organizationId !== input.organizationId &&
+          organization.maxUsers !== null &&
+          organization.maxUsers !== undefined
+        ) {
+          const currentUserCount = await OrganizationModel.getUserCount(db, input.organizationId);
+          if (currentUserCount >= organization.maxUsers) {
+            throw createBusinessError(
+              BusinessErrorType.ORGANIZATION_MAX_USERS_REACHED,
+              `组织已达到最大用户数量限制（${organization.maxUsers}人）`,
+            );
+          }
         }
       }
 
@@ -313,24 +362,18 @@ export const adminUserRouter = router({
     const isAdmin = roleSet.has(ADMIN_ROLE);
 
     if (!isRoot && !isAdmin) {
-      throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+      throw createPermissionError();
     }
 
     let targetOrganizationId = input.organizationId;
     if (!isRoot) {
       const actor = await UserModel.findById(db, ctx.userId);
       if (!actor?.organizationId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Admin must belong to an organization',
-        });
+        throw createBusinessError(BusinessErrorType.ADMIN_MUST_BELONG_TO_ORGANIZATION);
       }
 
       if (actor.organizationId !== input.organizationId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Cannot modify other organizations quota',
-        });
+        throw createBusinessError(BusinessErrorType.CANNOT_MODIFY_OTHER_ORGANIZATIONS_QUOTA);
       }
 
       targetOrganizationId = actor.organizationId;
@@ -338,14 +381,11 @@ export const adminUserRouter = router({
 
     const targetUser = await UserModel.findById(db, input.userId);
     if (!targetUser) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Target user not found' });
+      throw createNotFoundError('用户');
     }
 
     if (targetUser.organizationId !== targetOrganizationId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'User does not belong to specified organization',
-      });
+      throw createBusinessError(BusinessErrorType.USER_NOT_IN_ORGANIZATION);
     }
 
     const creditService = new ModelCreditService(db);
@@ -379,19 +419,16 @@ export const adminUserRouter = router({
       const isAdmin = roleSet.has(ADMIN_ROLE);
 
       if (!isRoot && !isAdmin) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+        throw createPermissionError();
       }
 
       if (isAdmin && input.role !== USER_ROLE) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'School admins can only assign student roles',
-        });
+        throw createBusinessError(BusinessErrorType.SCHOOL_ADMIN_CAN_ONLY_ASSIGN_STUDENT_ROLE);
       }
 
       const targetUser = await UserModel.findById(db, input.userId);
       if (!targetUser) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        throw createNotFoundError('用户');
       }
 
       const roleService = new RoleService(db);
@@ -401,12 +438,12 @@ export const adminUserRouter = router({
       if (!isRoot) {
         const actor = await UserModel.findById(db, ctx.userId);
         if (!actor?.organizationId || actor.organizationId !== targetUser.organizationId) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot manage this user' });
+          throw createBusinessError(BusinessErrorType.CANNOT_MANAGE_USER);
         }
       }
 
       if (input.role === ROOT_ROLE && !isRoot) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only root can assign root role' });
+        throw createBusinessError(BusinessErrorType.ONLY_ROOT_CAN_ASSIGN_ROOT_ROLE);
       }
 
       const toRemove = existingRoles.filter((role) => role !== input.role);
@@ -440,19 +477,19 @@ export const adminUserRouter = router({
       const isAdmin = roleSet.has(ADMIN_ROLE);
 
       if (!isRoot && !isAdmin) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient role permissions' });
+        throw createPermissionError();
       }
 
       const targetUser = await UserModel.findById(db, input.userId);
       if (!targetUser) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        throw createNotFoundError('用户');
       }
 
       // 学校管理员只能管理本组织用户
       if (!isRoot) {
         const actor = await UserModel.findById(db, ctx.userId);
         if (!actor?.organizationId || actor.organizationId !== targetUser.organizationId) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot manage this user' });
+          throw createBusinessError(BusinessErrorType.CANNOT_MANAGE_USER);
         }
 
         // 学校管理员只能管理学生
@@ -460,7 +497,7 @@ export const adminUserRouter = router({
         const targetRolesResult = await roleService.getUserRoles(input.userId);
         const targetRoles = targetRolesResult.map((role) => role.name.toLowerCase());
         if (!targetRoles.includes(USER_ROLE)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only students can be managed' });
+          throw createBusinessError(BusinessErrorType.ONLY_STUDENTS_CAN_BE_MANAGED);
         }
       }
 
@@ -477,10 +514,7 @@ export const adminUserRouter = router({
           await casdoorService.enableUser(casdoorUsername);
         }
       } catch (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : '更新用户状态失败',
-        });
+        throw createInternalError(error instanceof Error ? error.message : '更新用户状态失败');
       }
 
       const [summary] = await summarizeUsers(db, [input.userId]);

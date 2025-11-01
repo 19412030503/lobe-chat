@@ -434,6 +434,7 @@ const UsersManagement = () => {
 
       {/* 新增用户弹窗 */}
       <Modal
+        confirmLoading={createUserMutation.isPending}
         onCancel={() => {
           setIsCreateModalOpen(false);
           form.resetFields();

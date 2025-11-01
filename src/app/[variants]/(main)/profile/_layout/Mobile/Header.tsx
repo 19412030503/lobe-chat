@@ -28,7 +28,7 @@ const Header = memo(() => {
         <ChatHeader.Title
           title={
             <Flexbox align={'center'} gap={8} horizontal>
-              <span style={{ lineHeight: 1.2 }}> {t(`tab.${activeSettingsKey}`)}</span>
+              <span style={{ lineHeight: 1.2 }}> {t(`tab.${activeSettingsKey}` as any)}</span>
             </Flexbox>
           }
         />
